@@ -91,11 +91,13 @@ function Row({
   value,
   onPress,
   iconName,
+  valueNode,
 }: {
   label: string;
-  value: string;
+  value?: string;
   onPress: () => void;
   iconName: keyof typeof Ionicons.glyphMap;
+  valueNode?: ReactNode;
 }) {
   const colors = useAppTheme();
 
@@ -108,7 +110,7 @@ function Row({
         <Text style={[styles.rowLabel, { color: colors.text }]}>{label}</Text>
       </View>
       <View style={styles.rowValueWrap}>
-        <Text style={[styles.rowValue, { color: colors.textMuted }]}>{value}</Text>
+        {valueNode ?? <Text style={[styles.rowValue, { color: colors.textMuted }]}>{value}</Text>}
         <Ionicons name="chevron-forward" size={18} color={colors.textMuted} />
       </View>
     </Pressable>
@@ -211,7 +213,12 @@ export default function SettingsScreen() {
         <Section title="Appearance">
           <Row label="Theme" value={THEMES.find((item) => item.value === settings.theme)?.label ?? 'Dark'} onPress={() => openSheet('theme')} iconName="sunny-outline" />
           <ToggleRow label="AMOLED Theme" value={settings.amoledTheme} onValueChange={(value) => updateSettings({ amoledTheme: value })} iconName="phone-portrait-outline" />
-          <Row label="Accent Color" value={ACCENT_COLORS.find((item) => item.value === settings.accentColor)?.label ?? 'Violet'} onPress={() => openSheet('accentColor')} iconName="color-palette-outline" />
+          <Row
+            label="Accent Color"
+            onPress={() => openSheet('accentColor')}
+            iconName="color-palette-outline"
+            valueNode={<View style={[styles.colorPreview, { backgroundColor: settings.accentColor }]} />}
+          />
         </Section>
 
         <Section title="Date & Time">
@@ -236,9 +243,7 @@ export default function SettingsScreen() {
             </View>
             <Text style={[styles.rowValue, { color: colors.textMuted }]}>{tasksCount + categoriesCount}</Text>
           </View>
-          <Pressable onPress={() => openSheet('resetNow')} style={styles.resetButton}>
-            <Text style={styles.resetButtonText}>Reset Now</Text>
-          </Pressable>
+          <Row label="Reset Now" value="" onPress={() => openSheet('resetNow')} iconName="trash-outline" />
         </Section>
       </ScrollView>
 
@@ -250,7 +255,7 @@ export default function SettingsScreen() {
       <SettingsOptionSheet visible={activeSheet === 'defaultScreen'} title="Default Screen" iconName="layers-outline" options={DEFAULT_SCREENS} selectedValue={settings.defaultScreen} onClose={closeSheet} onSelect={(value) => updateSettings({ defaultScreen: value })} />
       <SettingsOptionSheet visible={activeSheet === 'language'} title="Language" iconName="language-outline" options={LANGUAGES} selectedValue={settings.language} onClose={closeSheet} onSelect={(value) => updateSettings({ language: value })} />
       <SettingsOptionSheet visible={activeSheet === 'resetInterval'} title="Reset Interval" iconName="refresh-circle-outline" options={RESET_OPTIONS} selectedValue={settings.resetInterval} onClose={closeSheet} onSelect={(value) => setResetInterval(value)} />
-      <SettingsOptionSheet visible={activeSheet === 'resetNow'} title="Reset Now" iconName="trash-outline" options={RESET_ACTIONS}  onClose={closeSheet} onSelect={handleResetSelection} />
+      <SettingsOptionSheet visible={activeSheet === 'resetNow'} title="Reset Now" iconName="trash-outline" options={RESET_ACTIONS} onClose={closeSheet} onSelect={handleResetSelection} />
     </SafeAreaView>
   );
 }
@@ -294,15 +299,11 @@ const styles = StyleSheet.create({
     width: 36,
   },
   rowLabel: { fontSize: 15, fontWeight: '600' },
-  rowValueWrap: { alignItems: 'center', flexDirection: 'row', gap: 6 },
+  rowValueWrap: { alignItems: 'center', flexDirection: 'row', gap: 8 },
   rowValue: { fontSize: 14, fontWeight: '500' },
-  resetButton: {
-    alignItems: 'center',
-    backgroundColor: '#7F1D1D',
-    borderRadius: 18,
-    margin: 16,
-    paddingVertical: 15,
+  colorPreview: {
+    borderRadius: 10,
+    height: 20,
+    width: 20,
   },
-  resetButtonText: { color: '#FEE2E2', fontSize: 15, fontWeight: '700' },
 });
-

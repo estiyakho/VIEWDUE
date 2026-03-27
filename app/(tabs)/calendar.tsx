@@ -67,6 +67,8 @@ export default function CalendarScreen() {
             {monthGrid.map((cell) => {
               const count = taskCountByDay[cell.key] ?? 0;
               const selected = cell.key === selectedDay;
+              const labelColor = selected ? '#FFFFFF' : cell.inCurrentMonth ? colors.text : colors.textMuted;
+              const countColor = selected ? '#FFFFFF' : colors.textMuted;
 
               return (
                 <Pressable
@@ -76,14 +78,14 @@ export default function CalendarScreen() {
                     styles.dayCell,
                     {
                       backgroundColor: selected ? colors.accent : colors.surfaceMuted,
-                      borderColor: selected ? `${colors.accent}AA` : colors.border,
+                      borderColor: selected ? colors.accent : colors.border,
                       height: daySize,
-                      opacity: cell.inCurrentMonth ? 1 : 0.42,
+                      opacity: cell.inCurrentMonth ? 1 : 0.58,
                       width: daySize,
                     },
                   ]}>
-                  <Text style={[styles.dayNumber, { color: '#F8FAFC' }]}>{cell.date.getDate()}</Text>
-                  {count ? <Text style={[styles.dayCount, { color: '#E2E8F0' }]}>{count}</Text> : <View style={styles.daySpacer} />}
+                  <Text style={[styles.dayNumber, { color: labelColor }]}>{cell.date.getDate()}</Text>
+                  {count ? <Text style={[styles.dayCount, { color: countColor }]}>{count}</Text> : null}
                 </Pressable>
               );
             })}
@@ -138,13 +140,25 @@ const styles = StyleSheet.create({
   grid: { flexDirection: 'row', flexWrap: 'wrap' },
   dayCell: {
     alignItems: 'center',
-    borderRadius: 18,
+    borderRadius: 999,
     borderWidth: 1,
     justifyContent: 'center',
+    position: 'relative',
   },
-  dayNumber: { fontSize: 14, fontWeight: '700' },
-  dayCount: { fontSize: 11, marginTop: 4 },
-  daySpacer: { height: 15, marginTop: 4 },
+  dayNumber: {
+    fontSize: 15,
+    fontWeight: '800',
+    lineHeight: 18,
+    marginTop: -4,
+    textAlign: 'center',
+  },
+  dayCount: {
+    bottom: 10,
+    fontSize: 10,
+    fontWeight: '700',
+    position: 'absolute',
+    textAlign: 'center',
+  },
   dayCard: { borderRadius: 22, borderWidth: 1, marginBottom: 14, padding: 16 },
   dayTitle: { fontSize: 18, fontWeight: '700', marginBottom: 4 },
   daySubtitle: { fontSize: 13 },
