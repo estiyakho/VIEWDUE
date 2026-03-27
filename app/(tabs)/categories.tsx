@@ -115,11 +115,11 @@ export default function CategoriesScreen() {
           </View>
 
           <View style={styles.summaryStats}>
-            <View style={[styles.statPill, { backgroundColor: `${colors.accent}16`, borderColor: `${colors.accent}24` }]}> 
+            <View style={[styles.statPill, { backgroundColor: colors.surfaceMuted, borderColor: colors.border }]}> 
               <Ionicons color={colors.accent} name="checkmark-circle-outline" size={16} />
               <Text style={[styles.statText, { color: colors.text }]}>{completedTasks} Completed</Text>
             </View>
-            <View style={[styles.statPill, { backgroundColor: `${colors.warning}16`, borderColor: `${colors.warning}24` }]}> 
+            <View style={[styles.statPill, { backgroundColor: colors.surfaceMuted, borderColor: colors.border }]}> 
               <Ionicons color={colors.warning} name="list-outline" size={16} />
               <Text style={[styles.statText, { color: colors.text }]}>{remainingTasks} Remaining</Text>
             </View>
@@ -164,7 +164,7 @@ export default function CategoriesScreen() {
           ListEmptyComponent={
             <View style={styles.emptyWrap}>
               <Text style={[styles.emptyTitle, { color: colors.text }]}>No categories yet</Text>
-              <Text style={[styles.emptyText, { color: colors.textMuted }]}>Add category to organize to dos.</Text>
+              <Text style={[styles.emptyText, { color: colors.textMuted }]}>Add category to organize todos.</Text>
             </View>
           }
           showsVerticalScrollIndicator={false}

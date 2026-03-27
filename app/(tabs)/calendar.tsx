@@ -107,7 +107,7 @@ export default function CalendarScreen() {
                 <Ionicons name="calendar-outline" size={34} color="#D6D4FF" />
               </View>
               <Text style={[styles.emptyTitle, { color: colors.text }]}>Add a Todo</Text>
-              <Text style={[styles.emptyText, { color: colors.textMuted }]}>Todos with deadlines will appear here</Text>
+              <Text style={[styles.emptyText, { color: colors.textMuted }]}>Todos of the day will appear here</Text>
             </View>
           )}
         </ScrollView>
@@ -235,3 +235,4 @@ const styles = StyleSheet.create({
     textAlign: 'center',
   },
 });
+

@@ -216,7 +216,6 @@ export default function SettingsScreen() {
     <SafeAreaView edges={['top']} style={[styles.safeArea, { backgroundColor: colors.background }]}> 
       <ScrollView contentContainerStyle={[styles.content, { backgroundColor: colors.background }]} showsVerticalScrollIndicator={false}>
         <Text style={[styles.title, { color: colors.text }]}>Settings</Text>
-        <Text style={[styles.subtitle, { color: colors.textMuted }]}>Shape the app around the way you like to work.</Text>
 
         <Section title="Appearance">
           <Row label="Theme" value={THEMES.find((item) => item.value === settings.theme)?.label ?? 'Dark'} onPress={() => openSheet('theme')} iconName="sunny-outline" />
@@ -263,18 +262,17 @@ export default function SettingsScreen() {
       <SettingsOptionSheet visible={activeSheet === 'defaultScreen'} title="Default Screen" iconName="layers-outline" options={DEFAULT_SCREENS} selectedValue={settings.defaultScreen} onClose={closeSheet} onSelect={(value) => updateSettings({ defaultScreen: value })} />
       <SettingsOptionSheet visible={activeSheet === 'language'} title="Language" iconName="language-outline" options={LANGUAGES} selectedValue={settings.language} onClose={closeSheet} onSelect={(value) => updateSettings({ language: value })} />
       <SettingsOptionSheet visible={activeSheet === 'resetInterval'} title="Reset Interval" iconName="refresh-circle-outline" options={RESET_OPTIONS} selectedValue={settings.resetInterval} onClose={closeSheet} onSelect={(value) => setResetInterval(value)} />
-      <SettingsOptionSheet visible={activeSheet === 'resetNow'} title="Reset Now" iconName="trash-outline" options={RESET_ACTIONS} onClose={closeSheet} onSelect={handleResetSelection} />
+      <SettingsOptionSheet visible={activeSheet === 'resetNow'} title="Reset Now" iconName="trash-outline" options={RESET_ACTIONS} tone="danger" onClose={closeSheet} onSelect={handleResetSelection} />
     </SafeAreaView>
   );
 }
 
 const styles = StyleSheet.create({
   safeArea: { flex: 1 },
-  content: { paddingBottom: 32, paddingHorizontal: 20, paddingTop: 10 },
-  title: { fontFamily: AppFonts.bold, fontSize: 32, marginBottom: 8 },
-  subtitle: { fontFamily: AppFonts.medium, fontSize: 15, lineHeight: 22, marginBottom: 20 },
+  content: { paddingBottom: 32, paddingHorizontal: 14, paddingTop: 10 },
+  title: { fontFamily: AppFonts.bold, fontSize: 32, marginBottom: 20 },
   sectionWrap: { marginBottom: 18 },
-  sectionHeading: { fontFamily: AppFonts.bold, fontSize: 15, marginBottom: 10 },
+  sectionHeading: { fontFamily: AppFonts.bold, fontSize: 16, marginBottom: 10 },
   sectionCard: {
     borderRadius: 28,
     borderWidth: 1,
@@ -289,7 +287,7 @@ const styles = StyleSheet.create({
     borderBottomWidth: 1,
     flexDirection: 'row',
     justifyContent: 'space-between',
-    minHeight: 68,
+    minHeight: 70,
     paddingHorizontal: 16,
   },
   rowLeft: {
@@ -301,14 +299,14 @@ const styles = StyleSheet.create({
   rowIconWrap: {
     alignItems: 'center',
     borderRadius: 14,
-    height: 36,
+    height: 38,
     justifyContent: 'center',
     marginRight: 12,
-    width: 36,
+    width: 38,
   },
-  rowLabel: { fontFamily: AppFonts.semibold, fontSize: 15 },
+  rowLabel: { fontFamily: AppFonts.semibold, fontSize: 16 },
   rowValueWrap: { alignItems: 'center', flexDirection: 'row', gap: 8 },
-  rowValue: { fontFamily: AppFonts.medium, fontSize: 14 },
+  rowValue: { fontFamily: AppFonts.medium, fontSize: 15 },
   colorPreview: {
     borderRadius: 10,
     height: 20,

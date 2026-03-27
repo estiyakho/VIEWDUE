@@ -14,17 +14,17 @@ export default function TabLayout() {
   const { width } = useWindowDimensions();
 
   const compact = width < 390;
-  const labelSize = width < 360 ? 9.5 : compact ? 10.5 : 11.5;
+  const baseLabelSize = width < 360 ? 8.75 : compact ? 9.5 : 10;
   const iconSize = width < 360 ? 20 : 22;
-  const horizontalPadding = width < 360 ? 4 : compact ? 6 : 8;
-  const bottomPadding = Math.max(insets.bottom, 9);
-  const tabBarHeight = 54 + bottomPadding;
+  const horizontalPadding = width < 360 ? 6 : compact ? 8 : 10;
+  const bottomPadding = Math.max(insets.bottom, 10);
+  const tabBarHeight = 55 + bottomPadding;
 
   return (
     <Tabs
       screenOptions={{
         tabBarActiveTintColor: colors.text,
-        tabBarInactiveTintColor: colors.textMuted,
+        tabBarInactiveTintColor: colors.textSoft,
         headerShown: false,
         tabBarButton: HapticTab,
         tabBarActiveBackgroundColor: 'transparent',
@@ -33,31 +33,35 @@ export default function TabLayout() {
           borderRadius: 999,
           flex: 1,
           justifyContent: 'center',
-          marginHorizontal: 2,
+          marginHorizontal: 1,
           marginVertical: 4,
-          maxWidth: 88,
           minWidth: 0,
-          paddingHorizontal: 2,
+          paddingHorizontal: 0,
           paddingVertical: 0,
         },
         tabBarIconStyle: {
           marginBottom: 1,
-          marginTop: -1,
+          marginTop: -4,
         },
-        tabBarLabel: ({ color, children }) => (
-          <Text
-            numberOfLines={1}
-            style={{
-              color,
-              fontFamily: AppFonts.semibold,
-              fontSize: labelSize,
-              includeFontPadding: false,
-              lineHeight: labelSize + 2,
-              textAlign: 'center',
-            }}>
-            {children}
-          </Text>
-        ),
+        tabBarLabel: ({ color, children }) => {
+          const label = String(children);
+          const fontSize = label === 'Statistics' ? baseLabelSize - 1.8 : label === 'Categories' ? baseLabelSize - 1.25 : baseLabelSize;
+
+          return (
+            <Text
+              numberOfLines={1}
+              style={{
+                color,
+                fontFamily: AppFonts.semibold,
+                fontSize,
+                includeFontPadding: false,
+                lineHeight: fontSize + 2,
+                textAlign: 'center',
+              }}>
+              {children}
+            </Text>
+          );
+        },
         tabBarLabelPosition: 'below-icon',
         tabBarStyle: {
           backgroundColor: colors.surfaceElevated,
@@ -69,7 +73,7 @@ export default function TabLayout() {
           height: tabBarHeight,
           paddingBottom: bottomPadding,
           paddingHorizontal: horizontalPadding,
-          paddingTop: 1,
+          paddingTop: 2,
           shadowColor: '#000000',
           shadowOffset: { width: 0, height: -6 },
           shadowOpacity: 0.08,

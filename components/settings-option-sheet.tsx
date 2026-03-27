@@ -15,6 +15,7 @@ type SettingsOptionSheetProps<T extends string | number> = {
   iconName: keyof typeof Ionicons.glyphMap;
   options: Option<T>[];
   selectedValue?: T;
+  tone?: 'default' | 'danger';
   onClose: () => void;
   onSelect: (value: T) => void;
 };
@@ -25,10 +26,12 @@ export function SettingsOptionSheet<T extends string | number>({
   iconName,
   options,
   selectedValue,
+  tone = 'default',
   onClose,
   onSelect,
 }: SettingsOptionSheetProps<T>) {
   const colors = useAppTheme();
+  const accentColor = tone === 'danger' ? colors.danger : colors.accent;
 
   return (
     <Modal animationType="fade" transparent visible={visible} onRequestClose={onClose}>
@@ -36,10 +39,10 @@ export function SettingsOptionSheet<T extends string | number>({
         <Pressable style={StyleSheet.absoluteFill} onPress={onClose} />
         <View style={[styles.sheet, { backgroundColor: colors.surfaceElevated, borderColor: colors.border }]}> 
           <View style={styles.header}>
-            <View style={[styles.iconWrap, { backgroundColor: `${colors.accent}22` }]}>
-              <Ionicons color={colors.accent} name={iconName} size={22} />
+            <View style={[styles.iconWrap, { backgroundColor: `${accentColor}22` }]}>
+              <Ionicons color={accentColor} name={iconName} size={22} />
             </View>
-            <Text style={[styles.title, { color: colors.text }]}>{title}</Text>
+            <Text style={[styles.title, { color: tone === 'danger' ? colors.danger : colors.text }]}>{title}</Text>
           </View>
 
           <ScrollView bounces={false} showsVerticalScrollIndicator={false}>
@@ -54,11 +57,11 @@ export function SettingsOptionSheet<T extends string | number>({
                     onClose();
                   }}
                   style={styles.option}>
-                  <Text style={[styles.optionLabel, { color: selected ? colors.accent : colors.textSoft }]}>
+                  <Text style={[styles.optionLabel, { color: selected ? accentColor : colors.textSoft }]}>
                     {option.label}
                   </Text>
                   <View style={styles.checkWrap}>
-                    {selected ? <Ionicons name="checkmark-circle" size={20} color={colors.accent} /> : null}
+                    {selected ? <Ionicons name="checkmark-circle" size={20} color={accentColor} /> : null}
                   </View>
                 </Pressable>
               );

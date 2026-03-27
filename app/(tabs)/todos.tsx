@@ -137,7 +137,7 @@ export default function TodosScreen() {
               />
             ))
           ) : (
-            <EmptyState title="Add a Todo" description="Your focused tasks will show here." />
+            <EmptyState title="Add a Todo" description="Create a to do to get started." />
           )}
         </ScrollView>
 
@@ -226,3 +226,4 @@ const styles = StyleSheet.create({
     paddingTop: 2,
   },
 });
+

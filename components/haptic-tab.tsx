@@ -41,9 +41,9 @@ const styles = StyleSheet.create({
     borderRadius: 999,
     borderWidth: 1,
     justifyContent: 'center',
-    minHeight: 50,
-    minWidth: 58,
-    paddingHorizontal: 12,
-    paddingVertical: 6,
+    minHeight: 48,
+    minWidth: 0,
+    paddingHorizontal: 6,
+    paddingVertical: 5,
   },
 });
