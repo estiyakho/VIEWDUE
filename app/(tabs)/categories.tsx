@@ -13,7 +13,6 @@ export default function CategoriesScreen() {
   const colors = useAppTheme();
   const categories = useTaskStore((state) => state.categories);
   const tasks = useTaskStore((state) => state.tasks);
-  const showImages = useTaskStore((state) => state.settings.showImages);
 
   const categorySummaries = categories.map((category) => {
     const relatedTasks = tasks.filter((task) => task.categoryId === category.id);
@@ -30,11 +29,11 @@ export default function CategoriesScreen() {
 
   return (
     <SafeAreaView edges={['top']} style={[styles.safeArea, { backgroundColor: colors.background }]}>
-      <View style={[styles.container, { backgroundColor: colors.background }]}>
+      <View style={[styles.container, { backgroundColor: colors.background }]}> 
         <Text style={[styles.title, { color: colors.text }]}>Categories</Text>
         <Text style={[styles.subtitle, { color: colors.textMuted }]}>Build your own system and keep every goal in its place.</Text>
 
-        <View style={[styles.heroCard, { backgroundColor: colors.surface, borderColor: colors.border }]}>
+        <View style={[styles.heroCard, { backgroundColor: colors.surfaceElevated, borderColor: colors.border }]}> 
           <Text style={[styles.heroLabel, { color: colors.textMuted }]}>Overview</Text>
           <Text style={[styles.heroValue, { color: colors.text }]}>{categories.length} categories</Text>
           <Text style={[styles.heroMeta, { color: colors.textSoft }]}>{tasks.length} tasks saved offline</Text>
@@ -49,14 +48,10 @@ export default function CategoriesScreen() {
           renderItem={({ item }) => (
             <Pressable
               onPress={() => router.push({ pathname: '/todos', params: { categoryId: item.id } })}
-              style={[styles.card, { backgroundColor: colors.surface, borderColor: colors.border }]}>
+              style={[styles.card, { backgroundColor: colors.surface, borderColor: colors.border }]}> 
               <View style={styles.cardLeft}>
                 <View style={[styles.iconWrap, { backgroundColor: `${item.color}22` }]}>
-                  {showImages ? (
-                    <Ionicons name={item.icon as keyof typeof Ionicons.glyphMap} size={20} color={item.color} />
-                  ) : (
-                    <View style={[styles.dot, { backgroundColor: item.color }]} />
-                  )}
+                  <Ionicons name={item.icon as keyof typeof Ionicons.glyphMap} size={20} color={item.color} />
                 </View>
                 <View style={styles.cardText}>
                   <Text style={[styles.cardTitle, { color: colors.text }]}>{item.name}</Text>
@@ -102,7 +97,6 @@ const styles = StyleSheet.create({
   },
   cardLeft: { alignItems: 'center', flexDirection: 'row', flex: 1 },
   iconWrap: { alignItems: 'center', borderRadius: 18, height: 44, justifyContent: 'center', marginRight: 14, width: 44 },
-  dot: { borderRadius: 5, height: 10, width: 10 },
   cardText: { flex: 1 },
   cardTitle: { fontSize: 16, fontWeight: '700', marginBottom: 4 },
   cardMeta: { fontSize: 13 },

@@ -15,23 +15,21 @@ type TaskItemProps = {
 
 function TaskItemComponent({ task, onToggle, onDelete }: TaskItemProps) {
   const colors = useAppTheme();
-  const category = useTaskStore((state) =>
-    state.categories.find((item) => item.id === task.categoryId)
-  );
-  const settings = useTaskStore((state) => state.settings);
+  const category = useTaskStore((state) => state.categories.find((item) => item.id === task.categoryId));
+  const timeFormat = useTaskStore((state) => state.settings.timeFormat);
   const done = task.status === 'done';
 
   return (
-    <View style={[styles.card, { backgroundColor: colors.surface, borderColor: colors.border }]}>
+    <View style={[styles.card, { backgroundColor: colors.surface, borderColor: colors.border }]}> 
       <Pressable onPress={() => onToggle(task.id)} style={styles.content}>
-        <View style={[styles.checkbox, { borderColor: '#475569' }, done && { backgroundColor: colors.accent, borderColor: colors.accent }]}>
+        <View style={[styles.checkbox, { borderColor: colors.border }, done && { backgroundColor: colors.accent, borderColor: colors.accent }]}>
           {done ? <Ionicons name="checkmark" size={16} color="#F8FAFC" /> : null}
         </View>
         <View style={styles.textBlock}>
           <Text numberOfLines={1} style={[styles.title, { color: colors.text }, done && { color: colors.textMuted }]}>
-            {settings.screenPrivacy ? 'Private task' : task.title}
+            {task.title}
           </Text>
-          {task.description && !settings.screenPrivacy ? (
+          {task.description ? (
             <Text numberOfLines={2} style={[styles.description, { color: colors.textSoft }]}>
               {task.description}
             </Text>
@@ -39,14 +37,12 @@ function TaskItemComponent({ task, onToggle, onDelete }: TaskItemProps) {
           <View style={styles.metaRow}>
             {category ? (
               <View style={[styles.badge, { borderColor: colors.border }]}>
-                {settings.showImages ? (
-                  <Ionicons name={category.icon as keyof typeof Ionicons.glyphMap} size={12} color={category.color} />
-                ) : null}
+                <Ionicons name={category.icon as keyof typeof Ionicons.glyphMap} size={12} color={category.color} />
                 <Text style={[styles.badgeText, { color: colors.textMuted }]}>{category.name}</Text>
               </View>
             ) : null}
             <Text style={[styles.timestamp, { color: colors.textMuted }]}>
-              {formatTaskDate(task.createdAt, settings.timeFormat)}
+              {formatTaskDate(task.createdAt, timeFormat)}
             </Text>
           </View>
         </View>

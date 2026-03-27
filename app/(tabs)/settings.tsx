@@ -3,6 +3,7 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 import { Ionicons } from '@expo/vector-icons';
 import { ReactNode, useState } from 'react';
 
+import { ColorOptionSheet } from '@/components/color-option-sheet';
 import { SettingsOptionSheet } from '@/components/settings-option-sheet';
 import { useAppTheme } from '@/hooks/use-app-theme';
 import { useTaskStore } from '@/store/use-task-store';
@@ -14,27 +15,40 @@ import {
   SnoozeDuration,
   TimeFormat,
 } from '@/types/task';
-import { runListAnimation } from '@/utils/layout-animation';
 import { formatRelativeResetLabel } from '@/utils/reset';
 
 type SheetKey =
   | null
   | 'theme'
+  | 'accentColor'
   | 'timeFormat'
   | 'firstDayOfWeek'
   | 'snoozeDuration'
   | 'defaultScreen'
   | 'language'
-  | 'resetInterval';
+  | 'resetInterval'
+  | 'resetNow';
 
+const ACCENT_COLORS = [
+  { label: 'Violet', value: '#8B7CF6' },
+  { label: 'Blue', value: '#2563EB' },
+  { label: 'Mint', value: '#10B981' },
+  { label: 'Rose', value: '#F43F5E' },
+  { label: 'Amber', value: '#F59E0B' },
+  { label: 'Cyan', value: '#06B6D4' },
+];
 const TIME_FORMATS: { label: string; value: TimeFormat }[] = [
   { label: '12-Hour', value: '12h' },
   { label: '24-Hour', value: '24h' },
 ];
 const FIRST_DAYS: { label: string; value: FirstDayOfWeek }[] = [
-  { label: 'Saturday', value: 'saturday' },
   { label: 'Sunday', value: 'sunday' },
   { label: 'Monday', value: 'monday' },
+  { label: 'Tuesday', value: 'tuesday' },
+  { label: 'Wednesday', value: 'wednesday' },
+  { label: 'Thursday', value: 'thursday' },
+  { label: 'Friday', value: 'friday' },
+  { label: 'Saturday', value: 'saturday' },
 ];
 const SNOOZE_DURATIONS: { label: string; value: SnoozeDuration }[] = [
   { label: '5 min', value: 5 },
@@ -62,8 +76,14 @@ const RESET_OPTIONS: { label: string; value: ResetInterval }[] = [
   { label: 'Yearly', value: 'yearly' },
 ];
 const THEMES = [
+  { label: 'Light', value: 'light' as const },
   { label: 'Dark', value: 'dark' as const },
   { label: 'System', value: 'system' as const },
+];
+const RESET_ACTIONS = [
+  { label: 'Reset Data', value: 'data' as const },
+  { label: 'Reset Stats', value: 'stats' as const },
+  { label: 'Reset Settings', value: 'settings' as const },
 ];
 
 function Row({
@@ -132,17 +152,7 @@ function Section({ title, children }: { title: string; children: ReactNode }) {
   return (
     <View style={styles.sectionWrap}>
       <Text style={[styles.sectionHeading, { color: colors.accent }]}>{title}</Text>
-      <View
-        style={[
-          styles.sectionCard,
-          {
-            backgroundColor: colors.surfaceElevated,
-            borderColor: colors.border,
-            shadowColor: '#000000',
-          },
-        ]}>
-        {children}
-      </View>
+      <View style={[styles.sectionCard, { backgroundColor: colors.surfaceElevated, borderColor: colors.border }]}>{children}</View>
     </View>
   );
 }
@@ -150,52 +160,64 @@ function Section({ title, children }: { title: string; children: ReactNode }) {
 export default function SettingsScreen() {
   const colors = useAppTheme();
   const tasksCount = useTaskStore((state) => state.tasks.length);
+  const categoriesCount = useTaskStore((state) => state.categories.length);
   const settings = useTaskStore((state) => state.settings);
   const updateSettings = useTaskStore((state) => state.updateSettings);
   const setResetInterval = useTaskStore((state) => state.setResetInterval);
-  const resetTasks = useTaskStore((state) => state.resetTasks);
+  const resetData = useTaskStore((state) => state.resetData);
+  const resetStats = useTaskStore((state) => state.resetStats);
+  const resetSettings = useTaskStore((state) => state.resetSettings);
   const [activeSheet, setActiveSheet] = useState<SheetKey>(null);
-
-  const handleResetNow = () => {
-    Alert.alert('Reset all tasks?', 'This clears every task immediately on this device.', [
-      { text: 'Cancel', style: 'cancel' },
-      {
-        text: 'Reset Now',
-        style: 'destructive',
-        onPress: () => {
-          runListAnimation();
-          resetTasks();
-        },
-      },
-    ]);
-  };
 
   const openSheet = (sheet: SheetKey) => setActiveSheet(sheet);
   const closeSheet = () => setActiveSheet(null);
 
+  const handleResetSelection = (value: 'data' | 'stats' | 'settings') => {
+    const config =
+      value === 'data'
+        ? {
+            title: 'Reset data?',
+            message: 'This clears tasks and categories from the device.',
+            action: resetData,
+          }
+        : value === 'stats'
+          ? {
+              title: 'Reset stats?',
+              message: 'This clears the current statistics baseline without deleting tasks.',
+              action: resetStats,
+            }
+          : {
+              title: 'Reset settings?',
+              message: 'This restores app preferences to their defaults.',
+              action: resetSettings,
+            };
+
+    Alert.alert(config.title, config.message, [
+      { text: 'Cancel', style: 'cancel' },
+      {
+        text: 'Continue',
+        style: 'destructive',
+        onPress: () => config.action(),
+      },
+    ]);
+  };
+
   return (
     <SafeAreaView edges={['top']} style={[styles.safeArea, { backgroundColor: colors.background }]}>
-      <ScrollView
-        contentContainerStyle={[styles.content, { backgroundColor: colors.background }]}
-        showsVerticalScrollIndicator={false}>
+      <ScrollView contentContainerStyle={[styles.content, { backgroundColor: colors.background }]} showsVerticalScrollIndicator={false}>
         <Text style={[styles.title, { color: colors.text }]}>Settings</Text>
         <Text style={[styles.subtitle, { color: colors.textMuted }]}>Shape the app around the way you like to work.</Text>
 
         <Section title="Appearance">
-          <Row label="Theme" value={settings.theme === 'dark' ? 'Dark' : 'System'} onPress={() => openSheet('theme')} iconName="moon-outline" />
+          <Row label="Theme" value={THEMES.find((item) => item.value === settings.theme)?.label ?? 'Dark'} onPress={() => openSheet('theme')} iconName="sunny-outline" />
           <ToggleRow label="AMOLED Theme" value={settings.amoledTheme} onValueChange={(value) => updateSettings({ amoledTheme: value })} iconName="phone-portrait-outline" />
-          <ToggleRow label="Dynamic Colors" value={settings.dynamicColors} onValueChange={(value) => updateSettings({ dynamicColors: value })} iconName="color-palette-outline" />
-          <ToggleRow label="Show Images" value={settings.showImages} onValueChange={(value) => updateSettings({ showImages: value })} iconName="image-outline" />
+          <Row label="Accent Color" value={ACCENT_COLORS.find((item) => item.value === settings.accentColor)?.label ?? 'Violet'} onPress={() => openSheet('accentColor')} iconName="color-palette-outline" />
         </Section>
 
         <Section title="Date & Time">
-          <Row label="Time Format" value={settings.timeFormat === '12h' ? '12-Hour' : '24-Hour'} onPress={() => openSheet('timeFormat')} iconName="time-outline" />
+          <Row label="Time Format" value={TIME_FORMATS.find((item) => item.value === settings.timeFormat)?.label ?? '12-Hour'} onPress={() => openSheet('timeFormat')} iconName="time-outline" />
           <Row label="First Day of the Week" value={FIRST_DAYS.find((item) => item.value === settings.firstDayOfWeek)?.label ?? 'Saturday'} onPress={() => openSheet('firstDayOfWeek')} iconName="calendar-clear-outline" />
           <Row label="Snooze Duration" value={`${settings.snoozeDuration} min`} onPress={() => openSheet('snoozeDuration')} iconName="alarm-outline" />
-        </Section>
-
-        <Section title="Privacy & Security">
-          <ToggleRow label="Screen Privacy" value={settings.screenPrivacy} onValueChange={(value) => updateSettings({ screenPrivacy: value })} iconName="shield-checkmark-outline" />
         </Section>
 
         <Section title="App Preferences">
@@ -210,79 +232,25 @@ export default function SettingsScreen() {
               <View style={[styles.rowIconWrap, { backgroundColor: `${colors.accent}16` }]}>
                 <Ionicons color={colors.accent} name="archive-outline" size={18} />
               </View>
-              <Text style={[styles.rowLabel, { color: colors.text }]}>Stored Tasks</Text>
+              <Text style={[styles.rowLabel, { color: colors.text }]}>Stored Items</Text>
             </View>
-            <Text style={[styles.rowValue, { color: colors.textMuted }]}>{tasksCount}</Text>
+            <Text style={[styles.rowValue, { color: colors.textMuted }]}>{tasksCount + categoriesCount}</Text>
           </View>
-          <Pressable onPress={handleResetNow} style={styles.resetButton}>
+          <Pressable onPress={() => openSheet('resetNow')} style={styles.resetButton}>
             <Text style={styles.resetButtonText}>Reset Now</Text>
           </Pressable>
         </Section>
       </ScrollView>
 
-      <SettingsOptionSheet
-        visible={activeSheet === 'theme'}
-        title="Theme"
-        iconName="moon-outline"
-        options={THEMES}
-        selectedValue={settings.theme}
-        onClose={closeSheet}
-        onSelect={(value) => updateSettings({ theme: value })}
-      />
-      <SettingsOptionSheet
-        visible={activeSheet === 'timeFormat'}
-        title="Time Format"
-        iconName="time-outline"
-        options={TIME_FORMATS}
-        selectedValue={settings.timeFormat}
-        onClose={closeSheet}
-        onSelect={(value) => updateSettings({ timeFormat: value })}
-      />
-      <SettingsOptionSheet
-        visible={activeSheet === 'firstDayOfWeek'}
-        title="First Day of the Week"
-        iconName="calendar-clear-outline"
-        options={FIRST_DAYS}
-        selectedValue={settings.firstDayOfWeek}
-        onClose={closeSheet}
-        onSelect={(value) => updateSettings({ firstDayOfWeek: value })}
-      />
-      <SettingsOptionSheet
-        visible={activeSheet === 'snoozeDuration'}
-        title="Snooze Duration"
-        iconName="alarm-outline"
-        options={SNOOZE_DURATIONS}
-        selectedValue={settings.snoozeDuration}
-        onClose={closeSheet}
-        onSelect={(value) => updateSettings({ snoozeDuration: value })}
-      />
-      <SettingsOptionSheet
-        visible={activeSheet === 'defaultScreen'}
-        title="Default Screen"
-        iconName="layers-outline"
-        options={DEFAULT_SCREENS}
-        selectedValue={settings.defaultScreen}
-        onClose={closeSheet}
-        onSelect={(value) => updateSettings({ defaultScreen: value })}
-      />
-      <SettingsOptionSheet
-        visible={activeSheet === 'language'}
-        title="Language"
-        iconName="language-outline"
-        options={LANGUAGES}
-        selectedValue={settings.language}
-        onClose={closeSheet}
-        onSelect={(value) => updateSettings({ language: value })}
-      />
-      <SettingsOptionSheet
-        visible={activeSheet === 'resetInterval'}
-        title="Reset Interval"
-        iconName="refresh-circle-outline"
-        options={RESET_OPTIONS}
-        selectedValue={settings.resetInterval}
-        onClose={closeSheet}
-        onSelect={(value) => setResetInterval(value)}
-      />
+      <SettingsOptionSheet visible={activeSheet === 'theme'} title="Theme" iconName="sunny-outline" options={THEMES} selectedValue={settings.theme} onClose={closeSheet} onSelect={(value) => updateSettings({ theme: value })} />
+      <ColorOptionSheet visible={activeSheet === 'accentColor'} title="Accent Color" options={ACCENT_COLORS} selectedValue={settings.accentColor} onClose={closeSheet} onSelect={(value) => updateSettings({ accentColor: value })} />
+      <SettingsOptionSheet visible={activeSheet === 'timeFormat'} title="Time Format" iconName="time-outline" options={TIME_FORMATS} selectedValue={settings.timeFormat} onClose={closeSheet} onSelect={(value) => updateSettings({ timeFormat: value })} />
+      <SettingsOptionSheet visible={activeSheet === 'firstDayOfWeek'} title="First Day of the Week" iconName="calendar-clear-outline" options={FIRST_DAYS} selectedValue={settings.firstDayOfWeek} onClose={closeSheet} onSelect={(value) => updateSettings({ firstDayOfWeek: value })} />
+      <SettingsOptionSheet visible={activeSheet === 'snoozeDuration'} title="Snooze Duration" iconName="alarm-outline" options={SNOOZE_DURATIONS} selectedValue={settings.snoozeDuration} onClose={closeSheet} onSelect={(value) => updateSettings({ snoozeDuration: value })} />
+      <SettingsOptionSheet visible={activeSheet === 'defaultScreen'} title="Default Screen" iconName="layers-outline" options={DEFAULT_SCREENS} selectedValue={settings.defaultScreen} onClose={closeSheet} onSelect={(value) => updateSettings({ defaultScreen: value })} />
+      <SettingsOptionSheet visible={activeSheet === 'language'} title="Language" iconName="language-outline" options={LANGUAGES} selectedValue={settings.language} onClose={closeSheet} onSelect={(value) => updateSettings({ language: value })} />
+      <SettingsOptionSheet visible={activeSheet === 'resetInterval'} title="Reset Interval" iconName="refresh-circle-outline" options={RESET_OPTIONS} selectedValue={settings.resetInterval} onClose={closeSheet} onSelect={(value) => setResetInterval(value)} />
+      <SettingsOptionSheet visible={activeSheet === 'resetNow'} title="Reset Now" iconName="trash-outline" options={RESET_ACTIONS}  onClose={closeSheet} onSelect={handleResetSelection} />
     </SafeAreaView>
   );
 }
@@ -298,6 +266,7 @@ const styles = StyleSheet.create({
     borderRadius: 28,
     borderWidth: 1,
     overflow: 'hidden',
+    shadowColor: '#000000',
     shadowOffset: { width: 0, height: 10 },
     shadowOpacity: 0.18,
     shadowRadius: 18,
@@ -336,3 +305,4 @@ const styles = StyleSheet.create({
   },
   resetButtonText: { color: '#FEE2E2', fontSize: 15, fontWeight: '700' },
 });
+

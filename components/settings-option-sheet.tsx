@@ -13,7 +13,7 @@ type SettingsOptionSheetProps<T extends string | number> = {
   title: string;
   iconName: keyof typeof Ionicons.glyphMap;
   options: Option<T>[];
-  selectedValue: T;
+  selectedValue?: T;
   onClose: () => void;
   onSelect: (value: T) => void;
 };
@@ -43,7 +43,7 @@ export function SettingsOptionSheet<T extends string | number>({
 
           <ScrollView bounces={false} showsVerticalScrollIndicator={false}>
             {options.map((option) => {
-              const selected = option.value === selectedValue;
+              const selected = selectedValue !== undefined && option.value === selectedValue;
 
               return (
                 <Pressable

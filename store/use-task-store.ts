@@ -15,7 +15,9 @@ type TaskStore = {
   toggleTaskStatus: (id: string) => void;
   deleteTask: (id: string) => void;
   addCategory: (name: string) => string | null;
-  resetTasks: () => void;
+  resetData: () => void;
+  resetStats: () => void;
+  resetSettings: () => void;
   updateSettings: (patch: Partial<Settings>) => void;
   setResetInterval: (interval: ResetInterval) => void;
   checkAndResetTasks: () => void;
@@ -96,12 +98,27 @@ export const useTaskStore = create<TaskStore>()(
 
         return category.id;
       },
-      resetTasks: () =>
+      resetData: () =>
         set((state) => ({
           tasks: [],
+          categories: [],
           settings: {
             ...state.settings,
             lastResetAt: new Date().toISOString(),
+          },
+        })),
+      resetStats: () =>
+        set((state) => ({
+          settings: {
+            ...state.settings,
+            statsResetAt: new Date().toISOString(),
+          },
+        })),
+      resetSettings: () =>
+        set((state) => ({
+          settings: {
+            ...DEFAULT_SETTINGS,
+            statsResetAt: state.settings.statsResetAt,
           },
         })),
       updateSettings: (patch) =>
@@ -141,7 +158,7 @@ export const useTaskStore = create<TaskStore>()(
     }),
     {
       name: 'todo-app-storage',
-      version: 2,
+      version: 3,
       storage: createJSONStorage(() => AsyncStorage),
       partialize: (state) => ({
         tasks: state.tasks,
@@ -152,15 +169,20 @@ export const useTaskStore = create<TaskStore>()(
         const state = persistedState as Partial<{
           tasks: Task[];
           categories: Category[];
-          settings: Partial<Settings>;
+          settings: Partial<Settings> & {
+            dynamicColors?: boolean;
+            showImages?: boolean;
+            screenPrivacy?: boolean;
+          };
         }>;
 
         return {
           tasks: state?.tasks ?? [],
-          categories: state?.categories?.length ? state.categories : DEFAULT_CATEGORIES,
+          categories: state?.categories ?? DEFAULT_CATEGORIES,
           settings: {
             ...DEFAULT_SETTINGS,
             ...state?.settings,
+            accentColor: state?.settings?.accentColor ?? (state?.settings?.dynamicColors ? '#8B7CF6' : '#2563EB'),
           },
         };
       },
