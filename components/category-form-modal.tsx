@@ -1,5 +1,5 @@
 import { Ionicons } from '@expo/vector-icons';
-import { useEffect, useMemo, useState } from 'react';
+import { useEffect, useState } from 'react';
 import {
   KeyboardAvoidingView,
   Modal,
@@ -16,7 +16,7 @@ import { ColorOptionSheet } from '@/components/color-option-sheet';
 import { AppFonts } from '@/constants/fonts';
 import { useAppTheme } from '@/hooks/use-app-theme';
 import { useTaskStore } from '@/store/use-task-store';
-import { COLOR_PALETTES, findPaletteByColor } from '@/utils/color-palettes';
+import { COLOR_PALETTES } from '@/utils/color-palettes';
 import { runListAnimation } from '@/utils/layout-animation';
 
 type CategoryFormModalProps = {
@@ -45,7 +45,6 @@ export function CategoryFormModal({ visible, onClose, onCreated }: CategoryFormM
   }, [accentColor, visible]);
 
   const trimmedName = name.trim();
-  const shades = useMemo(() => findPaletteByColor(selectedColor, COLOR_PALETTES).shades, [selectedColor]);
 
   const handleSave = () => {
     if (!trimmedName) {
@@ -121,29 +120,15 @@ export function CategoryFormModal({ visible, onClose, onCreated }: CategoryFormM
                   <View>
                     <View style={styles.colorHeader}>
                       <Text style={[styles.label, { color: colors.textSoft }]}>Color</Text>
-                      <Pressable onPress={() => setColorPickerVisible(true)}>
-                        <Text style={[styles.colorLink, { color: colors.accent }]}>More colors</Text>
-                      </Pressable>
                     </View>
-                    <View style={styles.shadeRow}>
-                      {shades.map((shade) => {
-                        const selected = shade === selectedColor;
-                        return (
-                          <Pressable
-                            key={shade}
-                            onPress={() => setSelectedColor(shade)}
-                            style={[
-                              styles.shadeButton,
-                              {
-                                backgroundColor: shade,
-                                borderColor: selected ? colors.text : 'transparent',
-                              },
-                            ]}>
-                            {selected ? <Ionicons name="checkmark" size={18} color={shade === '#E2E8F0' ? '#0F172A' : '#FFFFFF'} /> : null}
-                          </Pressable>
-                        );
-                      })}
-                    </View>
+                    <Pressable
+                      onPress={() => setColorPickerVisible(true)}
+                      style={[styles.colorTrigger, { backgroundColor: colors.surface, borderColor: colors.border }]}>
+                      <View style={styles.colorTriggerLeft}>
+                        <View style={[styles.colorSwatch, { backgroundColor: selectedColor }]} />
+                      </View>
+                      <Ionicons name="chevron-forward" size={18} color={colors.textMuted} />
+                    </Pressable>
                   </View>
                 </View>
               </ScrollView>
@@ -257,25 +242,25 @@ const styles = StyleSheet.create({
   colorHeader: {
     alignItems: 'center',
     flexDirection: 'row',
-    justifyContent: 'space-between',
     marginBottom: 10,
   },
-  colorLink: {
-    fontFamily: AppFonts.semibold,
-    fontSize: 13,
-  },
-  shadeRow: {
-    flexDirection: 'row',
-    gap: 10,
-    justifyContent: 'space-between',
-  },
-  shadeButton: {
+  colorTrigger: {
     alignItems: 'center',
     borderRadius: 18,
-    borderWidth: 2,
-    flex: 1,
-    height: 46,
-    justifyContent: 'center',
+    borderWidth: 1,
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    minHeight: 58,
+    paddingHorizontal: 16,
+  },
+  colorTriggerLeft: {
+    alignItems: 'center',
+    flexDirection: 'row',
+  },
+  colorSwatch: {
+    borderRadius: 14,
+    height: 28,
+    width: 28,
   },
   footer: {
     flexDirection: 'row',
