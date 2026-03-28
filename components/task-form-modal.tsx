@@ -67,21 +67,14 @@ export function TaskFormModal({ visible, initialCategoryId, onClose }: TaskFormM
           <KeyboardAvoidingView behavior={Platform.OS === 'ios' ? 'padding' : undefined}>
             <View style={[styles.sheet, { backgroundColor: colors.surfaceElevated, borderColor: colors.border }]}> 
               <View style={styles.hero}>
-                <View style={[styles.heroBadge, { backgroundColor: `${colors.accent}22`, borderColor: `${colors.accent}55` }]}> 
-                  <Ionicons name="flash-outline" size={18} color={colors.accent} />
-                  <Text style={[styles.heroBadgeText, { color: colors.accent }]}>Quick capture</Text>
-                </View>
+                <Text style={[styles.title, { color: colors.text }]}>New Task</Text>
                 <Pressable onPress={onClose} style={[styles.closeButton, { backgroundColor: colors.surfaceMuted }]}> 
                   <Ionicons name="close" size={18} color={colors.textSoft} />
                 </Pressable>
               </View>
 
-              <Text style={[styles.title, { color: colors.text }]}>Add a task in one smart popup</Text>
-              <Text style={[styles.subtitle, { color: colors.textMuted }]}>Stay on this screen, save the task, and even create a category without a page jump.</Text>
-
               <ScrollView showsVerticalScrollIndicator={false} keyboardShouldPersistTaps="handled">
                 <View style={[styles.previewCard, { backgroundColor: colors.surface, borderColor: colors.border }]}> 
-                  <Text style={[styles.previewLabel, { color: colors.textMuted }]}>Preview</Text>
                   <Text style={[styles.previewTitle, { color: colors.text }]} numberOfLines={1}>{trimmedTitle || 'What needs to be done?'}</Text>
                   <View style={styles.previewMeta}>
                     <View style={[styles.previewDot, { backgroundColor: selectedCategory?.color ?? colors.accent }]} />
@@ -202,20 +195,7 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     flexDirection: 'row',
     justifyContent: 'space-between',
-    marginBottom: 16,
-  },
-  heroBadge: {
-    alignItems: 'center',
-    borderRadius: 999,
-    borderWidth: 1,
-    flexDirection: 'row',
-    gap: 8,
-    paddingHorizontal: 12,
-    paddingVertical: 8,
-  },
-  heroBadgeText: {
-    fontFamily: AppFonts.semibold,
-    fontSize: 13,
+    marginBottom: 18,
   },
   closeButton: {
     alignItems: 'center',
@@ -226,14 +206,7 @@ const styles = StyleSheet.create({
   },
   title: {
     fontFamily: AppFonts.bold,
-    fontSize: 25,
-    marginBottom: 6,
-  },
-  subtitle: {
-    fontFamily: AppFonts.medium,
-    fontSize: 14,
-    lineHeight: 20,
-    marginBottom: 18,
+    fontSize: 22,
   },
   previewCard: {
     borderRadius: 24,
@@ -241,16 +214,10 @@ const styles = StyleSheet.create({
     marginBottom: 18,
     padding: 16,
   },
-  previewLabel: {
-    fontFamily: AppFonts.semibold,
-    fontSize: 12,
-    marginBottom: 8,
-    textTransform: 'uppercase',
-  },
   previewTitle: {
     fontFamily: AppFonts.bold,
-    fontSize: 18,
-    marginBottom: 10,
+    fontSize: 17,
+    marginBottom: 8,
   },
   previewMeta: {
     alignItems: 'center',

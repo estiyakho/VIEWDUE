@@ -39,10 +39,7 @@ export function ColorOptionSheet({
         <Pressable style={StyleSheet.absoluteFill} onPress={onClose} />
         <View style={[styles.sheet, { backgroundColor: colors.surfaceElevated, borderColor: colors.border }]}> 
           <View style={styles.header}>
-            <View>
-              <Text style={[styles.title, { color: colors.text }]}>{title}</Text>
-              <Text style={[styles.subtitle, { color: colors.textMuted }]}>Choose a family, then fine tune with a shade.</Text>
-            </View>
+            <Text style={[styles.title, { color: colors.text }]}>{title}</Text>
             <Pressable onPress={onClose} style={[styles.closeButton, { backgroundColor: colors.surfaceMuted }]}> 
               <Ionicons name="close" size={18} color={colors.textSoft} />
             </Pressable>
@@ -130,13 +127,6 @@ const styles = StyleSheet.create({
   title: {
     fontFamily: AppFonts.bold,
     fontSize: 20,
-    marginBottom: 6,
-  },
-  subtitle: {
-    fontFamily: AppFonts.medium,
-    fontSize: 13,
-    lineHeight: 18,
-    maxWidth: 220,
   },
   closeButton: {
     alignItems: 'center',

@@ -7,10 +7,10 @@
 The app is centered around five main screens:
 
 - `Categories`: create and browse task categories, search them, and view progress per category.
-- `All Todos`: add tasks, filter by status, filter by category, search by title, and sort the list.
+- `All Todos`: add tasks from an in-place popup, filter by status, filter by category, search by title, and sort the list.
 - `Calendar`: review tasks by day in a month view.
 - `Statistics`: see totals, completion rate, weekly activity, hourly activity, and streaks.
-- `Settings`: change appearance and app preferences, and reset data, stats, or settings.
+- `Settings`: change appearance and app preferences, use an expanded accent color picker with shade selection, and reset data, stats, or settings.
 
 All app data is stored locally on the device using `AsyncStorage` through a persisted Zustand store. The current project does not require a backend.
 
@@ -18,13 +18,16 @@ All app data is stored locally on the device using `AsyncStorage` through a pers
 
 - Add and delete todos
 - Mark todos as `Doing` or `Done`
-- Create custom categories with auto-assigned colors and icons
+- Create tasks and categories from modern in-place popups instead of separate pages
+- Create custom categories with user-selectable colors and icons
 - Search categories and todos
 - Sort todos by newest, oldest, title A-Z, or title Z-A
 - View category completion progress
 - View tasks on a calendar screen
 - Track statistics such as total tasks, today, this week, completion rate, and streaks
 - Customize theme, AMOLED mode, accent color, time format, first day of week, default screen, and language
+- Pick from expanded color families with a separate shade row in settings and category creation
+- Use the current theme accent color as the default starting color for new categories
 - Reset app data, statistics baseline, or settings from inside the app
 
 ## Platform And Build Details
@@ -98,5 +101,5 @@ npm run web
 - `components/`: reusable UI building blocks
 - `store/`: persisted Zustand task store
 - `types/`: app data types
-- `utils/`: defaults, date helpers, reset logic, and layout helpers
+- `utils/`: defaults, date helpers, reset logic, layout helpers, and shared color palettes
 - `assets/`: icons, splash, and image assets

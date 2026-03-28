@@ -16,7 +16,7 @@ import { ColorOptionSheet } from '@/components/color-option-sheet';
 import { AppFonts } from '@/constants/fonts';
 import { useAppTheme } from '@/hooks/use-app-theme';
 import { useTaskStore } from '@/store/use-task-store';
-import { COLOR_PALETTES } from '@/utils/color-palettes';
+import { COLOR_PALETTES, findPaletteByColor } from '@/utils/color-palettes';
 import { runListAnimation } from '@/utils/layout-animation';
 
 type CategoryFormModalProps = {
@@ -25,14 +25,13 @@ type CategoryFormModalProps = {
   onCreated?: (categoryId: string) => void;
 };
 
-const DEFAULT_CATEGORY_COLOR = COLOR_PALETTES[0].shades[3];
-
 export function CategoryFormModal({ visible, onClose, onCreated }: CategoryFormModalProps) {
   const colors = useAppTheme();
   const addCategory = useTaskStore((state) => state.addCategory);
+  const accentColor = useTaskStore((state) => state.settings.accentColor);
   const [name, setName] = useState('');
   const [description, setDescription] = useState('');
-  const [selectedColor, setSelectedColor] = useState(DEFAULT_CATEGORY_COLOR);
+  const [selectedColor, setSelectedColor] = useState(accentColor);
   const [colorPickerVisible, setColorPickerVisible] = useState(false);
 
   useEffect(() => {
@@ -42,14 +41,11 @@ export function CategoryFormModal({ visible, onClose, onCreated }: CategoryFormM
 
     setName('');
     setDescription('');
-    setSelectedColor(DEFAULT_CATEGORY_COLOR);
-  }, [visible]);
+    setSelectedColor(accentColor);
+  }, [accentColor, visible]);
 
   const trimmedName = name.trim();
-  const shades = useMemo(
-    () => COLOR_PALETTES.find((palette) => palette.shades.includes(selectedColor))?.shades ?? COLOR_PALETTES[0].shades,
-    [selectedColor]
-  );
+  const shades = useMemo(() => findPaletteByColor(selectedColor, COLOR_PALETTES).shades, [selectedColor]);
 
   const handleSave = () => {
     if (!trimmedName) {
@@ -72,11 +68,7 @@ export function CategoryFormModal({ visible, onClose, onCreated }: CategoryFormM
           <KeyboardAvoidingView behavior={Platform.OS === 'ios' ? 'padding' : undefined}>
             <View style={[styles.sheet, { backgroundColor: colors.surfaceElevated, borderColor: colors.border }]}> 
               <View style={styles.header}>
-                <View style={styles.headerText}>
-                  <Text style={[styles.eyebrow, { color: colors.accent }]}>Smart category</Text>
-                  <Text style={[styles.title, { color: colors.text }]}>Create without leaving the flow</Text>
-                  <Text style={[styles.subtitle, { color: colors.textMuted }]}>Pick a color, give it a purpose, and keep organizing.</Text>
-                </View>
+                <Text style={[styles.title, { color: colors.text }]}>New Category</Text>
                 <Pressable onPress={onClose} style={[styles.closeButton, { backgroundColor: colors.surfaceMuted }]}> 
                   <Ionicons name="close" size={18} color={colors.textSoft} />
                 </Pressable>
@@ -85,13 +77,15 @@ export function CategoryFormModal({ visible, onClose, onCreated }: CategoryFormM
               <ScrollView showsVerticalScrollIndicator={false} keyboardShouldPersistTaps="handled">
                 <View style={[styles.previewCard, { backgroundColor: `${selectedColor}18`, borderColor: `${selectedColor}55` }]}> 
                   <View style={[styles.previewIcon, { backgroundColor: selectedColor }]}>
-                    <Ionicons name="sparkles-outline" size={20} color="#F8FAFC" />
+                    <Ionicons name="folder-open-outline" size={20} color="#F8FAFC" />
                   </View>
                   <View style={styles.previewText}>
-                    <Text style={[styles.previewTitle, { color: colors.text }]}>{trimmedName || 'Your category'}</Text>
-                    <Text style={[styles.previewSubtitle, { color: colors.textMuted }]} numberOfLines={2}>
-                      {description.trim() || 'A clean label with a color system that is easier to scan later.'}
-                    </Text>
+                    {!!trimmedName ? <Text style={[styles.previewTitle, { color: colors.text }]}>{trimmedName}</Text> : null}
+                    {!!description.trim() ? (
+                      <Text style={[styles.previewSubtitle, { color: colors.textMuted }]} numberOfLines={2}>
+                        {description.trim()}
+                      </Text>
+                    ) : null}
                   </View>
                 </View>
 
@@ -195,29 +189,14 @@ const styles = StyleSheet.create({
     padding: 20,
   },
   header: {
+    alignItems: 'center',
     flexDirection: 'row',
     justifyContent: 'space-between',
     marginBottom: 18,
   },
-  headerText: {
-    flex: 1,
-    paddingRight: 12,
-  },
-  eyebrow: {
-    fontFamily: AppFonts.bold,
-    fontSize: 13,
-    marginBottom: 6,
-    textTransform: 'uppercase',
-  },
   title: {
     fontFamily: AppFonts.bold,
-    fontSize: 24,
-    marginBottom: 6,
-  },
-  subtitle: {
-    fontFamily: AppFonts.medium,
-    fontSize: 14,
-    lineHeight: 20,
+    fontSize: 22,
   },
   closeButton: {
     alignItems: 'center',
@@ -247,12 +226,12 @@ const styles = StyleSheet.create({
   previewTitle: {
     fontFamily: AppFonts.bold,
     fontSize: 16,
-    marginBottom: 4,
   },
   previewSubtitle: {
     fontFamily: AppFonts.medium,
     fontSize: 13,
     lineHeight: 18,
+    marginTop: 4,
   },
   form: {
     gap: 16,
