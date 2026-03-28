@@ -11,23 +11,30 @@ import { useAppTheme } from '@/hooks/use-app-theme';
 import { useTaskStore } from '@/store/use-task-store';
 
 function ProgressRing({ progress, color, labelColor, baseColor }: { progress: number; color: string; labelColor: string; baseColor: string }) {
-  const degrees = Math.max(0, Math.min(360, Math.round((progress / 100) * 360)));
+  const segmentCount = 32;
+  const filledSegments = Math.round((Math.max(0, Math.min(100, progress)) / 100) * segmentCount);
+  const radius = 26;
 
   return (
     <View style={styles.ringWrap}>
-      <View style={[styles.ringBase, { borderColor: baseColor }]} />
-      <View
-        style={[
-          styles.ringArc,
-          {
-            borderTopColor: color,
-            borderRightColor: degrees > 90 ? color : 'transparent',
-            borderBottomColor: degrees > 180 ? color : 'transparent',
-            borderLeftColor: degrees > 270 ? color : 'transparent',
-            transform: [{ rotate: `${degrees}deg` }],
-          },
-        ]}
-      />
+      {Array.from({ length: segmentCount }).map((_, index) => {
+        const angle = (index / segmentCount) * Math.PI * 2 - Math.PI / 2;
+        const translateX = Math.cos(angle) * radius;
+        const translateY = Math.sin(angle) * radius;
+
+        return (
+          <View
+            key={index}
+            style={[
+              styles.ringSegment,
+              {
+                backgroundColor: index < filledSegments ? color : baseColor,
+                transform: [{ translateX }, { translateY }],
+              },
+            ]}
+          />
+        );
+      })}
       <View style={styles.ringCenter}>
         <Text style={[styles.ringText, { color: labelColor }]}>{progress}%</Text>
       </View>
@@ -345,22 +352,15 @@ const styles = StyleSheet.create({
     position: 'relative',
     width: 64,
   },
-  ringBase: {
-    borderRadius: 32,
-    borderWidth: 5,
-    height: 64,
+  ringSegment: {
+    borderRadius: 999,
+    height: 8,
     position: 'absolute',
-    width: 64,
-  },
-  ringArc: {
-    borderRadius: 32,
-    borderWidth: 5,
-    height: 64,
-    position: 'absolute',
-    width: 64,
+    width: 8,
   },
   ringCenter: {
     alignItems: 'center',
+    backgroundColor: 'transparent',
     height: 42,
     justifyContent: 'center',
     width: 42,

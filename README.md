@@ -1,6 +1,6 @@
-# myApp
+# View Due
 
-`myApp` is a local-first task manager built with Expo, React Native, and Expo Router. It helps users organize todos into categories, review progress by date, and track completion trends from a mobile-friendly tabbed interface.
+`View Due` is a local-first task manager built with Expo, React Native, and Expo Router. It helps users organize todos into categories, review progress by date, and track completion trends from a mobile-friendly tabbed interface.
 
 ## What The App Does
 
