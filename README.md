@@ -1,50 +1,102 @@
-# Welcome to your Expo app 👋
+# myApp
 
-This is an [Expo](https://expo.dev) project created with [`create-expo-app`](https://www.npmjs.com/package/create-expo-app).
+`myApp` is a local-first task manager built with Expo, React Native, and Expo Router. It helps users organize todos into categories, review progress by date, and track completion trends from a mobile-friendly tabbed interface.
 
-## Get started
+## What The App Does
 
-1. Install dependencies
+The app is centered around five main screens:
 
-   ```bash
-   npm install
-   ```
+- `Categories`: create and browse task categories, search them, and view progress per category.
+- `All Todos`: add tasks, filter by status, filter by category, search by title, and sort the list.
+- `Calendar`: review tasks by day in a month view.
+- `Statistics`: see totals, completion rate, weekly activity, hourly activity, and streaks.
+- `Settings`: change appearance and app preferences, and reset data, stats, or settings.
 
-2. Start the app
+All app data is stored locally on the device using `AsyncStorage` through a persisted Zustand store. The current project does not require a backend.
 
-   ```bash
-   npx expo start
-   ```
+## Current Feature Set
 
-In the output, you'll find options to open the app in a
+- Add and delete todos
+- Mark todos as `Doing` or `Done`
+- Create custom categories with auto-assigned colors and icons
+- Search categories and todos
+- Sort todos by newest, oldest, title A-Z, or title Z-A
+- View category completion progress
+- View tasks on a calendar screen
+- Track statistics such as total tasks, today, this week, completion rate, and streaks
+- Customize theme, AMOLED mode, accent color, time format, first day of week, default screen, and language
+- Reset app data, statistics baseline, or settings from inside the app
 
-- [development build](https://docs.expo.dev/develop/development-builds/introduction/)
-- [Android emulator](https://docs.expo.dev/workflow/android-studio-emulator/)
-- [iOS simulator](https://docs.expo.dev/workflow/ios-simulator/)
-- [Expo Go](https://expo.dev/go), a limited sandbox for trying out app development with Expo
+## Platform And Build Details
 
-You can start developing by editing the files inside the **app** directory. This project uses [file-based routing](https://docs.expo.dev/router/introduction).
+- Framework: Expo SDK `54`
+- React Native: `0.81.5`
+- React: `19.1.0`
+- Routing: `expo-router`
+- State management: `zustand`
+- Local persistence: `@react-native-async-storage/async-storage`
+- App version: `1.0.0`
+- Orientation: portrait only
+- New React Native architecture: enabled
+- Typed routes: enabled
+- React Compiler experiment: enabled
 
-## Get a fresh project
+### Android
 
-When you're ready, run:
+- Android support is enabled in the Expo config
+- Adaptive icon assets are configured
+- Edge-to-edge mode is enabled
+- Predictive back gesture is disabled
+- No explicit `minSdkVersion` is set in `app.json`
+- Expo SDK `54` supports Android `7+`
+- Expo SDK `54` targets Android API `36`
+
+### iOS
+
+- iOS support is enabled
+- `supportsTablet` is set to `true`
+- Expo SDK `54` supports iOS `15.1+`
+- No custom bundle identifier is configured yet
+
+### Web
+
+- Static web output is enabled
+- Custom favicon is configured
+
+## Project Notes
+
+- The app currently uses local device storage only
+- There is no authentication or remote sync in the current codebase
+- The package name / store identifiers are not configured yet for production publishing
+- Some settings exist for future-facing preferences, but the app today is mainly focused on local task organization and tracking
+
+## Getting Started
+
+1. Install dependencies:
 
 ```bash
-npm run reset-project
+npm install
 ```
 
-This command will move the starter code to the **app-example** directory and create a blank **app** directory where you can start developing.
+2. Start the Expo development server:
 
-## Learn more
+```bash
+npm start
+```
 
-To learn more about developing your project with Expo, look at the following resources:
+3. Run on a target platform:
 
-- [Expo documentation](https://docs.expo.dev/): Learn fundamentals, or go into advanced topics with our [guides](https://docs.expo.dev/guides).
-- [Learn Expo tutorial](https://docs.expo.dev/tutorial/introduction/): Follow a step-by-step tutorial where you'll create a project that runs on Android, iOS, and the web.
+```bash
+npm run android
+npm run ios
+npm run web
+```
 
-## Join the community
+## Project Structure
 
-Join our community of developers creating universal apps.
-
-- [Expo on GitHub](https://github.com/expo/expo): View our open source platform and contribute.
-- [Discord community](https://chat.expo.dev): Chat with Expo users and ask questions.
+- `app/`: screens and Expo Router routes
+- `components/`: reusable UI building blocks
+- `store/`: persisted Zustand task store
+- `types/`: app data types
+- `utils/`: defaults, date helpers, reset logic, and layout helpers
+- `assets/`: icons, splash, and image assets
