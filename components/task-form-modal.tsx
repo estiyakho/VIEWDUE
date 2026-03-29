@@ -19,6 +19,7 @@ import { AppFonts } from '@/constants/fonts';
 import { useAppTheme } from '@/hooks/use-app-theme';
 import { useTaskStore } from '@/store/use-task-store';
 import { Task } from '@/types/task';
+import { CategoryOptionSheet } from './category-option-sheet';
 import { runListAnimation } from '@/utils/layout-animation';
 
 const MIN_FIELD_HEIGHT = 56;
@@ -50,6 +51,9 @@ export function TaskFormModal({
   const [description, setDescription] = useState('');
   const [selectedCategoryId, setSelectedCategoryId] = useState<string | undefined>(defaultCategoryId);
   const [descriptionHeight, setDescriptionHeight] = useState(MIN_FIELD_HEIGHT);
+  const [categorySheetVisible, setCategorySheetVisible] = useState(false);
+
+  const selectedCategory = categories.find((c) => c.id === selectedCategoryId);
 
   const isEditing = Boolean(initialTask);
 
@@ -163,35 +167,22 @@ export function TaskFormModal({
 
                 <View style={styles.formField}>
                   <Text style={[styles.label, { color: colors.textSoft }]}>Category</Text>
-                  <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={styles.categoryList}>
-                    <Pressable
-                      onPress={() => setSelectedCategoryId(undefined)}
-                      style={[
-                        styles.categoryChip, 
-                        { 
-                          backgroundColor: !selectedCategoryId ? colors.accent : colors.surface,
-                          borderColor: !selectedCategoryId ? colors.accent : colors.border
-                        }
-                      ]}>
-                      <Text style={[styles.categoryChipText, { color: !selectedCategoryId ? (colors.isLight ? '#0F172A' : '#FFF') : colors.textSoft }]}>None</Text>
-                    </Pressable>
-                    {categories.map((cat) => (
-                      <Pressable
-                        key={cat.id}
-                        onPress={() => setSelectedCategoryId(cat.id)}
-                        style={[
-                          styles.categoryChip, 
-                          { 
-                            backgroundColor: selectedCategoryId === cat.id ? cat.color : colors.surface,
-                            borderColor: selectedCategoryId === cat.id ? cat.color : colors.border
-                          }
-                        ]}>
-                        <Text style={[styles.categoryChipText, { color: selectedCategoryId === cat.id ? (colors.isLight ? '#0F172A' : '#FFF') : colors.textSoft }]}>
-                          {cat.name}
-                        </Text>
-                      </Pressable>
-                    ))}
-                  </ScrollView>
+                  <Pressable 
+                    onPress={() => setCategorySheetVisible(true)}
+                    style={[styles.pickerRow, { backgroundColor: colors.surface, borderColor: colors.border }]}
+                  >
+                    <View style={styles.pickerValue}>
+                      {selectedCategory ? (
+                        <View style={[styles.pickerDot, { backgroundColor: selectedCategory.color }]} />
+                      ) : (
+                        <View style={[styles.pickerDot, { backgroundColor: colors.surfaceMuted, borderColor: colors.border, borderWidth: 1 }]} />
+                      )}
+                      <Text style={[styles.pickerText, { color: colors.text }]}>
+                        {selectedCategory?.name ?? 'None'}
+                      </Text>
+                    </View>
+                    <Ionicons name="chevron-forward" size={18} color={colors.textMuted} />
+                  </Pressable>
                 </View>
               </View>
             </ScrollView>
@@ -209,6 +200,14 @@ export function TaskFormModal({
             </View>
           </Animated.View>
         </KeyboardAvoidingView>
+
+        <CategoryOptionSheet
+          visible={categorySheetVisible}
+          categories={categories}
+          selectedValue={selectedCategoryId}
+          onClose={() => setCategorySheetVisible(false)}
+          onSelect={setSelectedCategoryId}
+        />
       </View>
     </Modal>
   );
@@ -282,19 +281,28 @@ const styles = StyleSheet.create({
     paddingHorizontal: 16,
     paddingVertical: 14,
   },
-  categoryList: {
-    gap: 8,
-    paddingVertical: 4,
-  },
-  categoryChip: {
+  pickerRow: {
+    alignItems: 'center',
     borderRadius: 14,
     borderWidth: 1,
+    flexDirection: 'row',
+    height: MIN_FIELD_HEIGHT,
+    justifyContent: 'space-between',
     paddingHorizontal: 16,
-    paddingVertical: 10,
   },
-  categoryChipText: {
-    fontFamily: AppFonts.semibold,
-    fontSize: 14,
+  pickerValue: {
+    alignItems: 'center',
+    flexDirection: 'row',
+    gap: 12,
+  },
+  pickerDot: {
+    borderRadius: 5,
+    height: 10,
+    width: 10,
+  },
+  pickerText: {
+    fontFamily: AppFonts.medium,
+    fontSize: 16,
   },
   footer: {
     flexDirection: 'row',
