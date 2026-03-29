@@ -95,7 +95,7 @@ export default function TabLayout() {
         name="todos"
         options={{
           title: 'All Todos',
-          tabBarIcon: ({ color }) => <Ionicons name="checkmark-done-outline" size={iconSize} color={color} />,
+          tabBarIcon: ({ color }) => <Ionicons name="checkbox-outline" size={iconSize} color={color} />,
         }}
       />
       <Tabs.Screen

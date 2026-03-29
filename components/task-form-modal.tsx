@@ -68,54 +68,7 @@ export function TaskFormModal({ visible, initialCategoryId, onClose }: TaskFormM
               </View>
 
               <ScrollView showsVerticalScrollIndicator={false} keyboardShouldPersistTaps="handled">
-                <View style={[styles.previewCard, { backgroundColor: colors.surface, borderColor: colors.border }]}> 
-                  <Text style={[styles.previewTitle, { color: colors.text }]} numberOfLines={1}>{trimmedTitle || 'What needs to be done?'}</Text>
-                  <View style={styles.previewMeta}>
-                    <View style={[styles.previewDot, { backgroundColor: selectedCategory?.color ?? colors.accent }]} />
-                    <Text style={[styles.previewMetaText, { color: colors.textSoft }]}>
-                      {selectedCategory?.name ?? 'No category selected'}
-                    </Text>
-                  </View>
-                </View>
-
                 <View style={styles.form}>
-                  <View>
-                    <Text style={[styles.label, { color: colors.textSoft }]}>Title</Text>
-                    <TextInput
-                      autoFocus
-                      onChangeText={setTitle}
-                      placeholder="What needs to be done?"
-                      placeholderTextColor="#64748B"
-                      style={[styles.input, { backgroundColor: colors.surface, borderColor: colors.border, color: colors.text }]}
-                      value={title}
-                    />
-                  </View>
-
-                  <View>
-                    <Text style={[styles.label, { color: colors.textSoft }]}>Description</Text>
-                    <TextInput
-                      multiline
-                      onChangeText={setDescription}
-                      onContentSizeChange={(event) =>
-                        setDescriptionHeight(Math.max(MIN_FIELD_HEIGHT, Math.min(220, event.nativeEvent.contentSize.height)))
-                      }
-                      placeholder="Optional details"
-                      placeholderTextColor="#64748B"
-                      style={[
-                        styles.input,
-                        styles.textArea,
-                        {
-                          backgroundColor: colors.surface,
-                          borderColor: colors.border,
-                          color: colors.text,
-                          height: descriptionHeight,
-                        },
-                      ]}
-                      textAlignVertical="top"
-                      value={description}
-                    />
-                  </View>
-
                   <View>
                     <View style={styles.categoryHeader}>
                       <Text style={[styles.label, { color: colors.textSoft }]}>Category</Text>
@@ -150,6 +103,43 @@ export function TaskFormModal({ visible, initialCategoryId, onClose }: TaskFormM
                         </Pressable>
                       ))}
                     </View>
+                  </View>
+
+                  <View>
+                    <Text style={[styles.label, { color: colors.textSoft }]}>Title</Text>
+                    <TextInput
+                      autoFocus
+                      onChangeText={setTitle}
+                      placeholder="Task title"
+                      placeholderTextColor="#64748B"
+                      style={[styles.input, { backgroundColor: colors.surface, borderColor: colors.border, color: colors.text }]}
+                      value={title}
+                    />
+                  </View>
+
+                  <View>
+                    <Text style={[styles.label, { color: colors.textSoft }]}>Description</Text>
+                    <TextInput
+                      multiline
+                      onChangeText={setDescription}
+                      onContentSizeChange={(event) =>
+                        setDescriptionHeight(Math.max(MIN_FIELD_HEIGHT, Math.min(220, event.nativeEvent.contentSize.height)))
+                      }
+                      placeholder="Optional details"
+                      placeholderTextColor="#64748B"
+                      style={[
+                        styles.input,
+                        styles.textArea,
+                        {
+                          backgroundColor: colors.surface,
+                          borderColor: colors.border,
+                          color: colors.text,
+                          height: descriptionHeight,
+                        },
+                      ]}
+                      textAlignVertical="top"
+                      value={description}
+                    />
                   </View>
                 </View>
               </ScrollView>
@@ -213,31 +203,6 @@ const styles = StyleSheet.create({
     fontFamily: AppFonts.bold,
     fontSize: 22,
   },
-  previewCard: {
-    borderRadius: 24,
-    borderWidth: 1,
-    marginBottom: 14,
-    padding: 14,
-  },
-  previewTitle: {
-    fontFamily: AppFonts.bold,
-    fontSize: 17,
-    marginBottom: 8,
-  },
-  previewMeta: {
-    alignItems: 'center',
-    flexDirection: 'row',
-    gap: 8,
-  },
-  previewDot: {
-    borderRadius: 6,
-    height: 12,
-    width: 12,
-  },
-  previewMetaText: {
-    fontFamily: AppFonts.medium,
-    fontSize: 13,
-  },
   form: {
     gap: 14,
   },
@@ -274,10 +239,10 @@ const styles = StyleSheet.create({
     flexWrap: 'wrap',
   },
   categoryChip: {
-    borderRadius: 999,
+    borderRadius: 14,
     borderWidth: 1,
-    paddingHorizontal: 12,
-    paddingVertical: 8,
+    paddingHorizontal: 13,
+    paddingVertical: 9,
   },
   categoryChipText: {
     color: '#F8FAFC',

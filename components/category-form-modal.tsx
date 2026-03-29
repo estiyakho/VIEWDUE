@@ -92,22 +92,6 @@ export function CategoryFormModal({ visible, onClose, onCreated, onSaved, initia
               </View>
 
               <ScrollView showsVerticalScrollIndicator={false} keyboardShouldPersistTaps="handled">
-                {(trimmedName || description.trim()) ? (
-                  <View style={[styles.previewCard, { backgroundColor: `${selectedColor}18`, borderColor: `${selectedColor}55` }]}> 
-                    <View style={[styles.previewIcon, { backgroundColor: selectedColor }]}>
-                      <Ionicons name="folder-open-outline" size={20} color="#F8FAFC" />
-                    </View>
-                    <View style={styles.previewText}>
-                      {!!trimmedName ? <Text style={[styles.previewTitle, { color: colors.text }]}>{trimmedName}</Text> : null}
-                      {!!description.trim() ? (
-                        <Text style={[styles.previewSubtitle, { color: colors.textMuted }]} numberOfLines={2}>
-                          {description.trim()}
-                        </Text>
-                      ) : null}
-                    </View>
-                  </View>
-                ) : null}
-
                 <View style={styles.form}>
                   <View style={styles.formField}>
                     <Text style={[styles.label, { color: colors.textSoft }]}>Name</Text>
@@ -222,34 +206,6 @@ const styles = StyleSheet.create({
     height: 34,
     justifyContent: 'center',
     width: 34,
-  },
-  previewCard: {
-    borderRadius: 24,
-    borderWidth: 1,
-    flexDirection: 'row',
-    marginBottom: 14,
-    padding: 14,
-  },
-  previewIcon: {
-    alignItems: 'center',
-    borderRadius: 18,
-    height: 48,
-    justifyContent: 'center',
-    marginRight: 14,
-    width: 48,
-  },
-  previewText: {
-    flex: 1,
-  },
-  previewTitle: {
-    fontFamily: AppFonts.bold,
-    fontSize: 16,
-  },
-  previewSubtitle: {
-    fontFamily: AppFonts.medium,
-    fontSize: 13,
-    lineHeight: 18,
-    marginTop: 4,
   },
   form: {
     gap: 14,

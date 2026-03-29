@@ -155,11 +155,20 @@ export default function TodosScreen() {
         </View>
 
         <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={styles.chipsContent} style={styles.chipsRow}>
-          <Pressable onPress={() => setSelectedCategoryId('all')} style={[styles.chip, { backgroundColor: selectedCategoryId === 'all' ? colors.accent : colors.surfaceMuted }]}>
+          <Pressable onPress={() => setSelectedCategoryId('all')} style={[styles.chip, { backgroundColor: selectedCategoryId === 'all' ? colors.accent : colors.surfaceMuted, borderColor: selectedCategoryId === 'all' ? colors.accent : colors.border }]}>
             <Text style={styles.chipText}>All</Text>
           </Pressable>
           {categories.map((category) => (
-            <Pressable key={category.id} onPress={() => setSelectedCategoryId(category.id)} style={[styles.chip, { backgroundColor: selectedCategoryId === category.id ? category.color : colors.surfaceMuted }]}>
+            <Pressable
+              key={category.id}
+              onPress={() => setSelectedCategoryId(category.id)}
+              style={[
+                styles.chip,
+                {
+                  backgroundColor: selectedCategoryId === category.id ? category.color : colors.surfaceMuted,
+                  borderColor: selectedCategoryId === category.id ? category.color : colors.border,
+                },
+              ]}>
               <Text style={styles.chipText}>{category.name}</Text>
             </Pressable>
           ))}
@@ -247,22 +256,23 @@ const styles = StyleSheet.create({
   },
   chipsRow: {
     marginBottom: 8,
-    maxHeight: 38,
+    maxHeight: 46,
   },
   chipsContent: {
     alignItems: 'center',
-    gap: 8,
-    paddingRight: 8,
+    gap: 10,
+    paddingRight: 12,
   },
   chip: {
-    borderRadius: 999,
-    paddingHorizontal: 11,
-    paddingVertical: 7,
+    borderRadius: 14,
+    borderWidth: 1,
+    paddingHorizontal: 14,
+    paddingVertical: 9,
   },
   chipText: {
     color: '#F8FAFC',
     fontFamily: AppFonts.semibold,
-    fontSize: 12,
+    fontSize: 13,
   },
   listContent: {
     flexGrow: 1,
