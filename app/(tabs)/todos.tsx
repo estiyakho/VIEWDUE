@@ -1,5 +1,5 @@
 import { Ionicons } from '@expo/vector-icons';
-import { useCallback, useEffect, useMemo, useState } from 'react';
+import { useCallback, useEffect, useLayoutEffect, useMemo, useState } from 'react';
 import { FlatList, Pressable, ScrollView, StyleSheet, Text, TextInput, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useLocalSearchParams } from 'expo-router';
@@ -7,10 +7,10 @@ import { useLocalSearchParams } from 'expo-router';
 import { EmptyState } from '@/components/empty-state';
 import { FloatingActionButton } from '@/components/floating-action-button';
 import { SettingsOptionSheet } from '@/components/settings-option-sheet';
-import { TaskFormModal } from '@/components/task-form-modal';
 import { TaskItem } from '@/components/task-item';
 import { AppFonts } from '@/constants/fonts';
 import { useAppTheme } from '@/hooks/use-app-theme';
+import { useViewTransitionNavigation } from '@/hooks/use-view-transition-navigation';
 import { useTaskStore } from '@/store/use-task-store';
 import { TaskStatus } from '@/types/task';
 import { runListAnimation } from '@/utils/layout-animation';
@@ -38,6 +38,7 @@ export default function TodosScreen() {
   const toggleTaskStatus = useTaskStore((state) => state.toggleTaskStatus);
   const deleteTask = useTaskStore((state) => state.deleteTask);
   const timeFormat = useTaskStore((state) => state.settings.timeFormat);
+  const { push, prefetch } = useViewTransitionNavigation();
 
   const initialCategory = Array.isArray(params.categoryId) ? params.categoryId[0] : params.categoryId;
   const [activeFilter, setActiveFilter] = useState<TaskStatus>('todo');
@@ -45,13 +46,17 @@ export default function TodosScreen() {
   const [query, setQuery] = useState('');
   const [sortMode, setSortMode] = useState<SortMode>('newest');
   const [sortSheetVisible, setSortSheetVisible] = useState(false);
-  const [taskModalVisible, setTaskModalVisible] = useState(false);
 
-  useEffect(() => {
+  useLayoutEffect(() => {
     if (initialCategory) {
       setSelectedCategoryId(initialCategory);
     }
   }, [initialCategory]);
+
+  useEffect(() => {
+    // Keep modal screen ready so returning to this tab never shows a blank/loading frame.
+    prefetch?.('/add-task');
+  }, [prefetch]);
 
   const filteredTasks = useMemo(() => {
     const normalizedQuery = query.trim().toLowerCase();
@@ -189,7 +194,7 @@ export default function TodosScreen() {
           updateCellsBatchingPeriod={50}
         />
 
-        <FloatingActionButton onPress={() => setTaskModalVisible(true)} />
+        <FloatingActionButton onPress={() => push('/add-task')} />
       </View>
 
       <SettingsOptionSheet
@@ -200,11 +205,6 @@ export default function TodosScreen() {
         selectedValue={sortMode}
         onClose={() => setSortSheetVisible(false)}
         onSelect={setSortMode}
-      />
-      <TaskFormModal
-        visible={taskModalVisible}
-        initialCategoryId={selectedCategoryId !== 'all' ? selectedCategoryId : undefined}
-        onClose={() => setTaskModalVisible(false)}
       />
     </SafeAreaView>
   );
