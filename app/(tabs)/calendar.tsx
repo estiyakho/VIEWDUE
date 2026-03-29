@@ -369,7 +369,13 @@ export default function CalendarScreen() {
         <FloatingActionButton onPress={() => { resetForm(); setShowAddModal(true); }} />
       </View>
 
-      <Modal animationType="none" transparent visible={showAddModal} onRequestClose={() => setShowAddModal(false)}>
+      <Modal 
+        animationType="none" 
+        transparent 
+        visible={showAddModal} 
+        onRequestClose={() => setShowAddModal(false)}
+        statusBarTranslucent={true}
+      >
         <Animated.View
           entering={FadeIn.duration(300)}
           exiting={FadeOut.duration(200)}
@@ -796,6 +802,7 @@ const styles = StyleSheet.create({
     position: 'absolute',
     right: 0,
     top: 0,
+    backgroundColor: 'rgba(0,0,0,0.4)',
   },
   modalWrapper: {
     backgroundColor: 'rgba(0,0,0,0.5)',

@@ -92,7 +92,7 @@ export function TaskFormModal({
           exiting={FadeOut.duration(200)}
           style={StyleSheet.absoluteFill}
         >
-          <BlurView intensity={25} tint="dark" style={StyleSheet.absoluteFill}>
+          <BlurView intensity={25} tint="dark" style={[StyleSheet.absoluteFill, { backgroundColor: 'rgba(0, 0, 0, 0.4)' }]}>
             <Pressable style={StyleSheet.absoluteFill} onPress={onClose} />
           </BlurView>
         </Animated.View>
