@@ -9,7 +9,6 @@ import {
 } from '@expo-google-fonts/inconsolata';
 import { Stack } from 'expo-router';
 import { SystemBars } from 'react-native-edge-to-edge';
-import * as SplashScreen from 'expo-splash-screen';
 import { useEffect, useLayoutEffect, useMemo, type ReactNode } from 'react';
 import { Platform, View } from 'react-native';
 import { GestureHandlerRootView } from 'react-native-gesture-handler';
@@ -23,7 +22,7 @@ import { getThemeColors } from '@/utils/theme';
 import { applyInconsolataDefaults } from '@/utils/typography';
 import { NotificationOnboardingModal } from '@/components/notification-onboarding-modal';
 
-SplashScreen.preventAutoHideAsync();
+
 
 export const unstable_settings = {
   initialRouteName: '(tabs)',
@@ -96,7 +95,6 @@ export default function RootLayout() {
     }
 
     applyInconsolataDefaults();
-    SplashScreen.hideAsync();
   }, [loaded, hydrated]);
 
   if (!loaded || !hydrated) {

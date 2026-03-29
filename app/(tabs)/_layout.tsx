@@ -17,7 +17,7 @@ export default function TabLayout() {
   const baseLabelSize = width < 360 ? 8.75 : compact ? 9.5 : 10;
   const iconSize = width < 360 ? 20 : 22;
   const horizontalPadding = width < 360 ? 6 : compact ? 8 : 10;
-  const bottomPadding = Math.max(insets.bottom, 10);
+  const bottomPadding = Math.max(insets.bottom, 24);
   const tabBarHeight = 55 + bottomPadding;
 
   return (

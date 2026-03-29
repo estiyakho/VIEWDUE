@@ -362,7 +362,7 @@ const styles = StyleSheet.create({
   },
   chipsRow: {
     marginBottom: 8,
-    maxHeight: 46,
+    maxHeight: 50,
   },
   chipsContent: {
     alignItems: "center",
@@ -372,12 +372,16 @@ const styles = StyleSheet.create({
   chip: {
     borderRadius: 14,
     borderWidth: 1,
-    paddingHorizontal: 14,
-    paddingVertical: 9,
+    paddingHorizontal: 16,
+    height: 42,
+    minWidth: 65,
+    alignItems: 'center',
+    justifyContent: 'center',
   },
   chipText: {
     fontFamily: AppFonts.semibold,
-    fontSize: 13,
+    fontSize: 14,
+    includeFontPadding: false,
   },
   listContent: {
     flexGrow: 1,

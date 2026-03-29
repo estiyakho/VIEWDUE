@@ -55,7 +55,7 @@ export default function CalendarScreen() {
     const h = new Date().getHours();
     return h === 0 ? 12 : h > 12 ? h - 12 : h;
   });
-  const [selectedMinute, setSelectedMinute] = useState(Math.floor(new Date().getMinutes() / 5) * 5);
+  const [selectedMinute, setSelectedMinute] = useState(new Date().getMinutes());
   const [period, setPeriod] = useState(() => new Date().getHours() >= 12 ? 'PM' : 'AM');
   const firstDay = settings?.firstDayOfWeek ?? 'sunday';
 
@@ -499,8 +499,8 @@ export default function CalendarScreen() {
                           ref={minScrollRef}
                           showsVerticalScrollIndicator={false}
                           snapToInterval={ITEM_HEIGHT}
-                          decelerationRate="fast"
-                          disableIntervalMomentum={true}
+                          decelerationRate={0.985}
+                          disableIntervalMomentum={false}
                           style={styles.colScroll}
                           onMomentumScrollEnd={(e) => {
                             const y = e.nativeEvent.contentOffset.y;
@@ -912,7 +912,7 @@ const styles = StyleSheet.create({
   primaryButton: {
     alignItems: 'center',
     borderRadius: 20,
-    flex: 2,
+    flex: 1,
     height: 56,
     justifyContent: 'center',
   },
