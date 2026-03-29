@@ -15,6 +15,7 @@ type TaskStore = {
   toggleTaskStatus: (id: string) => void;
   deleteTask: (id: string) => void;
   addCategory: (input: { name: string; description?: string; color?: string }) => string | null;
+  updateCategory: (input: { id: string; name: string; description?: string; color?: string }) => string | null;
   resetData: () => void;
   resetStats: () => void;
   resetSettings: () => void;
@@ -100,6 +101,36 @@ export const useTaskStore = create<TaskStore>()(
         }));
 
         return category.id;
+      },
+      updateCategory: ({ id, name, description, color }) => {
+        const trimmedName = name.trim();
+        const trimmedDescription = description?.trim() || undefined;
+
+        if (!trimmedName) {
+          return null;
+        }
+
+        const existing = get().categories.find(
+          (category) => category.id !== id && category.name.toLowerCase() === trimmedName.toLowerCase()
+        );
+        if (existing) {
+          return existing.id;
+        }
+
+        set((state) => ({
+          categories: state.categories.map((category) =>
+            category.id === id
+              ? {
+                  ...category,
+                  color: color ?? category.color,
+                  description: trimmedDescription,
+                  name: trimmedName,
+                }
+              : category
+          ),
+        }));
+
+        return id;
       },
       resetData: () =>
         set((state) => ({

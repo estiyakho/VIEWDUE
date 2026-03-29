@@ -1,16 +1,6 @@
 import { Ionicons } from '@expo/vector-icons';
 import { useEffect, useMemo, useState } from 'react';
-import {
-  KeyboardAvoidingView,
-  Modal,
-  Platform,
-  Pressable,
-  ScrollView,
-  StyleSheet,
-  Text,
-  TextInput,
-  View,
-} from 'react-native';
+import { KeyboardAvoidingView, Modal, Platform, Pressable, ScrollView, StyleSheet, Text, TextInput, View } from 'react-native';
 
 import { CategoryFormModal } from '@/components/category-form-modal';
 import { AppFonts } from '@/constants/fonts';
@@ -118,7 +108,7 @@ export function TaskFormModal({ visible, initialCategoryId, onClose }: TaskFormM
                         <Text style={[styles.newCategoryText, { color: colors.accent }]}>New Category</Text>
                       </Pressable>
                     </View>
-                    <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={styles.categoryList}>
+                    <View style={styles.categoryList}>
                       <Pressable
                         onPress={() => setSelectedCategoryId(undefined)}
                         style={[
@@ -144,7 +134,7 @@ export function TaskFormModal({ visible, initialCategoryId, onClose }: TaskFormM
                           <Text style={styles.categoryChipText}>{category.name}</Text>
                         </Pressable>
                       ))}
-                    </ScrollView>
+                    </View>
                   </View>
                 </View>
               </ScrollView>
@@ -189,13 +179,13 @@ const styles = StyleSheet.create({
     borderWidth: 1,
     maxHeight: '88%',
     overflow: 'hidden',
-    padding: 20,
+    padding: 16,
   },
   hero: {
     alignItems: 'center',
     flexDirection: 'row',
     justifyContent: 'space-between',
-    marginBottom: 18,
+    marginBottom: 14,
   },
   closeButton: {
     alignItems: 'center',
@@ -211,8 +201,8 @@ const styles = StyleSheet.create({
   previewCard: {
     borderRadius: 24,
     borderWidth: 1,
-    marginBottom: 18,
-    padding: 16,
+    marginBottom: 14,
+    padding: 14,
   },
   previewTitle: {
     fontFamily: AppFonts.bold,
@@ -234,43 +224,45 @@ const styles = StyleSheet.create({
     fontSize: 13,
   },
   form: {
-    gap: 16,
+    gap: 14,
   },
   label: {
     fontFamily: AppFonts.semibold,
     fontSize: 14,
-    marginBottom: 10,
+    marginBottom: 8,
   },
   input: {
     borderRadius: 18,
     borderWidth: 1,
     fontFamily: AppFonts.medium,
     fontSize: 16,
-    paddingHorizontal: 16,
-    paddingVertical: 14,
+    minHeight: 56,
+    paddingHorizontal: 14,
+    paddingVertical: 12,
   },
   textArea: {
-    minHeight: 120,
+    minHeight: 88,
   },
   categoryHeader: {
     alignItems: 'center',
     flexDirection: 'row',
     justifyContent: 'space-between',
-    marginBottom: 10,
+    marginBottom: 8,
   },
   newCategoryText: {
     fontFamily: AppFonts.semibold,
     fontSize: 13,
   },
   categoryList: {
-    gap: 10,
-    paddingRight: 12,
+    flexDirection: 'row',
+    gap: 8,
+    flexWrap: 'wrap',
   },
   categoryChip: {
     borderRadius: 999,
     borderWidth: 1,
-    paddingHorizontal: 14,
-    paddingVertical: 10,
+    paddingHorizontal: 12,
+    paddingVertical: 8,
   },
   categoryChipText: {
     color: '#F8FAFC',
@@ -280,7 +272,7 @@ const styles = StyleSheet.create({
   footer: {
     flexDirection: 'row',
     gap: 12,
-    marginTop: 20,
+    marginTop: 16,
   },
   secondaryButton: {
     alignItems: 'center',
@@ -288,7 +280,7 @@ const styles = StyleSheet.create({
     borderWidth: 1,
     flex: 1,
     justifyContent: 'center',
-    paddingVertical: 16,
+    paddingVertical: 14,
   },
   secondaryButtonText: {
     fontFamily: AppFonts.semibold,
@@ -299,7 +291,7 @@ const styles = StyleSheet.create({
     borderRadius: 18,
     flex: 1,
     justifyContent: 'center',
-    paddingVertical: 16,
+    paddingVertical: 14,
   },
   primaryButtonDisabled: {
     opacity: 0.45,

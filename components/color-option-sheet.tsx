@@ -1,6 +1,6 @@
 import { Ionicons } from '@expo/vector-icons';
 import { useEffect, useMemo, useState } from 'react';
-import { Modal, Pressable, ScrollView, StyleSheet, Text, View } from 'react-native';
+import { Modal, Pressable, StyleSheet, Text, View } from 'react-native';
 
 import { AppFonts } from '@/constants/fonts';
 import { useAppTheme } from '@/hooks/use-app-theme';
@@ -45,7 +45,7 @@ export function ColorOptionSheet({
             </Pressable>
           </View>
 
-          <ScrollView contentContainerStyle={styles.paletteGrid} showsVerticalScrollIndicator={false}>
+          <View style={styles.paletteGrid}>
             {palettes.map((palette) => {
               const paletteSelected = palette.label === activePalette.label;
               const paletteColor = palette.shades[3];
@@ -60,21 +60,23 @@ export function ColorOptionSheet({
                   style={[
                     styles.paletteCard,
                     {
-                      backgroundColor: colors.surface,
+                      backgroundColor: paletteSelected ? `${paletteColor}18` : colors.surface,
                       borderColor: paletteSelected ? paletteColor : colors.border,
                     },
                   ]}>
                   <View style={[styles.paletteSwatch, { backgroundColor: paletteColor }]} />
-                  <Text style={[styles.paletteLabel, { color: colors.text }]}>{palette.label}</Text>
                 </Pressable>
               );
             })}
-          </ScrollView>
+          </View>
 
           <View style={[styles.shadesPanel, { backgroundColor: colors.surface, borderColor: colors.border }]}> 
             <View style={styles.shadesHeader}>
               <Text style={[styles.shadesTitle, { color: colors.text }]}>Shades</Text>
-              <Text style={[styles.shadesCaption, { color: colors.textMuted }]}>{activePalette.label}</Text>
+              <View style={styles.shadesCaptionWrap}>
+                <View style={[styles.shadesCaptionSwatch, { backgroundColor: activePalette.shades[3] }]} />
+                <Text style={[styles.shadesCaption, { color: colors.textMuted }]}>{activePalette.label}</Text>
+              </View>
             </View>
             <View style={styles.shadesRow}>
               {activePalette.shades.map((shade) => {
@@ -110,19 +112,18 @@ const styles = StyleSheet.create({
     backgroundColor: 'rgba(2, 6, 23, 0.62)',
     flex: 1,
     justifyContent: 'center',
-    paddingHorizontal: 18,
+    paddingHorizontal: 16,
   },
   sheet: {
-    borderRadius: 28,
+    borderRadius: 24,
     borderWidth: 1,
-    maxHeight: '82%',
-    padding: 20,
+    padding: 16,
   },
   header: {
     alignItems: 'flex-start',
     flexDirection: 'row',
     justifyContent: 'space-between',
-    marginBottom: 18,
+    marginBottom: 14,
   },
   title: {
     fontFamily: AppFonts.bold,
@@ -138,38 +139,43 @@ const styles = StyleSheet.create({
   paletteGrid: {
     flexDirection: 'row',
     flexWrap: 'wrap',
-    gap: 12,
-    paddingBottom: 6,
+    gap: 10,
+    justifyContent: 'space-between',
   },
   paletteCard: {
     alignItems: 'center',
-    borderRadius: 20,
+    borderRadius: 14,
     borderWidth: 1,
-    minWidth: '30%',
-    paddingHorizontal: 10,
-    paddingVertical: 12,
+    height: 48,
+    justifyContent: 'center',
+    width: 48,
   },
   paletteSwatch: {
-    borderRadius: 14,
-    height: 28,
-    marginBottom: 8,
-    width: 28,
-  },
-  paletteLabel: {
-    fontFamily: AppFonts.semibold,
-    fontSize: 12,
+    borderRadius: 12,
+    height: 24,
+    width: 24,
   },
   shadesPanel: {
-    borderRadius: 22,
+    borderRadius: 18,
     borderWidth: 1,
-    marginTop: 18,
-    padding: 14,
+    marginTop: 12,
+    padding: 12,
   },
   shadesHeader: {
     alignItems: 'center',
     flexDirection: 'row',
     justifyContent: 'space-between',
-    marginBottom: 12,
+    marginBottom: 10,
+  },
+  shadesCaptionWrap: {
+    alignItems: 'center',
+    flexDirection: 'row',
+    gap: 8,
+  },
+  shadesCaptionSwatch: {
+    borderRadius: 8,
+    height: 16,
+    width: 16,
   },
   shadesTitle: {
     fontFamily: AppFonts.bold,
@@ -181,15 +187,15 @@ const styles = StyleSheet.create({
   },
   shadesRow: {
     flexDirection: 'row',
-    gap: 10,
+    gap: 8,
     justifyContent: 'space-between',
   },
   shadeButton: {
     alignItems: 'center',
-    borderRadius: 18,
+    borderRadius: 14,
     borderWidth: 2,
     flex: 1,
-    height: 44,
+    height: 46,
     justifyContent: 'center',
   },
 });

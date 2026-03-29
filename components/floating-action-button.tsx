@@ -21,7 +21,7 @@ export function FloatingActionButton({ onPress, iconName = 'add' }: FloatingActi
         { backgroundColor: colors.accent },
         pressed && styles.buttonPressed,
       ]}>
-      <Ionicons name={iconName} size={28} color="#F8FAFC" />
+      <Ionicons name={iconName} size={26} color="#F8FAFC" />
     </Pressable>
   );
 }
@@ -29,10 +29,10 @@ export function FloatingActionButton({ onPress, iconName = 'add' }: FloatingActi
 const styles = StyleSheet.create({
   button: {
     alignItems: 'center',
-    borderRadius: 28,
+    borderRadius: 18,
     bottom: 24,
     elevation: 8,
-    height: 56,
+    height: 54,
     justifyContent: 'center',
     position: 'absolute',
     right: 20,
@@ -40,7 +40,7 @@ const styles = StyleSheet.create({
     shadowOffset: { width: 0, height: 8 },
     shadowOpacity: 0.3,
     shadowRadius: 12,
-    width: 56,
+    width: 54,
   },
   buttonPressed: {
     opacity: 0.9,

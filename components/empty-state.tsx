@@ -22,11 +22,11 @@ export function EmptyState({ title, description }: EmptyStateProps) {
 const styles = StyleSheet.create({
   container: {
     alignItems: 'center',
-    borderRadius: 20,
+    borderRadius: 18,
     borderWidth: 1,
-    marginTop: 24,
-    paddingHorizontal: 24,
-    paddingVertical: 32,
+    marginTop: 20,
+    paddingHorizontal: 20,
+    paddingVertical: 24,
   },
   title: {
     fontFamily: AppFonts.semibold,

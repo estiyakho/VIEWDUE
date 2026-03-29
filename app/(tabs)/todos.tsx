@@ -203,15 +203,15 @@ export default function TodosScreen() {
 
 const styles = StyleSheet.create({
   safeArea: { flex: 1 },
-  container: { flex: 1, paddingHorizontal: 14, paddingTop: 6 },
+  container: { flex: 1, paddingHorizontal: 12, paddingTop: 6 },
   searchBar: {
     alignItems: 'center',
-    borderRadius: 20,
+    borderRadius: 18,
     borderWidth: 1,
     flexDirection: 'row',
-    marginBottom: 14,
-    minHeight: 58,
-    paddingHorizontal: 16,
+    marginBottom: 12,
+    minHeight: 54,
+    paddingHorizontal: 14,
   },
   searchInput: {
     flex: 1,
@@ -225,8 +225,8 @@ const styles = StyleSheet.create({
     marginBottom: 8,
   },
   tabButton: {
-    marginRight: 24,
-    paddingBottom: 12,
+    marginRight: 20,
+    paddingBottom: 10,
     position: 'relative',
   },
   tabLabel: {
@@ -243,21 +243,21 @@ const styles = StyleSheet.create({
   },
   filterButton: {
     marginLeft: 'auto',
-    padding: 8,
+    padding: 6,
   },
   chipsRow: {
-    marginBottom: 10,
-    maxHeight: 40,
+    marginBottom: 8,
+    maxHeight: 38,
   },
   chipsContent: {
     alignItems: 'center',
     gap: 8,
-    paddingRight: 12,
+    paddingRight: 8,
   },
   chip: {
     borderRadius: 999,
-    paddingHorizontal: 12,
-    paddingVertical: 8,
+    paddingHorizontal: 11,
+    paddingVertical: 7,
   },
   chipText: {
     color: '#F8FAFC',
@@ -266,7 +266,7 @@ const styles = StyleSheet.create({
   },
   listContent: {
     flexGrow: 1,
-    paddingBottom: 96,
+    paddingBottom: 92,
     paddingTop: 2,
   },
 });

@@ -16,35 +16,42 @@ import { ColorOptionSheet } from '@/components/color-option-sheet';
 import { AppFonts } from '@/constants/fonts';
 import { useAppTheme } from '@/hooks/use-app-theme';
 import { useTaskStore } from '@/store/use-task-store';
-import { COLOR_PALETTES } from '@/utils/color-palettes';
+import { Category } from '@/types/task';
+import { COLOR_PALETTES, findPaletteByColor } from '@/utils/color-palettes';
 import { runListAnimation } from '@/utils/layout-animation';
 
 type CategoryFormModalProps = {
   visible: boolean;
   onClose: () => void;
   onCreated?: (categoryId: string) => void;
+  onSaved?: (categoryId: string) => void;
+  initialCategory?: Category;
 };
 
-export function CategoryFormModal({ visible, onClose, onCreated }: CategoryFormModalProps) {
+export function CategoryFormModal({ visible, onClose, onCreated, onSaved, initialCategory }: CategoryFormModalProps) {
   const colors = useAppTheme();
   const addCategory = useTaskStore((state) => state.addCategory);
+  const updateCategory = useTaskStore((state) => state.updateCategory);
   const accentColor = useTaskStore((state) => state.settings.accentColor);
   const [name, setName] = useState('');
   const [description, setDescription] = useState('');
   const [selectedColor, setSelectedColor] = useState(accentColor);
   const [colorPickerVisible, setColorPickerVisible] = useState(false);
 
+  const isEditing = Boolean(initialCategory);
+
   useEffect(() => {
     if (!visible) {
       return;
     }
 
-    setName('');
-    setDescription('');
-    setSelectedColor(accentColor);
-  }, [accentColor, visible]);
+    setName(initialCategory?.name ?? '');
+    setDescription(initialCategory?.description ?? '');
+    setSelectedColor(initialCategory?.color ?? accentColor);
+  }, [accentColor, initialCategory, visible]);
 
   const trimmedName = name.trim();
+  const activePalette = findPaletteByColor(selectedColor, COLOR_PALETTES);
 
   const handleSave = () => {
     if (!trimmedName) {
@@ -52,10 +59,17 @@ export function CategoryFormModal({ visible, onClose, onCreated }: CategoryFormM
     }
 
     runListAnimation();
-    const categoryId = addCategory({ name: trimmedName, description, color: selectedColor });
+    const categoryId = initialCategory
+      ? updateCategory({ id: initialCategory.id, name: trimmedName, description, color: selectedColor })
+      : addCategory({ name: trimmedName, description, color: selectedColor });
+
     if (categoryId) {
-      onCreated?.(categoryId);
+      if (!initialCategory) {
+        onCreated?.(categoryId);
+      }
+      onSaved?.(categoryId);
     }
+
     onClose();
   };
 
@@ -67,7 +81,7 @@ export function CategoryFormModal({ visible, onClose, onCreated }: CategoryFormM
           <KeyboardAvoidingView behavior={Platform.OS === 'ios' ? 'padding' : undefined}>
             <View style={[styles.sheet, { backgroundColor: colors.surfaceElevated, borderColor: colors.border }]}> 
               <View style={styles.header}>
-                <Text style={[styles.title, { color: colors.text }]}>New Category</Text>
+                <Text style={[styles.title, { color: colors.text }]}>{isEditing ? 'Edit Category' : 'New Category'}</Text>
                 <Pressable onPress={onClose} style={[styles.closeButton, { backgroundColor: colors.surfaceMuted }]}> 
                   <Ionicons name="close" size={18} color={colors.textSoft} />
                 </Pressable>
@@ -107,7 +121,7 @@ export function CategoryFormModal({ visible, onClose, onCreated }: CategoryFormM
                     <Text style={[styles.label, { color: colors.textSoft }]}>Description</Text>
                     <TextInput
                       multiline
-                      numberOfLines={3}
+                      numberOfLines={2}
                       onChangeText={setDescription}
                       placeholder="A short note for this category"
                       placeholderTextColor="#64748B"
@@ -118,16 +132,18 @@ export function CategoryFormModal({ visible, onClose, onCreated }: CategoryFormM
                   </View>
 
                   <View>
-                    <View style={styles.colorHeader}>
-                      <Text style={[styles.label, { color: colors.textSoft }]}>Color</Text>
-                    </View>
                     <Pressable
                       onPress={() => setColorPickerVisible(true)}
                       style={[styles.colorTrigger, { backgroundColor: colors.surface, borderColor: colors.border }]}>
                       <View style={styles.colorTriggerLeft}>
-                        <View style={[styles.colorSwatch, { backgroundColor: selectedColor }]} />
+                        <Text style={[styles.colorLabel, { color: colors.textSoft }]}>Selected color</Text>
+                        <Text style={[styles.colorTriggerText, { color: colors.text }]}>{activePalette.label}</Text>
+                        <View style={[styles.colorPreviewBar, { backgroundColor: selectedColor }]} />
                       </View>
-                      <Ionicons name="chevron-forward" size={18} color={colors.textMuted} />
+                      <View style={styles.colorTriggerRight}>
+                        <Text style={[styles.changeText, { color: colors.accent }]}>Change</Text>
+                        <Ionicons name="chevron-forward" size={16} color={colors.accent} />
+                      </View>
                     </Pressable>
                   </View>
                 </View>
@@ -141,7 +157,7 @@ export function CategoryFormModal({ visible, onClose, onCreated }: CategoryFormM
                   disabled={!trimmedName}
                   onPress={handleSave}
                   style={[styles.primaryButton, { backgroundColor: selectedColor }, !trimmedName && styles.disabledButton]}>
-                  <Text style={styles.primaryButtonText}>Save Category</Text>
+                  <Text style={styles.primaryButtonText}>{isEditing ? 'Update Category' : 'Save Category'}</Text>
                 </Pressable>
               </View>
             </View>
@@ -166,20 +182,20 @@ const styles = StyleSheet.create({
     backgroundColor: 'rgba(2, 6, 23, 0.7)',
     flex: 1,
     justifyContent: 'center',
-    paddingHorizontal: 16,
+    paddingHorizontal: 14,
   },
   sheet: {
-    borderRadius: 30,
+    borderRadius: 28,
     borderWidth: 1,
     maxHeight: '88%',
     overflow: 'hidden',
-    padding: 20,
+    padding: 16,
   },
   header: {
     alignItems: 'center',
     flexDirection: 'row',
     justifyContent: 'space-between',
-    marginBottom: 18,
+    marginBottom: 14,
   },
   title: {
     fontFamily: AppFonts.bold,
@@ -196,8 +212,8 @@ const styles = StyleSheet.create({
     borderRadius: 24,
     borderWidth: 1,
     flexDirection: 'row',
-    marginBottom: 18,
-    padding: 16,
+    marginBottom: 14,
+    padding: 14,
   },
   previewIcon: {
     alignItems: 'center',
@@ -221,51 +237,66 @@ const styles = StyleSheet.create({
     marginTop: 4,
   },
   form: {
-    gap: 16,
+    gap: 14,
   },
   label: {
     fontFamily: AppFonts.semibold,
     fontSize: 14,
-    marginBottom: 10,
+    marginBottom: 8,
   },
   input: {
     borderRadius: 18,
     borderWidth: 1,
     fontFamily: AppFonts.medium,
     fontSize: 16,
-    paddingHorizontal: 16,
-    paddingVertical: 14,
+    minHeight: 56,
+    paddingHorizontal: 14,
+    paddingVertical: 12,
   },
   textArea: {
-    minHeight: 100,
-  },
-  colorHeader: {
-    alignItems: 'center',
-    flexDirection: 'row',
-    marginBottom: 10,
+    minHeight: 64,
   },
   colorTrigger: {
-    alignItems: 'center',
     borderRadius: 18,
     borderWidth: 1,
     flexDirection: 'row',
     justifyContent: 'space-between',
-    minHeight: 58,
-    paddingHorizontal: 16,
+    minHeight: 68,
+    paddingHorizontal: 14,
+    paddingVertical: 12,
   },
   colorTriggerLeft: {
+    flex: 1,
+  },
+  colorLabel: {
+    fontFamily: AppFonts.semibold,
+    fontSize: 13,
+    marginBottom: 4,
+  },
+  colorTriggerText: {
+    fontFamily: AppFonts.bold,
+    fontSize: 16,
+    marginBottom: 10,
+  },
+  colorPreviewBar: {
+    borderRadius: 999,
+    height: 8,
+    width: 56,
+  },
+  colorTriggerRight: {
     alignItems: 'center',
     flexDirection: 'row',
+    gap: 6,
+    marginLeft: 12,
   },
-  colorSwatch: {
-    borderRadius: 14,
-    height: 28,
-    width: 28,
+  changeText: {
+    fontFamily: AppFonts.medium,
+    fontSize: 14,
   },
   footer: {
     flexDirection: 'row',
     gap: 12,
-    marginTop: 20,
+    marginTop: 16,
   },
   secondaryButton: {
     alignItems: 'center',
@@ -273,7 +304,7 @@ const styles = StyleSheet.create({
     borderWidth: 1,
     flex: 1,
     justifyContent: 'center',
-    paddingVertical: 16,
+    paddingVertical: 14,
   },
   secondaryButtonText: {
     fontFamily: AppFonts.semibold,
@@ -284,7 +315,7 @@ const styles = StyleSheet.create({
     borderRadius: 18,
     flex: 1,
     justifyContent: 'center',
-    paddingVertical: 16,
+    paddingVertical: 14,
   },
   disabledButton: {
     opacity: 0.45,

@@ -108,7 +108,7 @@ export default function CategoriesScreen() {
         <View style={[styles.summaryCard, { backgroundColor: colors.surfaceElevated, borderColor: colors.border }]}> 
           <View style={styles.summaryTop}>
             <View style={[styles.summaryIconWrap, { backgroundColor: `${colors.accent}55` }]}>
-              <Ionicons color="#F8FAFC" name="flag-outline" size={28} />
+              <Ionicons color="#F8FAFC" name="flag-outline" size={22} />
             </View>
             <View style={styles.summaryTextWrap}>
               <Text style={[styles.summaryTitle, { color: colors.text }]}>Let&apos;s start!</Text>
@@ -154,7 +154,7 @@ export default function CategoriesScreen() {
           removeClippedSubviews
           renderItem={({ item }) => (
             <Pressable
-              onPress={() => router.push({ pathname: '/todos', params: { categoryId: item.id } })}
+              onPress={() => router.push({ pathname: '/category/[id]', params: { id: item.id } })}
               style={[styles.card, { backgroundColor: colors.surfaceElevated, borderColor: colors.border }]}> 
               <View style={styles.cardLeft}>
                 <ProgressRing color={item.color} progress={item.progress} labelColor={colors.text} baseColor={colors.border} />
@@ -188,15 +188,15 @@ export default function CategoriesScreen() {
 
 const styles = StyleSheet.create({
   safeArea: { flex: 1 },
-  container: { flex: 1, paddingHorizontal: 14, paddingTop: 6 },
+  container: { flex: 1, paddingHorizontal: 12, paddingTop: 6 },
   searchBar: {
     alignItems: 'center',
-    borderRadius: 20,
+    borderRadius: 18,
     borderWidth: 1,
     flexDirection: 'row',
-    marginBottom: 16,
-    minHeight: 58,
-    paddingHorizontal: 16,
+    marginBottom: 12,
+    minHeight: 54,
+    paddingHorizontal: 14,
   },
   searchInput: {
     flex: 1,
@@ -206,23 +206,23 @@ const styles = StyleSheet.create({
     paddingVertical: 0,
   },
   summaryCard: {
-    borderRadius: 22,
+    borderRadius: 20,
     borderWidth: 1,
-    marginBottom: 14,
-    padding: 14,
+    marginBottom: 12,
+    padding: 12,
   },
   summaryTop: {
     alignItems: 'center',
     flexDirection: 'row',
-    marginBottom: 14,
+    marginBottom: 12,
   },
   summaryIconWrap: {
     alignItems: 'center',
-    borderRadius: 34,
-    height: 68,
+    borderRadius: 28,
+    height: 56,
     justifyContent: 'center',
-    marginRight: 14,
-    width: 68,
+    marginRight: 12,
+    width: 56,
   },
   summaryTextWrap: {
     flex: 1,
@@ -239,7 +239,7 @@ const styles = StyleSheet.create({
   progressRow: {
     alignItems: 'center',
     flexDirection: 'row',
-    marginBottom: 14,
+    marginBottom: 12,
   },
   progressTrack: {
     borderRadius: 999,
@@ -260,17 +260,17 @@ const styles = StyleSheet.create({
   },
   summaryStats: {
     flexDirection: 'row',
-    gap: 10,
+    gap: 8,
   },
   statPill: {
     alignItems: 'center',
-    borderRadius: 16,
+    borderRadius: 14,
     borderWidth: 1,
     flex: 1,
     flexDirection: 'row',
     gap: 6,
     justifyContent: 'center',
-    minHeight: 54,
+    minHeight: 50,
     paddingHorizontal: 10,
   },
   statText: {
@@ -279,11 +279,11 @@ const styles = StyleSheet.create({
   },
   tabRow: {
     flexDirection: 'row',
-    gap: 24,
-    marginBottom: 10,
+    gap: 20,
+    marginBottom: 8,
   },
   tabButton: {
-    paddingBottom: 10,
+    paddingBottom: 8,
     position: 'relative',
   },
   tabLabel: {
@@ -300,18 +300,18 @@ const styles = StyleSheet.create({
   },
   listContent: {
     flexGrow: 1,
-    paddingBottom: 100,
+    paddingBottom: 92,
   },
   card: {
     alignItems: 'center',
-    borderRadius: 22,
+    borderRadius: 20,
     borderWidth: 1,
     flexDirection: 'row',
     justifyContent: 'space-between',
-    marginBottom: 12,
-    minHeight: 96,
+    marginBottom: 10,
+    minHeight: 90,
     paddingHorizontal: 12,
-    paddingVertical: 12,
+    paddingVertical: 10,
   },
   cardLeft: {
     alignItems: 'center',
@@ -320,7 +320,7 @@ const styles = StyleSheet.create({
   },
   cardTextWrap: {
     flex: 1,
-    marginLeft: 12,
+    marginLeft: 10,
     marginRight: 8,
   },
   cardTitle: {
@@ -335,11 +335,11 @@ const styles = StyleSheet.create({
   },
   countPill: {
     alignItems: 'center',
-    borderRadius: 14,
+    borderRadius: 12,
     justifyContent: 'center',
-    minHeight: 42,
-    minWidth: 58,
-    paddingHorizontal: 10,
+    minHeight: 38,
+    minWidth: 52,
+    paddingHorizontal: 8,
   },
   countText: {
     fontFamily: AppFonts.bold,
@@ -371,7 +371,7 @@ const styles = StyleSheet.create({
   },
   emptyWrap: {
     alignItems: 'center',
-    paddingTop: 32,
+    paddingTop: 28,
   },
   emptyTitle: {
     fontFamily: AppFonts.bold,

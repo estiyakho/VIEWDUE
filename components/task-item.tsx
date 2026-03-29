@@ -63,13 +63,13 @@ export const TaskItem = memo(TaskItemComponent);
 
 const styles = StyleSheet.create({
   card: {
-    borderRadius: 22,
+    borderRadius: 20,
     borderWidth: 1,
     flexDirection: 'row',
-    marginBottom: 12,
-    minHeight: 92,
-    paddingHorizontal: 14,
-    paddingVertical: 14,
+    marginBottom: 10,
+    minHeight: 86,
+    paddingHorizontal: 12,
+    paddingVertical: 12,
   },
   content: {
     flex: 1,
@@ -81,8 +81,8 @@ const styles = StyleSheet.create({
     borderWidth: 2,
     height: 22,
     justifyContent: 'center',
-    marginRight: 12,
-    marginTop: 6,
+    marginRight: 10,
+    marginTop: 4,
     width: 22,
   },
   textBlock: {
@@ -91,18 +91,18 @@ const styles = StyleSheet.create({
   title: {
     fontFamily: AppFonts.semibold,
     fontSize: 17,
-    marginBottom: 8,
+    marginBottom: 6,
   },
   metaWrap: {
-    gap: 8,
+    gap: 6,
   },
   badge: {
     alignItems: 'center',
     alignSelf: 'flex-start',
-    borderRadius: 12,
+    borderRadius: 10,
     borderWidth: 1,
     flexDirection: 'row',
-    paddingHorizontal: 10,
+    paddingHorizontal: 8,
     paddingVertical: 4,
   },
   badgeDot: {
@@ -127,13 +127,13 @@ const styles = StyleSheet.create({
   rightColumn: {
     alignItems: 'flex-end',
     justifyContent: 'space-between',
-    marginLeft: 12,
+    marginLeft: 10,
   },
   countPill: {
-    borderRadius: 14,
+    borderRadius: 12,
     minWidth: 52,
-    paddingHorizontal: 10,
-    paddingVertical: 8,
+    paddingHorizontal: 8,
+    paddingVertical: 6,
   },
   countText: {
     fontFamily: AppFonts.semibold,
