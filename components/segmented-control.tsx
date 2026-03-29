@@ -30,7 +30,7 @@ export function SegmentedControl<T extends string>({
             key={option.value}
             onPress={() => onChange(option.value)}
             style={[styles.option, active && { backgroundColor: colors.accent }]}> 
-            <Text style={[styles.label, { color: colors.textMuted }, active && styles.labelActive]}>
+      <Text style={[styles.label, { color: active ? (colors.isLight ? '#0F172A' : '#F8FAFC') : colors.textMuted }]}>
               {option.label}
             </Text>
           </Pressable>
@@ -55,8 +55,5 @@ const styles = StyleSheet.create({
   label: {
     fontSize: 14,
     fontWeight: '600',
-  },
-  labelActive: {
-    color: '#F8FAFC',
   },
 });

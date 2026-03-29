@@ -37,7 +37,8 @@
     "plugins": [
       "expo-router",
       "./plugins/with-android-build-properties",
-      "@react-native-community/datetimepicker"
+      "@react-native-community/datetimepicker",
+      "react-native-edge-to-edge"
     ],
     "experiments": {
       "typedRoutes": true,

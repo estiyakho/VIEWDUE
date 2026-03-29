@@ -1,41 +1,65 @@
-import { ResetInterval } from '@/types/task';
+import { ResetInterval, FirstDayOfWeek } from '@/types/task';
 
-const DAY_IN_MS = 24 * 60 * 60 * 1000;
-
-const RESET_INTERVALS: Record<Exclude<ResetInterval, 'none'>, number> = {
-  daily: DAY_IN_MS,
-  weekly: 7 * DAY_IN_MS,
-  monthly: 30 * DAY_IN_MS,
-  yearly: 365 * DAY_IN_MS,
-};
+function getStartOfWeek(date: Date, firstDay: FirstDayOfWeek): number {
+  const d = new Date(date);
+  d.setHours(0, 0, 0, 0);
+  const day = d.getDay();
+  const dayMap: Record<FirstDayOfWeek, number> = {
+    sunday: 0, monday: 1, tuesday: 2, wednesday: 3,
+    thursday: 4, friday: 5, saturday: 6
+  };
+  const target = dayMap[firstDay];
+  const diff = (day < target ? 7 : 0) + day - target;
+  d.setDate(d.getDate() - diff);
+  return d.getTime();
+}
 
 export function shouldResetTasks(
   interval: ResetInterval,
   lastResetAt: string | null,
+  firstDayOfWeek: FirstDayOfWeek = 'sunday',
   now = Date.now()
 ) {
-  if (interval === 'none') {
-    return false;
-  }
+  if (interval === 'none') return false;
+  if (!lastResetAt) return true;
 
-  if (!lastResetAt) {
-    return true;
-  }
+  const lastDate = new Date(lastResetAt);
+  const nowDate = new Date(now);
 
-  const elapsed = now - new Date(lastResetAt).getTime();
-  return elapsed >= RESET_INTERVALS[interval];
+  // If time went backwards (e.g. system clock change), don't reset
+  if (nowDate <= lastDate) return false;
+
+  switch (interval) {
+    case 'daily':
+      return nowDate.toDateString() !== lastDate.toDateString();
+    
+    case 'weekly':
+      return getStartOfWeek(nowDate, firstDayOfWeek) > getStartOfWeek(lastDate, firstDayOfWeek);
+    
+    case 'monthly':
+      return (
+        nowDate.getMonth() !== lastDate.getMonth() || 
+        nowDate.getFullYear() !== lastDate.getFullYear()
+      );
+    
+    case 'yearly':
+      return nowDate.getFullYear() !== lastDate.getFullYear();
+    
+    default:
+      return false;
+  }
 }
 
 export function formatRelativeResetLabel(interval: ResetInterval) {
   switch (interval) {
     case 'daily':
-      return 'Every day';
+      return 'Every new day';
     case 'weekly':
-      return 'Every 7 days';
+      return 'Every new week';
     case 'monthly':
-      return 'Every 30 days';
+      return 'Every new month';
     case 'yearly':
-      return 'Every 365 days';
+      return 'Every new year';
     default:
       return 'Never';
   }

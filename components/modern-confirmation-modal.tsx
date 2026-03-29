@@ -1,5 +1,4 @@
 import { Ionicons } from '@expo/vector-icons';
-import * as Haptics from 'expo-haptics';
 import { Modal, Pressable, StyleSheet, Text, View } from 'react-native';
 import Animated, { FadeIn, FadeOut, ZoomIn, ZoomOut } from 'react-native-reanimated';
 
@@ -34,13 +33,11 @@ export function ModernConfirmationModal({
   const accentColor = tone === 'danger' ? colors.danger : colors.accent;
   
   const handleConfirm = () => {
-    Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success);
     onConfirm();
     onClose();
   };
 
   const handleCancel = () => {
-    Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
     onClose();
   };
 
@@ -101,7 +98,7 @@ export function ModernConfirmationModal({
                 }
               ]}
             >
-              <Text style={[styles.confirmButtonText]}>{confirmText}</Text>
+              <Text style={[styles.confirmButtonText, { color: colors.isLight ? '#0F172A' : '#FFFFFF' }]}>{confirmText}</Text>
             </Pressable>
           </View>
         </Animated.View>
@@ -176,7 +173,6 @@ const styles = StyleSheet.create({
     fontSize: 16,
   },
   confirmButtonText: {
-    color: '#FFFFFF',
     fontFamily: AppFonts.bold,
     fontSize: 16,
   },

@@ -1,12 +1,13 @@
 import { Ionicons } from '@expo/vector-icons';
 import { useMemo, useState } from 'react';
 import { FlatList, Pressable, StyleSheet, Text, TextInput, View } from 'react-native';
-import { SafeAreaView } from 'react-native-safe-area-context';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useRouter } from 'expo-router';
 import Svg, { Circle } from 'react-native-svg';
 
 import { CategoryFormModal } from '@/components/category-form-modal';
 import { FloatingActionButton } from '@/components/floating-action-button';
+import { ModernConfirmationModal } from '@/components/modern-confirmation-modal';
 import { AppFonts } from '@/constants/fonts';
 import { useAppTheme } from '@/hooks/use-app-theme';
 import { useTaskStore } from '@/store/use-task-store';
@@ -59,12 +60,14 @@ type CategoryTab = 'active' | 'archived';
 export default function CategoriesScreen() {
   const router = useRouter();
   const colors = useAppTheme();
+  const insets = useSafeAreaInsets();
   const categories = useTaskStore((state) => state.categories);
   const tasks = useTaskStore((state) => state.tasks);
 
   const [query, setQuery] = useState('');
   const [activeTab, setActiveTab] = useState<CategoryTab>('active');
   const [categoryModalVisible, setCategoryModalVisible] = useState(false);
+  const [categoryToDelete, setCategoryToDelete] = useState<string | null>(null);
 
   const categorySummaries = useMemo(() => {
     return categories.map((category) => {
@@ -115,14 +118,17 @@ export default function CategoriesScreen() {
     unarchiveCategory(id);
   };
 
-  const handleDelete = (id: string) => {
-    runListAnimation();
-    deleteCategory(id);
+  const executeDelete = () => {
+    if (categoryToDelete) {
+      runListAnimation();
+      deleteCategory(categoryToDelete);
+      setCategoryToDelete(null);
+    }
   };
 
   return (
-    <SafeAreaView edges={['top']} style={[styles.safeArea, { backgroundColor: colors.background }]}> 
-      <View style={[styles.container, { backgroundColor: colors.background }]}> 
+    <View style={[styles.safeArea, { backgroundColor: colors.background }]}> 
+      <View style={[styles.container, { paddingTop: Math.max(insets.top, 6), backgroundColor: colors.background }]}> 
         <View style={[styles.searchBar, { backgroundColor: colors.surfaceElevated, borderColor: colors.border }]}> 
           <Ionicons color={colors.textMuted} name="search-outline" size={24} />
           <TextInput
@@ -176,7 +182,7 @@ export default function CategoriesScreen() {
         </View>
 
         <FlatList
-          contentContainerStyle={styles.listContent}
+          contentContainerStyle={[styles.listContent, { paddingBottom: Math.max(92, insets.bottom + 80) }]}
           data={filteredCategories}
           keyExtractor={(item) => item.id}
           keyboardShouldPersistTaps="handled"
@@ -209,7 +215,7 @@ export default function CategoriesScreen() {
                     <Pressable onPress={() => handleUnarchive(item.id)} style={[styles.actionIconPill, { backgroundColor: colors.surfaceMuted }]}>
                       <Ionicons name="refresh-outline" size={18} color={colors.textSoft} />
                     </Pressable>
-                    <Pressable onPress={() => handleDelete(item.id)} style={[styles.actionIconPill, { backgroundColor: `${colors.danger}20` }]}>
+                    <Pressable onPress={() => setCategoryToDelete(item.id)} style={[styles.actionIconPill, { backgroundColor: `${colors.danger}20` }]}>
                       <Ionicons name="trash-outline" size={18} color={colors.danger} />
                     </Pressable>
                   </View>
@@ -235,13 +241,23 @@ export default function CategoriesScreen() {
         <FloatingActionButton iconName="add" onPress={() => setCategoryModalVisible(true)} />
       </View>
       <CategoryFormModal visible={categoryModalVisible} onClose={() => setCategoryModalVisible(false)} />
-    </SafeAreaView>
+      <ModernConfirmationModal
+        visible={!!categoryToDelete}
+        title="Delete Category?"
+        message="This will permanently delete this category and all its tasks."
+        onClose={() => setCategoryToDelete(null)}
+        onConfirm={executeDelete}
+        confirmText="Delete"
+        tone="danger"
+        iconName="trash-bin-outline"
+      />
+    </View>
   );
 }
 
 const styles = StyleSheet.create({
   safeArea: { flex: 1 },
-  container: { flex: 1, paddingHorizontal: 12, paddingTop: 6 },
+  container: { flex: 1, paddingHorizontal: 12 },
   searchBar: {
     alignItems: 'center',
     borderRadius: 18,
@@ -353,7 +369,7 @@ const styles = StyleSheet.create({
   },
   listContent: {
     flexGrow: 1,
-    paddingBottom: 92,
+    paddingBottom: 24,
   },
   card: {
     alignItems: 'center',

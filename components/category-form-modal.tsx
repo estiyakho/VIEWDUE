@@ -12,6 +12,7 @@ import {
   TextInput,
   View,
 } from 'react-native';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import Animated, { FadeIn, FadeOut, SlideInDown } from 'react-native-reanimated';
 
 import { ColorOptionSheet } from '@/components/color-option-sheet';
@@ -34,6 +35,7 @@ type CategoryFormModalProps = {
 
 export function CategoryFormModal({ visible, onClose, onCreated, onSaved, initialCategory }: CategoryFormModalProps) {
   const colors = useAppTheme();
+  const insets = useSafeAreaInsets();
   const addCategory = useTaskStore((state) => state.addCategory);
   const updateCategory = useTaskStore((state) => state.updateCategory);
   const accentColor = useTaskStore((state) => state.settings.accentColor);
@@ -105,8 +107,16 @@ export function CategoryFormModal({ visible, onClose, onCreated, onSaved, initia
             <Animated.View 
               entering={SlideInDown.duration(400)}
               exiting={FadeOut.duration(200)}
-              style={[styles.sheet, { backgroundColor: colors.surfaceElevated, borderColor: colors.border }]}
+              style={[
+                styles.sheet, 
+                { 
+                  backgroundColor: colors.surfaceElevated, 
+                  borderColor: colors.border,
+                  paddingBottom: Math.max(24, insets.bottom + 16)
+                }
+              ]}
             > 
+              <View style={[styles.handle, { backgroundColor: colors.border }]} />
               <View style={styles.header}>
                 <Text style={[styles.title, { color: colors.text }]}>
                   {isEditing ? 'Edit Category' : 'New Category'}
@@ -120,14 +130,22 @@ export function CategoryFormModal({ visible, onClose, onCreated, onSaved, initia
                 <View style={styles.form}>
                   <View style={styles.formField}>
                     <Text style={[styles.label, { color: colors.textSoft }]}>Name</Text>
-                    <TextInput
-                      autoFocus
-                      onChangeText={setName}
-                      placeholder="Category name"
-                      placeholderTextColor="#64748B"
-                      style={[styles.input, { backgroundColor: colors.surface, borderColor: colors.border, color: colors.text }]}
-                      value={name}
-                    />
+                    <View style={styles.nameRow}>
+                      <Pressable
+                        onPress={() => setColorPickerVisible(true)}
+                        style={[styles.miniColorSquare, { backgroundColor: selectedColor }]}
+                      >
+                        <Ionicons name="color-palette" size={14} color="#FFFFFF" />
+                      </Pressable>
+                      <TextInput
+                        autoFocus
+                        onChangeText={setName}
+                        placeholder="Category name"
+                        placeholderTextColor="#64748B"
+                        style={[styles.input, styles.flexInput, { backgroundColor: colors.surface, borderColor: colors.border, color: colors.text }]}
+                        value={name}
+                      />
+                    </View>
                   </View>
 
                   <View style={styles.formField}>
@@ -155,21 +173,7 @@ export function CategoryFormModal({ visible, onClose, onCreated, onSaved, initia
                     />
                   </View>
 
-                  <View style={styles.formField}>
-                    <Pressable
-                      onPress={() => setColorPickerVisible(true)}
-                      style={[styles.colorTrigger, { backgroundColor: colors.surface, borderColor: colors.border }]}>
-                      <View style={styles.colorTriggerLeft}>
-                        <Text style={[styles.colorLabel, { color: colors.textSoft }]}>Selected color</Text>
-                        <Text style={[styles.colorTriggerText, { color: colors.text }]}>{activePalette.label}</Text>
-                        <View style={[styles.colorPreviewBar, { backgroundColor: selectedColor }]} />
-                      </View>
-                      <View style={styles.colorTriggerRight}>
-                        <Text style={[styles.changeText, { color: colors.accent }]}>Change</Text>
-                        <Ionicons name="chevron-forward" size={16} color={colors.accent} />
-                      </View>
-                    </Pressable>
-                  </View>
+
                 </View>
               </ScrollView>
 
@@ -181,7 +185,7 @@ export function CategoryFormModal({ visible, onClose, onCreated, onSaved, initia
                   disabled={!trimmedName}
                   onPress={handleSave}
                   style={[styles.primaryButton, { backgroundColor: selectedColor }, !trimmedName && styles.disabledButton]}>
-                  <Text style={styles.primaryButtonText}>{isEditing ? 'Update' : 'Save'}</Text>
+                  <Text style={[styles.primaryButtonText, { color: '#FFFFFF' }]}>{isEditing ? 'Update' : 'Save'}</Text>
                 </Pressable>
               </View>
             </Animated.View>
@@ -209,19 +213,28 @@ const styles = StyleSheet.create({
   },
   modalWrapper: {
     flex: 1,
-    justifyContent: 'center',
+    justifyContent: 'flex-end',
   },
   sheet: {
-    borderRadius: 28,
+    borderTopLeftRadius: 28,
+    borderTopRightRadius: 28,
     borderWidth: 1,
-    elevation: 8,
-    maxHeight: '88%',
-    overflow: 'hidden',
-    padding: 24,
+    borderBottomWidth: 0,
+    elevation: 20,
+    maxHeight: '92%',
+    paddingHorizontal: 24,
+    paddingTop: 12,
     shadowColor: '#000',
-    shadowOffset: { height: 10, width: 0 },
-    shadowOpacity: 0.3,
-    shadowRadius: 20,
+    shadowOffset: { height: -4, width: 0 },
+    shadowOpacity: 0.1,
+    shadowRadius: 12,
+  },
+  handle: {
+    alignSelf: 'center',
+    borderRadius: 2,
+    height: 4,
+    marginBottom: 20,
+    width: 36,
   },
   header: {
     alignItems: 'center',
@@ -264,43 +277,25 @@ const styles = StyleSheet.create({
   textArea: {
     minHeight: MIN_FIELD_HEIGHT,
   },
-  colorTrigger: {
-    borderRadius: 14,
-    borderWidth: 1,
+  nameRow: {
     flexDirection: 'row',
-    justifyContent: 'space-between',
-    minHeight: 80,
-    paddingHorizontal: 16,
-    paddingVertical: 14,
-    marginTop: 8,
-  },
-  colorTriggerLeft: {
-    flex: 1,
-  },
-  colorLabel: {
-    fontFamily: AppFonts.semibold,
-    fontSize: 13,
-    marginBottom: 4,
-  },
-  colorTriggerText: {
-    fontFamily: AppFonts.bold,
-    fontSize: 16,
-    marginBottom: 12,
-  },
-  colorPreviewBar: {
-    borderRadius: 999,
-    height: 8,
-    width: 60,
-  },
-  colorTriggerRight: {
     alignItems: 'center',
-    flexDirection: 'row',
-    gap: 6,
-    marginLeft: 12,
+    gap: 12,
   },
-  changeText: {
-    fontFamily: AppFonts.medium,
-    fontSize: 14,
+  miniColorSquare: {
+    height: 48,
+    width: 48,
+    borderRadius: 12,
+    alignItems: 'center',
+    justifyContent: 'center',
+    elevation: 4,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.2,
+    shadowRadius: 4,
+  },
+  flexInput: {
+    flex: 1,
   },
   footer: {
     flexDirection: 'row',

@@ -2,6 +2,8 @@ import { Ionicons } from '@expo/vector-icons';
 import { ComponentProps } from 'react';
 import { Pressable, StyleSheet } from 'react-native';
 
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
+
 import { useAppTheme } from '@/hooks/use-app-theme';
 
 type FloatingActionButtonProps = {
@@ -11,6 +13,7 @@ type FloatingActionButtonProps = {
 
 export function FloatingActionButton({ onPress, iconName = 'add' }: FloatingActionButtonProps) {
   const colors = useAppTheme();
+  const insets = useSafeAreaInsets();
 
   return (
     <Pressable
@@ -18,10 +21,10 @@ export function FloatingActionButton({ onPress, iconName = 'add' }: FloatingActi
       onPress={onPress}
       style={({ pressed }) => [
         styles.button,
-        { backgroundColor: colors.accent },
+        { backgroundColor: colors.accent, bottom: Math.max(24, insets.bottom + 16) },
         pressed && styles.buttonPressed,
       ]}>
-      <Ionicons name={iconName} size={26} color="#F8FAFC" />
+      <Ionicons name={iconName} size={26} color={colors.isLight ? "#0F172A" : "#F8FAFC"} />
     </Pressable>
   );
 }
@@ -30,7 +33,6 @@ const styles = StyleSheet.create({
   button: {
     alignItems: 'center',
     borderRadius: 18,
-    bottom: 24,
     elevation: 8,
     height: 54,
     justifyContent: 'center',

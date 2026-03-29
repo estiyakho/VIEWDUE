@@ -18,5 +18,6 @@ export function getThemeColors(settings: Settings, resolvedTheme: 'light' | 'dar
     danger: '#F87171',
     success: '#34D399',
     warning: '#FBBF24',
+    isLight,
   };
 }

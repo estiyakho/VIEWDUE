@@ -8,7 +8,7 @@ import {
   useFonts,
 } from '@expo-google-fonts/inconsolata';
 import { Stack } from 'expo-router';
-import { StatusBar } from 'expo-status-bar';
+import { SystemBars } from 'react-native-edge-to-edge';
 import * as SplashScreen from 'expo-splash-screen';
 import { useEffect, useLayoutEffect, useMemo, type ReactNode } from 'react';
 import { Platform, View } from 'react-native';
@@ -110,24 +110,11 @@ export default function RootLayout() {
           screenOptions={{
             headerShown: false,
             animation: 'fade',
-            navigationBarColor: palette.background,
             contentStyle: { backgroundColor: palette.background },
           }}>
           <Stack.Screen name="(tabs)" />
-          <Stack.Screen
-            name="add-task"
-            options={{
-              presentation: 'modal',
-            }}
-          />
-          <Stack.Screen
-            name="add-category"
-            options={{
-              presentation: 'modal',
-            }}
-          />
         </Stack>
-        <StatusBar style={resolvedTheme === 'light' ? 'dark' : 'light'} backgroundColor={palette.background} />
+        <SystemBars style={resolvedTheme === 'light' ? 'dark' : 'light'} />
         <NotificationOnboardingModal 
           visible={!settings.hasCompletedNotificationOnboarding}
           onComplete={() => updateSettings({ hasCompletedNotificationOnboarding: true })}

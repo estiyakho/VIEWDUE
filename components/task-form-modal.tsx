@@ -12,6 +12,7 @@ import {
   TextInput,
   View,
 } from 'react-native';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import Animated, { FadeIn, FadeOut, SlideInDown } from 'react-native-reanimated';
 
 import { AppFonts } from '@/constants/fonts';
@@ -40,6 +41,7 @@ export function TaskFormModal({
   defaultCategoryId 
 }: TaskFormModalProps) {
   const colors = useAppTheme();
+  const insets = useSafeAreaInsets();
   const addTask = useTaskStore((state) => state.addTask);
   const updateTask = useTaskStore((state) => state.updateTask);
   const categories = useTaskStore((state) => state.categories);
@@ -101,8 +103,16 @@ export function TaskFormModal({
           <Animated.View 
             entering={SlideInDown.duration(400)}
             exiting={FadeOut.duration(200)}
-            style={[styles.sheet, { backgroundColor: colors.surfaceElevated, borderColor: colors.border }]}
+            style={[
+              styles.sheet, 
+              { 
+                backgroundColor: colors.surfaceElevated, 
+                borderColor: colors.border,
+                paddingBottom: Math.max(24, insets.bottom + 16)
+              }
+            ]}
           > 
+            <View style={[styles.handle, { backgroundColor: colors.border }]} />
             <View style={styles.header}>
               <Text style={[styles.title, { color: colors.text }]}>
                 {isEditing ? 'Edit Task' : 'New Task'}
@@ -163,7 +173,7 @@ export function TaskFormModal({
                           borderColor: !selectedCategoryId ? colors.accent : colors.border
                         }
                       ]}>
-                      <Text style={[styles.categoryChipText, { color: !selectedCategoryId ? '#FFF' : colors.textSoft }]}>None</Text>
+                      <Text style={[styles.categoryChipText, { color: !selectedCategoryId ? (colors.isLight ? '#0F172A' : '#FFF') : colors.textSoft }]}>None</Text>
                     </Pressable>
                     {categories.map((cat) => (
                       <Pressable
@@ -176,7 +186,7 @@ export function TaskFormModal({
                             borderColor: selectedCategoryId === cat.id ? cat.color : colors.border
                           }
                         ]}>
-                        <Text style={[styles.categoryChipText, { color: selectedCategoryId === cat.id ? '#FFF' : colors.textSoft }]}>
+                        <Text style={[styles.categoryChipText, { color: selectedCategoryId === cat.id ? (colors.isLight ? '#0F172A' : '#FFF') : colors.textSoft }]}>
                           {cat.name}
                         </Text>
                       </Pressable>
@@ -194,7 +204,7 @@ export function TaskFormModal({
                 disabled={!trimmedTitle}
                 onPress={handleSave}
                 style={[styles.primaryButton, { backgroundColor: colors.accent }, !trimmedTitle && styles.disabledButton]}>
-                <Text style={styles.primaryButtonText}>{isEditing ? 'Update' : 'Save'}</Text>
+                <Text style={[styles.primaryButtonText, { color: colors.isLight ? '#0F172A' : '#F8FAFC' }]}>{isEditing ? 'Update' : 'Save'}</Text>
               </Pressable>
             </View>
           </Animated.View>
@@ -212,19 +222,28 @@ const styles = StyleSheet.create({
   },
   modalWrapper: {
     flex: 1,
-    justifyContent: 'center',
+    justifyContent: 'flex-end',
   },
   sheet: {
-    borderRadius: 28,
+    borderTopLeftRadius: 28,
+    borderTopRightRadius: 28,
     borderWidth: 1,
-    elevation: 8,
-    maxHeight: '88%',
-    overflow: 'hidden',
-    padding: 24,
+    borderBottomWidth: 0,
+    elevation: 20,
+    maxHeight: '92%',
+    paddingHorizontal: 24,
+    paddingTop: 12,
     shadowColor: '#000',
-    shadowOffset: { height: 10, width: 0 },
-    shadowOpacity: 0.3,
-    shadowRadius: 20,
+    shadowOffset: { height: -4, width: 0 },
+    shadowOpacity: 0.1,
+    shadowRadius: 12,
+  },
+  handle: {
+    alignSelf: 'center',
+    borderRadius: 2,
+    height: 4,
+    marginBottom: 20,
+    width: 36,
   },
   header: {
     alignItems: 'center',

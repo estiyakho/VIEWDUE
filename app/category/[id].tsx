@@ -2,11 +2,12 @@ import { Ionicons } from '@expo/vector-icons';
 import { Stack, useLocalSearchParams, useRouter } from 'expo-router';
 import { useCallback, useMemo, useState } from 'react';
 import { FlatList, Pressable, StyleSheet, Text, View } from 'react-native';
-import { SafeAreaView } from 'react-native-safe-area-context';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 import { CategoryFormModal } from '@/components/category-form-modal';
 import { TaskFormModal } from '@/components/task-form-modal';
 import { EmptyState } from '@/components/empty-state';
+import { FloatingActionButton } from '@/components/floating-action-button';
 import { TaskItem } from '@/components/task-item';
 import { AppFonts } from '@/constants/fonts';
 import { useAppTheme } from '@/hooks/use-app-theme';
@@ -20,6 +21,7 @@ export default function CategoryDetailsScreen() {
   const router = useRouter();
   const params = useLocalSearchParams<{ id?: string | string[] }>();
   const colors = useAppTheme();
+  const insets = useSafeAreaInsets();
   const categories = useTaskStore((state) => state.categories);
   const tasks = useTaskStore((state) => state.tasks);
   const toggleTaskStatus = useTaskStore((state) => state.toggleTaskStatus);
@@ -30,6 +32,7 @@ export default function CategoryDetailsScreen() {
 
   const [editModalVisible, setEditModalVisible] = useState(false);
   const [editingTask, setEditingTask] = useState<Task | undefined>(undefined);
+  const [isAddingTask, setIsAddingTask] = useState(false);
   const [taskFilter, setTaskFilter] = useState<CategoryTaskFilter>('all');
 
   const categoryId = Array.isArray(params.id) ? params.id[0] : params.id;
@@ -67,9 +70,9 @@ export default function CategoryDetailsScreen() {
 
   if (!category) {
     return (
-      <SafeAreaView edges={['top']} style={[styles.safeArea, { backgroundColor: colors.background }]}> 
+      <View style={[styles.safeArea, { backgroundColor: colors.background }]}> 
         <Stack.Screen options={{ headerShown: false }} />
-        <View style={[styles.container, { backgroundColor: colors.background }]}> 
+        <View style={[styles.container, { paddingTop: Math.max(insets.top, 6), backgroundColor: colors.background }]}> 
           <View style={styles.headerRow}>
             <Pressable onPress={() => router.back()} style={[styles.iconButton, { backgroundColor: colors.surface, borderColor: colors.border }]}>
               <Ionicons name="chevron-back" size={18} color={colors.text} />
@@ -77,14 +80,14 @@ export default function CategoryDetailsScreen() {
           </View>
           <EmptyState title="Category not found" description="This category may have been removed." />
         </View>
-      </SafeAreaView>
+      </View>
     );
   }
 
   return (
-    <SafeAreaView edges={['top']} style={[styles.safeArea, { backgroundColor: colors.background }]}> 
+    <View style={[styles.safeArea, { backgroundColor: colors.background }]}> 
       <Stack.Screen options={{ headerShown: false }} />
-      <View style={[styles.container, { backgroundColor: colors.background }]}> 
+      <View style={[styles.container, { paddingTop: Math.max(insets.top, 6), backgroundColor: colors.background }]}> 
         <View style={styles.headerRow}>
           <Pressable onPress={() => router.back()} style={[styles.iconButton, { backgroundColor: colors.surface, borderColor: colors.border }]}>
             <Ionicons name="chevron-back" size={18} color={colors.text} />
@@ -103,7 +106,7 @@ export default function CategoryDetailsScreen() {
         <View style={[styles.heroCard, { backgroundColor: `${category.color}16`, borderColor: `${category.color}40` }]}> 
           <View style={styles.heroHeader}>
             <View style={[styles.heroIcon, { backgroundColor: category.color }]}>
-              <Ionicons name="folder-open-outline" size={18} color="#F8FAFC" />
+              <Ionicons name="folder-open-outline" size={18} color={colors.isLight ? '#0F172A' : '#F8FAFC'} />
             </View>
             <View style={styles.heroTextWrap}>
               <Text style={[styles.heroTitle, { color: colors.text }]}>{category.name}</Text>
@@ -147,14 +150,14 @@ export default function CategoryDetailsScreen() {
                     borderColor: active ? category.color : colors.border,
                   },
                 ]}>
-                <Text style={styles.filterChipText}>{option.label}</Text>
+                <Text style={[styles.filterChipText, { color: active ? (colors.isLight ? '#0F172A' : '#F8FAFC') : colors.textSoft }]}>{option.label}</Text>
               </Pressable>
             );
           })}
         </View>
 
         <FlatList
-          contentContainerStyle={styles.listContent}
+          contentContainerStyle={[styles.listContent, { paddingBottom: Math.max(92, insets.bottom + 80) }]}
           data={categoryTasks}
           keyExtractor={(item) => item.id}
           keyboardShouldPersistTaps="handled"
@@ -171,6 +174,7 @@ export default function CategoryDetailsScreen() {
           )}
           showsVerticalScrollIndicator={false}
         />
+        <FloatingActionButton iconName="add" onPress={() => setIsAddingTask(true)} />
       </View>
 
       <CategoryFormModal
@@ -181,12 +185,15 @@ export default function CategoryDetailsScreen() {
       />
 
       <TaskFormModal
-        visible={!!editingTask}
+        visible={!!editingTask || isAddingTask}
         initialTask={editingTask}
         defaultCategoryId={category.id}
-        onClose={() => setEditingTask(undefined)}
+        onClose={() => {
+          setEditingTask(undefined);
+          setIsAddingTask(false);
+        }}
       />
-    </SafeAreaView>
+    </View>
   );
 }
 
@@ -195,7 +202,6 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     paddingHorizontal: 12,
-    paddingTop: 6,
   },
   headerRow: {
     alignItems: 'center',
@@ -238,22 +244,22 @@ const styles = StyleSheet.create({
     fontSize: 14,
   },
   heroCard: {
-    borderRadius: 14,
+    borderRadius: 24,
     borderWidth: 1,
-    marginBottom: 12,
-    padding: 12,
+    marginBottom: 16,
+    padding: 16,
   },
   heroHeader: {
     alignItems: 'center',
     flexDirection: 'row',
-    gap: 12,
+    gap: 16,
   },
   heroIcon: {
     alignItems: 'center',
-    borderRadius: 12,
-    height: 40,
+    borderRadius: 16,
+    height: 48,
     justifyContent: 'center',
-    width: 40,
+    width: 48,
   },
   heroTextWrap: {
     flex: 1,
@@ -274,16 +280,16 @@ const styles = StyleSheet.create({
     marginTop: 14,
   },
   statCard: {
-    borderRadius: 12,
+    borderRadius: 16,
     borderWidth: 1,
     flex: 1,
-    paddingHorizontal: 14,
-    paddingVertical: 8,
+    paddingHorizontal: 16,
+    paddingVertical: 12,
   },
   statValue: {
     fontFamily: AppFonts.bold,
-    fontSize: 16,
-    marginBottom: 0,
+    fontSize: 18,
+    marginBottom: 2,
   },
   statLabel: {
     fontFamily: AppFonts.medium,

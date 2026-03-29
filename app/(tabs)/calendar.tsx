@@ -15,7 +15,7 @@ import {
 } from 'react-native';
 import { Gesture, GestureDetector } from 'react-native-gesture-handler';
 import Animated, { FadeIn, FadeOut, LinearTransition, runOnJS, SlideInDown } from 'react-native-reanimated';
-import { SafeAreaView } from 'react-native-safe-area-context';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 import { FloatingActionButton } from '@/components/floating-action-button';
 import { AppFonts } from '@/constants/fonts';
@@ -35,6 +35,7 @@ function readableTextOn(color: string) {
 export default function CalendarScreen() {
   const { width } = useWindowDimensions();
   const colors = useAppTheme();
+  const insets = useSafeAreaInsets();
   const scheduledTasks = useTaskStore((state) => state.scheduledTasks);
   const deleteScheduledTask = useTaskStore((state) => state.deleteScheduledTask);
   const addScheduledTask = useTaskStore((state) => state.addScheduledTask);
@@ -195,7 +196,7 @@ export default function CalendarScreen() {
     });
 
   return (
-    <SafeAreaView edges={['top']} style={[styles.safeArea, { backgroundColor: colors.background }]}>
+    <View style={[styles.safeArea, { paddingTop: Math.max(insets.top, 8), backgroundColor: colors.background }]}>
       <View style={[styles.container, { backgroundColor: colors.background }]}>
         <View style={styles.header}>
           <View style={styles.headerSide}>
@@ -324,7 +325,9 @@ export default function CalendarScreen() {
           ) : null}
         </View>
 
-        <ScrollView contentContainerStyle={styles.body} showsVerticalScrollIndicator={false}>
+        <ScrollView 
+          contentContainerStyle={[styles.body, { paddingBottom: Math.max(100, insets.bottom + 80) }]} 
+          showsVerticalScrollIndicator={false}>
           {dayTasks.length ? (
             dayTasks.map((task) => (
               <View
@@ -383,7 +386,14 @@ export default function CalendarScreen() {
           <Animated.View
             entering={SlideInDown.duration(400)}
             exiting={FadeOut.duration(200)}
-            style={[styles.modalCard, { backgroundColor: colors.surfaceElevated, borderColor: colors.border }]}
+            style={[
+              styles.modalCard, 
+              { 
+                backgroundColor: colors.surfaceElevated, 
+                borderColor: colors.border,
+                paddingBottom: Math.max(20, insets.bottom + 10)
+              }
+            ]}
           >
             <View style={[styles.handleBar, { backgroundColor: colors.border }]} />
             <Text style={[styles.modalTitle, { color: colors.text }]}>
@@ -599,7 +609,7 @@ export default function CalendarScreen() {
           </Animated.View>
         </KeyboardAvoidingView>
       </Modal>
-    </SafeAreaView>
+    </View>
   );
 }
 

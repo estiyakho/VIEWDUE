@@ -1,7 +1,7 @@
 import { Ionicons } from "@expo/vector-icons";
 import { useMemo } from "react";
 import { ScrollView, StyleSheet, Text, View } from "react-native";
-import { SafeAreaView } from "react-native-safe-area-context";
+import { useSafeAreaInsets } from "react-native-safe-area-context";
 
 import { AppFonts } from "@/constants/fonts";
 import { useAppTheme } from "@/hooks/use-app-theme";
@@ -40,6 +40,7 @@ function StatBox({
 
 export default function StatisticsScreen() {
   const colors = useAppTheme();
+  const insets = useSafeAreaInsets();
   const accent = colors.accent;
   const tasks = useTaskStore((state) => state.tasks);
   const statsResetAt = useTaskStore((state) => state.settings.statsResetAt);
@@ -232,14 +233,13 @@ export default function StatisticsScreen() {
   const maxHourly = Math.max(...hourlyCounts.map((item) => item.count)) || 1;
 
   return (
-    <SafeAreaView
-      edges={["top"]}
-      style={[styles.safeArea, { backgroundColor: colors.background }]}
+    <View
+      style={[styles.safeArea, { paddingTop: insets.top, backgroundColor: colors.background }]}
     >
       <ScrollView
         contentContainerStyle={[
           styles.container,
-          { backgroundColor: colors.background },
+          { backgroundColor: colors.background, paddingBottom: insets.bottom + 20 },
         ]}
         showsVerticalScrollIndicator={false}
       >
@@ -388,7 +388,7 @@ export default function StatisticsScreen() {
           </View>
         </View>
       </ScrollView>
-    </SafeAreaView>
+    </View>
   );
 }
 

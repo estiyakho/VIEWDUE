@@ -1,7 +1,7 @@
 import { Alert, Pressable, ScrollView, StyleSheet, Switch, Text, View } from 'react-native';
-import { SafeAreaView } from 'react-native-safe-area-context';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { Ionicons } from '@expo/vector-icons';
-import { ReactNode, useState } from 'react';
+import { ReactNode, useState, Children, isValidElement, cloneElement } from 'react';
 
 import { ColorOptionSheet } from '@/components/color-option-sheet';
 import { AppFonts } from '@/constants/fonts';
@@ -90,6 +90,7 @@ function Row({
   iconName,
   valueNode,
   tone = 'default',
+  isLast,
 }: {
   label: string;
   value?: string;
@@ -97,6 +98,7 @@ function Row({
   iconName: keyof typeof Ionicons.glyphMap;
   valueNode?: ReactNode;
   tone?: RowTone;
+  isLast?: boolean;
 }) {
   const colors = useAppTheme();
   const iconColor = tone === 'danger' ? colors.danger : colors.accent;
@@ -104,7 +106,7 @@ function Row({
   const valueColor = tone === 'danger' ? '#FCA5A5' : colors.textMuted;
 
   return (
-    <Pressable onPress={onPress} style={[styles.row, { borderBottomColor: colors.border }]}> 
+    <Pressable onPress={onPress} style={[styles.row, !isLast && { borderBottomColor: colors.border, borderBottomWidth: 1 }]}> 
       <View style={styles.rowLeft}>
         <View style={[styles.rowIconWrap, { backgroundColor: `${iconColor}16` }]}>
           <Ionicons color={iconColor} name={iconName} size={18} />
@@ -124,16 +126,18 @@ function ToggleRow({
   value,
   onValueChange,
   iconName,
+  isLast,
 }: {
   label: string;
   value: boolean;
   onValueChange: (next: boolean) => void;
   iconName: keyof typeof Ionicons.glyphMap;
+  isLast?: boolean;
 }) {
   const colors = useAppTheme();
 
   return (
-    <View style={[styles.row, { borderBottomColor: colors.border }]}> 
+    <View style={[styles.row, !isLast && { borderBottomColor: colors.border, borderBottomWidth: 1 }]}> 
       <View style={styles.rowLeft}>
         <View style={[styles.rowIconWrap, { backgroundColor: `${colors.accent}16` }]}>
           <Ionicons color={colors.accent} name={iconName} size={18} />
@@ -152,17 +156,29 @@ function ToggleRow({
 
 function Section({ title, children }: { title: string; children: ReactNode }) {
   const colors = useAppTheme();
+  
+  const childrenWithProps = Children.map(children, (child, index) => {
+    if (isValidElement(child)) {
+      return cloneElement(child as any, { 
+        isLast: index === Children.count(children) - 1 
+      });
+    }
+    return child;
+  });
 
   return (
     <View style={styles.sectionWrap}>
       <Text style={[styles.sectionHeading, { color: colors.accent }]}>{title}</Text>
-      <View style={[styles.sectionCard, { backgroundColor: colors.surfaceElevated, borderColor: colors.border }]}>{children}</View>
+      <View style={[styles.sectionCard, { backgroundColor: colors.surfaceElevated, borderColor: colors.border }]}>
+        {childrenWithProps}
+      </View>
     </View>
   );
 }
 
 export default function SettingsScreen() {
   const colors = useAppTheme();
+  const insets = useSafeAreaInsets();
   const tasksCount = useTaskStore((state) => state.tasks.length);
   const categoriesCount = useTaskStore((state) => state.categories.length);
   const settings = useTaskStore((state) => state.settings);
@@ -216,8 +232,11 @@ export default function SettingsScreen() {
   };
 
   return (
-    <SafeAreaView edges={['top']} style={[styles.safeArea, { backgroundColor: colors.background }]}> 
-      <ScrollView contentContainerStyle={[styles.content, { backgroundColor: colors.background }]} showsVerticalScrollIndicator={false}>
+    <View style={[styles.safeArea, { backgroundColor: colors.background, paddingTop: Math.max(insets.top, 10) }]}> 
+      <ScrollView 
+        contentContainerStyle={[styles.content, { paddingBottom: Math.max(32, insets.bottom + 20) }]} 
+        showsVerticalScrollIndicator={false}
+      >
         <Text style={[styles.title, { color: colors.text }]}>Settings</Text>
 
         <Section title="Appearance">
@@ -244,15 +263,12 @@ export default function SettingsScreen() {
 
         <Section title="Data Management">
           <Row label="Reset Interval" value={formatRelativeResetLabel(settings.resetInterval)} onPress={() => openSheet('resetInterval')} iconName="refresh-circle-outline" />
-          <View style={[styles.row, { borderBottomColor: colors.border }]}> 
-            <View style={styles.rowLeft}>
-              <View style={[styles.rowIconWrap, { backgroundColor: `${colors.accent}16` }]}>
-                <Ionicons color={colors.accent} name="archive-outline" size={18} />
-              </View>
-              <Text style={[styles.rowLabel, { color: colors.text }]}>Stored Items</Text>
-            </View>
-            <Text style={[styles.rowValue, { color: colors.textMuted }]}>{tasksCount + categoriesCount}</Text>
-          </View>
+          <Row 
+            label="Stored Items" 
+            value={`${tasksCount + categoriesCount}`}
+            iconName="archive-outline"
+            onPress={() => {}} // No-op row for consistency
+          />
           <Row label="Reset Now" value="" onPress={() => openSheet('resetNow')} iconName="trash-outline" tone="danger" />
         </Section>
       </ScrollView>
@@ -273,32 +289,31 @@ export default function SettingsScreen() {
         message={confirmConfig.message}
         onConfirm={confirmConfig.action}
         onClose={() => setConfirmConfig((prev) => ({ ...prev, visible: false }))}
-        tone="danger"
         iconName="trash-outline"
         confirmText="Confirm Reset"
       />
-    </SafeAreaView>
+    </View>
   );
 }
 
 const styles = StyleSheet.create({
   safeArea: { flex: 1 },
-  content: { paddingBottom: 32, paddingHorizontal: 14, paddingTop: 10 },
-  title: { fontFamily: AppFonts.bold, fontSize: 32, marginBottom: 20 },
+  content: { paddingHorizontal: 16 },
+  title: { 
+    fontFamily: AppFonts.bold, 
+    fontSize: 34, 
+    marginBottom: 24,
+    marginTop: 4,
+  },
   sectionWrap: { marginBottom: 18 },
   sectionHeading: { fontFamily: AppFonts.bold, fontSize: 16, marginBottom: 10 },
   sectionCard: {
-    borderRadius: 28,
+    borderRadius: 24,
     borderWidth: 1,
     overflow: 'hidden',
-    shadowColor: '#000000',
-    shadowOffset: { width: 0, height: 10 },
-    shadowOpacity: 0.18,
-    shadowRadius: 18,
   },
   row: {
     alignItems: 'center',
-    borderBottomWidth: 1,
     flexDirection: 'row',
     justifyContent: 'space-between',
     minHeight: 70,

@@ -13,7 +13,8 @@ import { DEFAULT_CATEGORIES, DEFAULT_SETTINGS } from "@/utils/app-defaults";
 import { shouldResetTasks } from "@/utils/reset";
 import { 
   scheduleReminderNotification, 
-  cancelNotification 
+  cancelNotification,
+  cancelAllScheduledNotifications
 } from "@/utils/notifications";
 
 type TaskStore = {
@@ -109,15 +110,19 @@ export const useTaskStore = create<TaskStore>()(
         let snoozeId: string | undefined;
 
         if (time) {
-          const result = await scheduleReminderNotification(
-            trimmedTitle,
-            description || "",
-            date,
-            time,
-            settings.snoozeDuration
-          );
-          notificationId = result.notificationId;
-          snoozeId = result.snoozeId;
+          try {
+            const result = await scheduleReminderNotification(
+              trimmedTitle,
+              description || "",
+              date,
+              time,
+              settings.snoozeDuration
+            );
+            notificationId = result.notificationId;
+            snoozeId = result.snoozeId;
+          } catch (error) {
+            console.warn("Failed to schedule notification:", error);
+          }
         }
 
         set((state) => ({
@@ -164,15 +169,19 @@ export const useTaskStore = create<TaskStore>()(
         let snoozeId: string | undefined;
 
         if (time) {
-          const result = await scheduleReminderNotification(
-            trimmedTitle,
-            description || "",
-            date,
-            time,
-            settings.snoozeDuration
-          );
-          notificationId = result.notificationId;
-          snoozeId = result.snoozeId;
+          try {
+            const result = await scheduleReminderNotification(
+              trimmedTitle,
+              description || "",
+              date,
+              time,
+              settings.snoozeDuration
+            );
+            notificationId = result.notificationId;
+            snoozeId = result.snoozeId;
+          } catch (error) {
+            console.warn("Failed to schedule updated notification:", error);
+          }
         }
 
         set((state) => ({
@@ -321,15 +330,18 @@ export const useTaskStore = create<TaskStore>()(
           categories: state.categories.filter((category) => category.id !== id),
           tasks: state.tasks.filter((task) => task.categoryId !== id),
         })),
-      resetData: () =>
+      resetData: () => {
+        cancelAllScheduledNotifications().catch(console.error);
         set((state) => ({
           tasks: [],
           categories: [],
+          scheduledTasks: [],
           settings: {
             ...state.settings,
             lastResetAt: new Date().toISOString(),
           },
-        })),
+        }));
+      },
       resetStats: () =>
         set((state) => ({
           settings: {
@@ -366,7 +378,7 @@ export const useTaskStore = create<TaskStore>()(
       checkAndResetTasks: () => {
         const { settings } = get();
 
-        if (!shouldResetTasks(settings.resetInterval, settings.lastResetAt)) {
+        if (!shouldResetTasks(settings.resetInterval, settings.lastResetAt, settings.firstDayOfWeek)) {
           return;
         }
 

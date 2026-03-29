@@ -15,7 +15,7 @@ import {
   TextInput,
   View,
 } from "react-native";
-import { SafeAreaView } from "react-native-safe-area-context";
+import { useSafeAreaInsets } from "react-native-safe-area-context";
 
 import { EmptyState } from "@/components/empty-state";
 import { FloatingActionButton } from "@/components/floating-action-button";
@@ -45,6 +45,7 @@ type SortMode = (typeof SORT_OPTIONS)[number]["value"];
 export default function TodosScreen() {
   const params = useLocalSearchParams<{ categoryId?: string | string[] }>();
   const colors = useAppTheme();
+  const insets = useSafeAreaInsets();
 
   const tasks = useTaskStore((state) => state.tasks);
   const categories = useTaskStore((state) => state.categories);
@@ -162,11 +163,8 @@ export default function TodosScreen() {
   );
 
   return (
-    <SafeAreaView
-      edges={["top"]}
-      style={[styles.safeArea, { backgroundColor: colors.background }]}
-    >
-      <View style={[styles.container, { backgroundColor: colors.background }]}>
+    <View style={[styles.safeArea, { backgroundColor: colors.background }]}>
+      <View style={[styles.container, { paddingTop: Math.max(insets.top, 6), backgroundColor: colors.background }]}>
         <View
           style={[
             styles.searchBar,
@@ -246,33 +244,32 @@ export default function TodosScreen() {
               },
             ]}
           >
-            <Text style={styles.chipText}>All</Text>
+            <Text style={[styles.chipText, { color: selectedCategoryId === "all" ? (colors.isLight ? '#0F172A' : '#F8FAFC') : colors.textSoft }]}>All</Text>
           </Pressable>
-          {categories.map((category) => (
-            <Pressable
-              key={category.id}
-              onPress={() => setSelectedCategoryId(category.id)}
-              style={[
-                styles.chip,
-                {
-                  backgroundColor:
-                    selectedCategoryId === category.id
-                      ? category.color
-                      : colors.surfaceMuted,
-                  borderColor:
-                    selectedCategoryId === category.id
-                      ? category.color
-                      : colors.border,
-                },
-              ]}
-            >
-              <Text style={styles.chipText}>{category.name}</Text>
-            </Pressable>
-          ))}
+          {categories.filter((c) => !c.isArchived).map((category) => {
+            const active = selectedCategoryId === category.id;
+            return (
+              <Pressable
+                key={category.id}
+                onPress={() => setSelectedCategoryId(category.id)}
+                style={[
+                  styles.chip,
+                  {
+                    backgroundColor: active ? category.color : colors.surfaceMuted,
+                    borderColor: active ? category.color : colors.border,
+                  },
+                ]}
+              >
+                <Text style={[styles.chipText, { color: active ? (colors.isLight ? '#0F172A' : '#F8FAFC') : colors.textSoft }]}>
+                  {category.name}
+                </Text>
+              </Pressable>
+            );
+          })}
         </ScrollView>
 
         <FlatList
-          contentContainerStyle={styles.listContent}
+          contentContainerStyle={[styles.listContent, { paddingBottom: Math.max(92, insets.bottom + 80) }]}
           data={filteredTasks}
           keyExtractor={(item) => item.id}
           keyboardShouldPersistTaps="handled"
@@ -315,7 +312,7 @@ export default function TodosScreen() {
           setEditingTask(undefined);
         }}
       />
-    </SafeAreaView>
+    </View>
   );
 }
 
@@ -379,13 +376,11 @@ const styles = StyleSheet.create({
     paddingVertical: 9,
   },
   chipText: {
-    color: "#F8FAFC",
     fontFamily: AppFonts.semibold,
     fontSize: 13,
   },
   listContent: {
     flexGrow: 1,
-    paddingBottom: 92,
     paddingTop: 2,
   },
 });
