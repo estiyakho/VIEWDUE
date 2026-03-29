@@ -47,3 +47,12 @@ export type Settings = {
   defaultScreen: DefaultScreen;
   language: Language;
 };
+
+export type ScheduledTask = {
+  id: string;
+  title: string;
+  description?: string;
+  date: string; // ISO date (YYYY-MM-DD)
+  createdAt: string;
+};
+

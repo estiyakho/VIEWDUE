@@ -4,14 +4,16 @@ import { createJSONStorage, persist } from 'zustand/middleware';
 
 import { DEFAULT_CATEGORIES, DEFAULT_SETTINGS } from '@/utils/app-defaults';
 import { shouldResetTasks } from '@/utils/reset';
-import { Category, ResetInterval, Settings, Task } from '@/types/task';
+import { Category, ResetInterval, ScheduledTask, Settings, Task } from '@/types/task';
 
 type TaskStore = {
   hydrated: boolean;
   tasks: Task[];
+  scheduledTasks: ScheduledTask[];
   categories: Category[];
   settings: Settings;
-  addTask: (input: { title: string; description?: string; categoryId?: string }) => void;
+  addScheduledTask: (input: { title: string; description?: string; date: string }) => void;
+  addTask: (input: { title: string; description?: string; categoryId?: string; createdAt?: string }) => void;
   toggleTaskStatus: (id: string) => void;
   deleteTask: (id: string) => void;
   addCategory: (input: { name: string; description?: string; color?: string }) => string | null;
@@ -42,7 +44,8 @@ export const useTaskStore = create<TaskStore>()(
       tasks: [],
       categories: DEFAULT_CATEGORIES,
       settings: DEFAULT_SETTINGS,
-      addTask: ({ title, description, categoryId }) =>
+      scheduledTasks: [],
+      addTask: ({ title, description, categoryId, createdAt }) =>
         set((state) => ({
           tasks: [
             {
@@ -51,7 +54,7 @@ export const useTaskStore = create<TaskStore>()(
               description: description?.trim() || undefined,
               categoryId: categoryId || undefined,
               status: 'todo',
-              createdAt: new Date().toISOString(),
+              createdAt: createdAt ?? new Date().toISOString(),
             },
             ...state.tasks,
           ],
@@ -196,12 +199,14 @@ export const useTaskStore = create<TaskStore>()(
       storage: createJSONStorage(() => AsyncStorage),
       partialize: (state) => ({
         tasks: state.tasks,
+        scheduledTasks: state.scheduledTasks,
         categories: state.categories,
         settings: state.settings,
       }),
       migrate: (persistedState) => {
         const state = persistedState as Partial<{
           tasks: Task[];
+  scheduledTasks: ScheduledTask[];
           categories: Category[];
           settings: Partial<Settings> & {
             dynamicColors?: boolean;
@@ -212,6 +217,7 @@ export const useTaskStore = create<TaskStore>()(
 
         return {
           tasks: state?.tasks ?? [],
+          scheduledTasks: (state as any)?.scheduledTasks ?? [],
           categories: (state?.categories ?? DEFAULT_CATEGORIES).map((category) => ({
             ...category,
             description: category.description ?? undefined,
@@ -234,3 +240,11 @@ export const useTaskStore = create<TaskStore>()(
     }
   )
 );
+
+
+
+
+
+
+
+

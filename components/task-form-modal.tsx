@@ -7,18 +7,22 @@ import { AppFonts } from '@/constants/fonts';
 import { useAppTheme } from '@/hooks/use-app-theme';
 import { useTaskStore } from '@/store/use-task-store';
 import { runListAnimation } from '@/utils/layout-animation';
+import { toDayKey } from '@/utils/date';
 
 const MIN_FIELD_HEIGHT = 56;
 
 type TaskFormModalProps = {
   visible: boolean;
   initialCategoryId?: string;
+  initialDate?: string;
+  mode?: 'task' | 'scheduled';
   onClose: () => void;
 };
 
-export function TaskFormModal({ visible, initialCategoryId, onClose }: TaskFormModalProps) {
+export function TaskFormModal({ visible, initialCategoryId, initialDate, mode = 'task', onClose }: TaskFormModalProps) {
   const colors = useAppTheme();
   const addTask = useTaskStore((state) => state.addTask);
+  const addScheduledTask = useTaskStore((state) => state.addScheduledTask);
   const categories = useTaskStore((state) => state.categories);
   const [title, setTitle] = useState('');
   const [description, setDescription] = useState('');
@@ -49,7 +53,11 @@ export function TaskFormModal({ visible, initialCategoryId, onClose }: TaskFormM
     }
 
     runListAnimation();
-    addTask({ title: trimmedTitle, description, categoryId: selectedCategoryId });
+    if (mode === 'scheduled') {
+      addScheduledTask({ title: trimmedTitle, description, date: initialDate?.slice(0, 10) ?? toDayKey(new Date()) });
+    } else {
+      addTask({ title: trimmedTitle, description, categoryId: selectedCategoryId, createdAt: initialDate });
+    }
     onClose();
   };
 
@@ -61,7 +69,7 @@ export function TaskFormModal({ visible, initialCategoryId, onClose }: TaskFormM
           <KeyboardAvoidingView behavior={Platform.OS === 'ios' ? 'padding' : undefined}>
             <View style={[styles.sheet, { backgroundColor: colors.surfaceElevated, borderColor: colors.border }]}> 
               <View style={styles.hero}>
-                <Text style={[styles.title, { color: colors.text }]}>New Task</Text>
+                <Text style={[styles.title, { color: colors.text }]}>{mode === 'scheduled' ? 'New Scheduled Item' : 'New Task'}</Text>
                 <Pressable onPress={onClose} style={[styles.closeButton, { backgroundColor: colors.surfaceMuted }]}> 
                   <Ionicons name="close" size={18} color={colors.textSoft} />
                 </Pressable>
@@ -69,41 +77,43 @@ export function TaskFormModal({ visible, initialCategoryId, onClose }: TaskFormM
 
               <ScrollView showsVerticalScrollIndicator={false} keyboardShouldPersistTaps="handled">
                 <View style={styles.form}>
-                  <View style={styles.formField}>
-                    <View style={styles.categoryHeader}>
-                      <Text style={[styles.label, { color: colors.textSoft }]}>Category</Text>
-                      <Pressable onPress={() => setCategoryModalVisible(true)}>
-                        <Text style={[styles.newCategoryText, { color: colors.accent }]}>New Category</Text>
-                      </Pressable>
-                    </View>
-                    <View style={styles.categoryList}>
-                      <Pressable
-                        onPress={() => setSelectedCategoryId(undefined)}
-                        style={[
-                          styles.categoryChip,
-                          {
-                            backgroundColor: !selectedCategoryId ? colors.accent : colors.surface,
-                            borderColor: !selectedCategoryId ? colors.accent : colors.border,
-                          },
-                        ]}>
-                        <Text style={styles.categoryChipText}>None</Text>
-                      </Pressable>
-                      {categories.map((category) => (
+                  {mode === 'task' && (
+                    <View style={styles.formField}>
+                      <View style={styles.categoryHeader}>
+                        <Text style={[styles.label, { color: colors.textSoft }]}>Category</Text>
+                        <Pressable onPress={() => setCategoryModalVisible(true)}>
+                          <Text style={[styles.newCategoryText, { color: colors.accent }]}>New Category</Text>
+                        </Pressable>
+                      </View>
+                      <View style={styles.categoryList}>
                         <Pressable
-                          key={category.id}
-                          onPress={() => setSelectedCategoryId(category.id)}
+                          onPress={() => setSelectedCategoryId(undefined)}
                           style={[
                             styles.categoryChip,
                             {
-                              backgroundColor: selectedCategoryId === category.id ? category.color : colors.surface,
-                              borderColor: selectedCategoryId === category.id ? category.color : colors.border,
+                              backgroundColor: !selectedCategoryId ? colors.accent : colors.surface,
+                              borderColor: !selectedCategoryId ? colors.accent : colors.border,
                             },
                           ]}>
-                          <Text style={styles.categoryChipText}>{category.name}</Text>
+                          <Text style={styles.categoryChipText}>None</Text>
                         </Pressable>
-                      ))}
+                        {categories.map((category) => (
+                          <Pressable
+                            key={category.id}
+                            onPress={() => setSelectedCategoryId(category.id)}
+                            style={[
+                              styles.categoryChip,
+                              {
+                                backgroundColor: selectedCategoryId === category.id ? category.color : colors.surface,
+                                borderColor: selectedCategoryId === category.id ? category.color : colors.border,
+                              },
+                            ]}>
+                            <Text style={styles.categoryChipText}>{category.name}</Text>
+                          </Pressable>
+                        ))}
+                      </View>
                     </View>
-                  </View>
+                  )}
 
                   <View style={styles.formField}>
                     <Text style={[styles.label, { color: colors.textSoft }]}>Title</Text>
@@ -152,7 +162,7 @@ export function TaskFormModal({ visible, initialCategoryId, onClose }: TaskFormM
                   disabled={!trimmedTitle}
                   onPress={handleSave}
                   style={[styles.primaryButton, { backgroundColor: colors.accent }, !trimmedTitle && styles.primaryButtonDisabled]}>
-                  <Text style={styles.primaryButtonText}>Save Task</Text>
+                  <Text style={styles.primaryButtonText}>{mode === 'scheduled' ? 'Save' : 'Save Task'}</Text>
                 </Pressable>
               </View>
             </View>
@@ -160,14 +170,16 @@ export function TaskFormModal({ visible, initialCategoryId, onClose }: TaskFormM
         </View>
       </Modal>
 
-      <CategoryFormModal
-        visible={categoryModalVisible}
-        onClose={() => setCategoryModalVisible(false)}
-        onCreated={(categoryId) => {
-          setSelectedCategoryId(categoryId);
-          setCategoryModalVisible(false);
-        }}
-      />
+      {mode === 'task' ? (
+        <CategoryFormModal
+          visible={categoryModalVisible}
+          onClose={() => setCategoryModalVisible(false)}
+          onCreated={(categoryId) => {
+            setSelectedCategoryId(categoryId);
+            setCategoryModalVisible(false);
+          }}
+        />
+      ) : null}
     </>
   );
 }
