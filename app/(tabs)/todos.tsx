@@ -145,7 +145,7 @@ export default function TodosScreen() {
             return (
               <Pressable key={option.value} onPress={() => setActiveFilter(option.value)} style={styles.tabButton}>
                 <Text style={[styles.tabLabel, { color: active ? colors.text : colors.textMuted }]}>{option.label}</Text>
-                {active ? <View style={[styles.tabIndicator, { backgroundColor: '#C4B5FD' }]} /> : null}
+                {active ? <View style={[styles.tabIndicator, { backgroundColor: colors.accent }]} /> : null}
               </Pressable>
             );
           })}

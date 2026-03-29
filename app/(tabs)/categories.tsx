@@ -138,11 +138,11 @@ export default function CategoriesScreen() {
         <View style={styles.tabRow}>
           <Pressable onPress={() => setActiveTab('active')} style={styles.tabButton}>
             <Text style={[styles.tabLabel, { color: activeTab === 'active' ? colors.text : colors.textMuted }]}>Active</Text>
-            {activeTab === 'active' ? <View style={[styles.tabIndicator, { backgroundColor: '#C4B5FD' }]} /> : null}
+            {activeTab === 'active' ? <View style={[styles.tabIndicator, { backgroundColor: colors.accent }]} /> : null}
           </Pressable>
           <Pressable onPress={() => setActiveTab('archived')} style={styles.tabButton}>
             <Text style={[styles.tabLabel, { color: activeTab === 'archived' ? colors.text : colors.textMuted }]}>Archived</Text>
-            {activeTab === 'archived' ? <View style={[styles.tabIndicator, { backgroundColor: '#C4B5FD' }]} /> : null}
+            {activeTab === 'archived' ? <View style={[styles.tabIndicator, { backgroundColor: colors.accent }]} /> : null}
           </Pressable>
         </View>
 

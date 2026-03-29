@@ -21,6 +21,7 @@ function StatBox({ icon, label, value, tint, colors }: { icon: keyof typeof Ioni
 
 export default function StatisticsScreen() {
   const colors = useAppTheme();
+  const accent = colors.accent;
   const tasks = useTaskStore((state) => state.tasks);
   const statsResetAt = useTaskStore((state) => state.settings.statsResetAt);
 
@@ -89,21 +90,21 @@ export default function StatisticsScreen() {
     <SafeAreaView edges={['top']} style={[styles.safeArea, { backgroundColor: colors.background }]}> 
       <ScrollView contentContainerStyle={[styles.container, { backgroundColor: colors.background }]} showsVerticalScrollIndicator={false}>
         <View style={styles.statsGrid}>
-          <StatBox colors={colors} icon="checkmark-circle-outline" label="Today" tint="#C4B5FD" value={`${today}`} />
-          <StatBox colors={colors} icon="calendar-outline" label="This Week" tint="#F9A8D4" value={`${thisWeek}`} />
-          <StatBox colors={colors} icon="albums-outline" label="Total" tint="#E5E7EB" value={`${total}`} />
-          <StatBox colors={colors} icon="pie-chart-outline" label="Completion" tint="#F9A8D4" value={`${completionRate}%`} />
+          <StatBox colors={colors} icon="checkmark-circle-outline" label="Today" tint={accent} value={`${today}`} />
+          <StatBox colors={colors} icon="calendar-outline" label="This Week" tint={accent} value={`${thisWeek}`} />
+          <StatBox colors={colors} icon="albums-outline" label="Total" tint={accent} value={`${total}`} />
+          <StatBox colors={colors} icon="pie-chart-outline" label="Completion" tint={accent} value={`${completionRate}%`} />
         </View>
 
         <View style={styles.sectionWrap}>
           <Text style={[styles.sectionTitle, { color: colors.text }]}>Streak</Text>
           <View style={styles.rowTwo}>
             <View style={[styles.miniCard, { backgroundColor: colors.surfaceElevated, borderColor: colors.border }]}> 
-              <Ionicons color="#C4B5FD" name="flash-outline" size={16} />
+              <Ionicons color={accent} name="flash-outline" size={16} />
               <Text style={[styles.miniValue, { color: colors.text }]}>{currentStreak} Current</Text>
             </View>
             <View style={[styles.miniCard, { backgroundColor: colors.surfaceElevated, borderColor: colors.border }]}> 
-              <Ionicons color="#F9A8D4" name="ribbon-outline" size={16} />
+              <Ionicons color={accent} name="ribbon-outline" size={16} />
               <Text style={[styles.miniValue, { color: colors.text }]}>{longestStreak} Longest</Text>
             </View>
           </View>
@@ -115,7 +116,7 @@ export default function StatisticsScreen() {
             {weekdayCounts.map((item) => (
               <View key={item.day} style={styles.barWrap}>
                 <View style={[styles.barTrack, { backgroundColor: colors.surfaceMuted }]}> 
-                  <View style={[styles.barFill, { backgroundColor: '#C4B5FD', height: `${(item.count / maxWeekday) * 100}%` }]} />
+                  <View style={[styles.barFill, { backgroundColor: accent, height: `${(item.count / maxWeekday) * 100}%` }]} />
                 </View>
                 <Text style={[styles.barLabel, { color: colors.textMuted }]}>{item.day}</Text>
               </View>
@@ -129,7 +130,7 @@ export default function StatisticsScreen() {
             {hourlyCounts.map((item) => (
               <View key={item.label} style={styles.barWrap}>
                 <View style={[styles.barTrack, { backgroundColor: colors.surfaceMuted }]}> 
-                  <View style={[styles.barFill, { backgroundColor: '#F9A8D4', height: `${(item.count / maxHourly) * 100}%` }]} />
+                  <View style={[styles.barFill, { backgroundColor: `${accent}CC`, height: `${(item.count / maxHourly) * 100}%` }]} />
                 </View>
                 <Text style={[styles.barLabel, { color: colors.textMuted }]}>{item.label}</Text>
               </View>

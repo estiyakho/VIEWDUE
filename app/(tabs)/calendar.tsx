@@ -16,6 +16,26 @@ const CARD_HORIZONTAL_PADDING = 28;
 
 type FilterTab = 'todo' | 'done';
 
+function parseHexColor(value: string) {
+  const hex = value.replace('#', '');
+  if (hex.length !== 6) return null;
+  const bigint = parseInt(hex, 16);
+  return {
+    r: (bigint >> 16) & 255,
+    g: (bigint >> 8) & 255,
+    b: bigint & 255,
+  };
+}
+
+function readableTextOn(color: string) {
+  const rgb = parseHexColor(color);
+  if (!rgb) {
+    return '#F8FAFC';
+  }
+  const luminance = (0.299 * rgb.r + 0.587 * rgb.g + 0.114 * rgb.b) / 255;
+  return luminance > 0.6 ? '#0F172A' : '#F8FAFC';
+}
+
 export default function CalendarScreen() {
   const colors = useAppTheme();
   const { width } = useWindowDimensions();
@@ -60,7 +80,7 @@ export default function CalendarScreen() {
         <View style={[styles.grid, { gap: GRID_GAP }]}> 
           {monthGrid.map((cell) => {
             const selected = cell.key === selectedDay;
-            const labelColor = selected ? '#1C1A24' : cell.inCurrentMonth ? colors.text : colors.textMuted;
+            const labelColor = selected ? readableTextOn(colors.accent) : cell.inCurrentMonth ? colors.text : colors.textMuted;
 
             return (
               <Pressable
@@ -69,7 +89,7 @@ export default function CalendarScreen() {
                 style={[
                   styles.dayCell,
                   {
-                    backgroundColor: selected ? '#C7C4FF' : 'transparent',
+                    backgroundColor: selected ? colors.accent : 'transparent',
                     height: daySize,
                     width: daySize,
                   },
@@ -83,11 +103,11 @@ export default function CalendarScreen() {
         <View style={styles.tabRow}>
           <Pressable onPress={() => setActiveFilter('todo')} style={styles.tabButton}>
             <Text style={[styles.tabLabel, { color: activeFilter === 'todo' ? colors.text : colors.textMuted }]}>Doing</Text>
-            {activeFilter === 'todo' ? <View style={styles.tabIndicator} /> : null}
+            {activeFilter === 'todo' ? <View style={[styles.tabIndicator, { backgroundColor: colors.accent }]} /> : null}
           </Pressable>
           <Pressable onPress={() => setActiveFilter('done')} style={styles.tabButton}>
             <Text style={[styles.tabLabel, { color: activeFilter === 'done' ? colors.text : colors.textMuted }]}>Done</Text>
-            {activeFilter === 'done' ? <View style={styles.tabIndicator} /> : null}
+            {activeFilter === 'done' ? <View style={[styles.tabIndicator, { backgroundColor: colors.accent }]} /> : null}
           </Pressable>
           <Pressable style={styles.filterButton}>
             <Ionicons name="filter-outline" size={18} color={colors.textMuted} />
@@ -104,7 +124,7 @@ export default function CalendarScreen() {
           ) : (
             <View style={styles.emptyBlock}>
               <View style={[styles.emptyIconWrap, { backgroundColor: `${colors.accent}33` }]}>
-                <Ionicons name="calendar-outline" size={34} color="#D6D4FF" />
+                <Ionicons name="calendar-outline" size={34} color={colors.accent} />
               </View>
               <Text style={[styles.emptyTitle, { color: colors.text }]}>Add a Todo</Text>
               <Text style={[styles.emptyText, { color: colors.textMuted }]}>Todos of the day will appear here</Text>
@@ -186,7 +206,6 @@ const styles = StyleSheet.create({
     fontSize: 17,
   },
   tabIndicator: {
-    backgroundColor: '#C4B5FD',
     borderRadius: 999,
     bottom: 0,
     height: 4,
