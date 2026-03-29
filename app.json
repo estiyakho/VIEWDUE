@@ -4,7 +4,7 @@
     "slug": "viewdue",
     "version": "1.0.0",
     "orientation": "portrait",
-    "icon": "./assets/images/android-icon-foreground.png",
+    "icon": "./assets/images/icon.png",
     "scheme": "viewdue",
     "userInterfaceStyle": "automatic",
     "newArchEnabled": true,
