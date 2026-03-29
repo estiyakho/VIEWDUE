@@ -25,7 +25,7 @@ import { TaskItem } from "@/components/task-item";
 import { AppFonts } from "@/constants/fonts";
 import { useAppTheme } from "@/hooks/use-app-theme";
 import { useTaskStore } from "@/store/use-task-store";
-import { TaskStatus } from "@/types/task";
+import { Task, TaskStatus } from "@/types/task";
 import { runListAnimation } from "@/utils/layout-animation";
 
 const FILTER_OPTIONS: { label: string; value: TaskStatus }[] = [
@@ -61,6 +61,7 @@ export default function TodosScreen() {
   const [sortMode, setSortMode] = useState<SortMode>("newest");
   const [sortSheetVisible, setSortSheetVisible] = useState(false);
   const [addTaskModalVisible, setAddTaskModalVisible] = useState(false);
+  const [editingTask, setEditingTask] = useState<Task | undefined>(undefined);
 
   useLayoutEffect(() => {
     if (initialCategory) {
@@ -137,6 +138,13 @@ export default function TodosScreen() {
     [toggleTaskStatus],
   );
 
+  const handleEdit = useCallback(
+    (task: Task) => {
+      setEditingTask(task);
+    },
+    [],
+  );
+
   const renderTask = useCallback(
     ({ item }: { item: (typeof filteredTasks)[number] }) => (
       <TaskItem
@@ -147,9 +155,10 @@ export default function TodosScreen() {
         timeFormat={timeFormat}
         onDelete={handleDelete}
         onToggle={handleToggle}
+        onEdit={handleEdit}
       />
     ),
-    [categoryMap, handleDelete, handleToggle, timeFormat],
+    [categoryMap, handleDelete, handleToggle, handleEdit, timeFormat],
   );
 
   return (
@@ -296,11 +305,15 @@ export default function TodosScreen() {
       />
 
       <TaskFormModal
-        visible={addTaskModalVisible}
-        initialCategoryId={
+        visible={addTaskModalVisible || !!editingTask}
+        initialTask={editingTask}
+        defaultCategoryId={
           selectedCategoryId !== "all" ? selectedCategoryId : undefined
         }
-        onClose={() => setAddTaskModalVisible(false)}
+        onClose={() => {
+          setAddTaskModalVisible(false);
+          setEditingTask(undefined);
+        }}
       />
     </SafeAreaView>
   );

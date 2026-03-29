@@ -35,6 +35,11 @@ type TaskStore = {
     categoryId?: string;
     createdAt?: string;
   }) => void;
+  updateTask: (id: string, input: {
+    title: string;
+    description?: string;
+    categoryId?: string;
+  }) => string | null;
   toggleTaskStatus: (id: string) => void;
   deleteTask: (id: string) => void;
   addCategory: (input: {
@@ -151,6 +156,24 @@ export const useTaskStore = create<TaskStore>()(
             ...state.tasks,
           ],
         })),
+      updateTask: (id, { title, description, categoryId }) => {
+        const trimmedTitle = title.trim();
+        if (!trimmedTitle) return null;
+
+        set((state) => ({
+          tasks: state.tasks.map((task) =>
+            task.id === id
+              ? {
+                  ...task,
+                  title: trimmedTitle,
+                  description: description?.trim() || undefined,
+                  categoryId: categoryId || undefined,
+                }
+              : task
+          ),
+        }));
+        return id;
+      },
       toggleTaskStatus: (id: string) =>
         set((state) => ({
           tasks: state.tasks.map((task) =>

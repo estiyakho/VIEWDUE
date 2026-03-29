@@ -5,12 +5,13 @@ import { FlatList, Pressable, StyleSheet, Text, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
 import { CategoryFormModal } from '@/components/category-form-modal';
+import { TaskFormModal } from '@/components/task-form-modal';
 import { EmptyState } from '@/components/empty-state';
 import { TaskItem } from '@/components/task-item';
 import { AppFonts } from '@/constants/fonts';
 import { useAppTheme } from '@/hooks/use-app-theme';
 import { useTaskStore } from '@/store/use-task-store';
-import { TaskStatus } from '@/types/task';
+import { Task, TaskStatus } from '@/types/task';
 import { runListAnimation } from '@/utils/layout-animation';
 
 type CategoryTaskFilter = 'all' | TaskStatus;
@@ -28,6 +29,7 @@ export default function CategoryDetailsScreen() {
   const timeFormat = useTaskStore((state) => state.settings.timeFormat);
 
   const [editModalVisible, setEditModalVisible] = useState(false);
+  const [editingTask, setEditingTask] = useState<Task | undefined>(undefined);
   const [taskFilter, setTaskFilter] = useState<CategoryTaskFilter>('all');
 
   const categoryId = Array.isArray(params.id) ? params.id[0] : params.id;
@@ -164,6 +166,7 @@ export default function CategoryDetailsScreen() {
               timeFormat={timeFormat}
               onDelete={handleDelete}
               onToggle={handleToggle}
+              onEdit={(task) => setEditingTask(task)}
             />
           )}
           showsVerticalScrollIndicator={false}
@@ -175,6 +178,13 @@ export default function CategoryDetailsScreen() {
         initialCategory={category}
         onClose={() => setEditModalVisible(false)}
         onSaved={() => setEditModalVisible(false)}
+      />
+
+      <TaskFormModal
+        visible={!!editingTask}
+        initialTask={editingTask}
+        defaultCategoryId={category.id}
+        onClose={() => setEditingTask(undefined)}
       />
     </SafeAreaView>
   );

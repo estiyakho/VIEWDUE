@@ -16,19 +16,25 @@ type TaskItemProps = {
   timeFormat: '12h' | '24h';
   onToggle: (id: string) => void;
   onDelete: (id: string) => void;
+  onEdit?: (task: Task) => void;
 };
 
-function TaskItemComponent({ task, category, timeFormat, onToggle, onDelete }: TaskItemProps) {
+function TaskItemComponent({ task, category, timeFormat, onToggle, onDelete, onEdit }: TaskItemProps) {
   const colors = useAppTheme();
   const done = task.status === 'done';
 
   return (
     <View style={[styles.card, { backgroundColor: colors.surfaceElevated, borderColor: colors.border }]}> 
-      <Pressable onPress={() => onToggle(task.id)} style={styles.content}>
-        <View style={[styles.checkbox, { borderColor: done ? colors.accent : colors.textMuted, backgroundColor: done ? colors.accent : 'transparent' }]}>
+      <View style={styles.leftInteraction}>
+        <Pressable 
+          hitSlop={12}
+          onPress={() => onToggle(task.id)} 
+          style={[styles.checkbox, { borderColor: done ? colors.accent : colors.textMuted, backgroundColor: done ? colors.accent : 'transparent' }]}
+        >
           {done ? <Ionicons name="checkmark" size={14} color="#F8FAFC" /> : null}
-        </View>
-        <View style={styles.textBlock}>
+        </Pressable>
+        
+        <Pressable onPress={() => onEdit?.(task)} style={styles.textBlock}>
           <Text numberOfLines={1} style={[styles.title, { color: colors.text }, done && { color: colors.textMuted, textDecorationLine: 'line-through' }]}>
             {task.title}
           </Text>
@@ -41,18 +47,23 @@ function TaskItemComponent({ task, category, timeFormat, onToggle, onDelete }: T
             ) : null}
             <View style={styles.createdRow}>
               <Ionicons name="time-outline" size={12} color={colors.textMuted} />
-              <Text style={[styles.timestamp, { color: colors.textMuted }]}>Created: {formatTaskDate(task.createdAt, timeFormat)}</Text>
+              <Text style={[styles.timestamp, { color: colors.textMuted }]}>
+                Created: {formatTaskDate(task.createdAt, timeFormat)}
+              </Text>
             </View>
           </View>
-        </View>
-      </Pressable>
+        </Pressable>
+      </View>
 
       <View style={styles.rightColumn}>
         <View style={[styles.countPill, { backgroundColor: colors.surfaceMuted }]}>
           <Text style={[styles.countText, { color: colors.textMuted }]}>{done ? '1/1' : '0/1'}</Text>
         </View>
-        <Pressable hitSlop={8} onPress={() => onDelete(task.id)} style={styles.deleteButton}>
-          <Ionicons name="trash-outline" size={16} color={colors.textMuted} />
+        <Pressable 
+          onPress={() => onDelete(task.id)} 
+          style={[styles.deleteButton, { backgroundColor: `${colors.danger}15`, borderColor: `${colors.danger}30` }]}
+        >
+          <Ionicons name="trash-outline" size={16} color={colors.danger} />
         </Pressable>
       </View>
     </View>
@@ -71,7 +82,7 @@ const styles = StyleSheet.create({
     paddingHorizontal: 12,
     paddingVertical: 12,
   },
-  content: {
+  leftInteraction: {
     flex: 1,
     flexDirection: 'row',
   },
@@ -141,6 +152,11 @@ const styles = StyleSheet.create({
     textAlign: 'center',
   },
   deleteButton: {
-    padding: 4,
+    alignItems: 'center',
+    borderRadius: 10,
+    borderWidth: 1,
+    height: 34,
+    justifyContent: 'center',
+    width: 34,
   },
 });
