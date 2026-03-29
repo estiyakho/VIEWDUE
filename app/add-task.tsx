@@ -27,21 +27,18 @@ export default function AddTaskScreen() {
   const initialCategory = Array.isArray(params.categoryId) ? params.categoryId[0] : params.categoryId;
   const [title, setTitle] = useState('');
   const [description, setDescription] = useState('');
-  const [selectedCategoryId, setSelectedCategoryId] = useState<string | undefined>(initialCategory ?? categories[0]?.id);
-  const hasCategories = categories.length > 0;
+  const [selectedCategoryId, setSelectedCategoryId] = useState<string | undefined>(initialCategory);
 
   useEffect(() => {
     if (initialCategory) {
       setSelectedCategoryId(initialCategory);
-    } else if (!selectedCategoryId && categories.length) {
-      setSelectedCategoryId(categories[0].id);
     }
-  }, [initialCategory, categories, selectedCategoryId]);
+  }, [initialCategory]);
 
   const trimmedTitle = title.trim();
 
   const handleSave = () => {
-    if (!trimmedTitle || !selectedCategoryId) {
+    if (!trimmedTitle) {
       return;
     }
 
@@ -92,35 +89,21 @@ export default function AddTaskScreen() {
                   <Text style={[styles.newCategoryText, { color: colors.accent }]}>New Category</Text>
                 </Pressable>
               </View>
-              {hasCategories ? (
-                <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={styles.categoryList}>
-                  {categories.map((category) => (
-                    <Pressable
-                      key={category.id}
-                      onPress={() => setSelectedCategoryId(category.id)}
-                    style={[
-                      styles.categoryChip,
-                      {
-                        backgroundColor: selectedCategoryId === category.id ? category.color : colors.surface,
-                        borderColor: selectedCategoryId === category.id ? category.color : colors.border,
-                      },
-                    ]}>
+              <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={styles.categoryList}>
+                <Pressable
+                  onPress={() => setSelectedCategoryId(undefined)}
+                  style={[styles.categoryChip, { backgroundColor: !selectedCategoryId ? colors.accent : colors.surface }]}>
+                  <Text style={styles.categoryChipText}>None</Text>
+                </Pressable>
+                {categories.map((category) => (
+                  <Pressable
+                    key={category.id}
+                    onPress={() => setSelectedCategoryId(category.id)}
+                    style={[styles.categoryChip, { backgroundColor: selectedCategoryId === category.id ? category.color : colors.surface }]}>
                     <Text style={styles.categoryChipText}>{category.name}</Text>
                   </Pressable>
                 ))}
               </ScrollView>
-              ) : (
-                <View style={[styles.noCategoryBox, { borderColor: colors.border }]}>
-                  <Text style={[styles.noCategoryText, { color: colors.textMuted }]}>
-                    Create a category before adding a task.
-                  </Text>
-                  <Pressable
-                    onPress={() => router.push('/add-category')}
-                    style={[styles.noCategoryButton, { backgroundColor: colors.accent }]}>
-                    <Text style={styles.noCategoryButtonText}>Add Category</Text>
-                  </Pressable>
-                </View>
-              )}
             </View>
           </View>
 
@@ -130,13 +113,9 @@ export default function AddTaskScreen() {
             </Pressable>
 
             <Pressable
-              disabled={!trimmedTitle || !selectedCategoryId}
+              disabled={!trimmedTitle}
               onPress={handleSave}
-              style={[
-                styles.primaryButton,
-                { backgroundColor: colors.accent },
-                (!trimmedTitle || !selectedCategoryId) && styles.primaryButtonDisabled,
-              ]}>
+              style={[styles.primaryButton, { backgroundColor: colors.accent }, !trimmedTitle && styles.primaryButtonDisabled]}>
               <Text style={styles.primaryButtonText}>Save Task</Text>
             </Pressable>
           </View>
@@ -159,37 +138,8 @@ const styles = StyleSheet.create({
   categoryHeader: { alignItems: 'center', flexDirection: 'row', justifyContent: 'space-between', marginBottom: 8 },
   newCategoryText: { fontFamily: AppFonts.semibold, fontSize: 13 },
   categoryList: { gap: 8, paddingRight: 8 },
-  categoryChip: {
-    borderRadius: 14,
-    borderWidth: 1,
-    paddingHorizontal: 14,
-    paddingVertical: 9,
-    minWidth: 80,
-    alignItems: 'center',
-  },
+  categoryChip: { borderRadius: 999, paddingHorizontal: 12, paddingVertical: 8 },
   categoryChipText: { color: '#F8FAFC', fontFamily: AppFonts.semibold, fontSize: 13 },
-  noCategoryBox: {
-    alignItems: 'center',
-    borderRadius: 14,
-    borderWidth: 1,
-    gap: 10,
-    padding: 14,
-  },
-  noCategoryText: {
-    fontFamily: AppFonts.medium,
-    fontSize: 14,
-    textAlign: 'center',
-  },
-  noCategoryButton: {
-    borderRadius: 12,
-    paddingHorizontal: 14,
-    paddingVertical: 10,
-  },
-  noCategoryButtonText: {
-    color: '#F8FAFC',
-    fontFamily: AppFonts.semibold,
-    fontSize: 14,
-  },
   footer: { flexDirection: 'row', gap: 12, marginTop: 'auto', paddingTop: 20 },
   secondaryButton: {
     alignItems: 'center',

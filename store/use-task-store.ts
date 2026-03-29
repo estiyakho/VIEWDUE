@@ -19,7 +19,6 @@ type TaskStore = {
   deleteTask: (id: string) => void;
   addCategory: (input: { name: string; description?: string; color?: string }) => string | null;
   updateCategory: (input: { id: string; name: string; description?: string; color?: string }) => string | null;
-  deleteCategory: (id: string) => void;
   resetData: () => void;
   resetStats: () => void;
   resetSettings: () => void;
@@ -74,24 +73,19 @@ export const useTaskStore = create<TaskStore>()(
           scheduledTasks: state.scheduledTasks.filter((task) => task.id !== id),
         })),
       addTask: ({ title, description, categoryId, createdAt }) =>
-        set((state) => {
-          if (!categoryId) {
-            return state;
-          }
-          return {
-            tasks: [
-              {
-                id: `${Date.now()}-${Math.random().toString(36).slice(2, 8)}`,
-                title: title.trim(),
-                description: description?.trim() || undefined,
-                categoryId,
-                status: 'todo',
-                createdAt: createdAt ?? new Date().toISOString(),
-              },
-              ...state.tasks,
-            ],
-          };
-        }),
+        set((state) => ({
+          tasks: [
+            {
+              id: `${Date.now()}-${Math.random().toString(36).slice(2, 8)}`,
+              title: title.trim(),
+              description: description?.trim() || undefined,
+              categoryId: categoryId || undefined,
+              status: 'todo',
+              createdAt: createdAt ?? new Date().toISOString(),
+            },
+            ...state.tasks,
+          ],
+        })),
       toggleTaskStatus: (id) =>
         set((state) => ({
           tasks: state.tasks.map((task) =>
@@ -168,11 +162,6 @@ export const useTaskStore = create<TaskStore>()(
 
         return id;
       },
-      deleteCategory: (id) =>
-        set((state) => ({
-          categories: state.categories.filter((category) => category.id !== id),
-          tasks: state.tasks.filter((task) => task.categoryId !== id),
-        })),
       resetData: () =>
         set((state) => ({
           tasks: [],

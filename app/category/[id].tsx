@@ -1,6 +1,6 @@
 import { Ionicons } from '@expo/vector-icons';
 import { Stack, useLocalSearchParams, useRouter } from 'expo-router';
-import { useCallback, useEffect, useMemo, useState } from 'react';
+import { useCallback, useMemo, useState } from 'react';
 import { FlatList, Pressable, StyleSheet, Text, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
@@ -10,7 +10,10 @@ import { TaskItem } from '@/components/task-item';
 import { AppFonts } from '@/constants/fonts';
 import { useAppTheme } from '@/hooks/use-app-theme';
 import { useTaskStore } from '@/store/use-task-store';
+import { TaskStatus } from '@/types/task';
 import { runListAnimation } from '@/utils/layout-animation';
+
+type CategoryTaskFilter = 'all' | TaskStatus;
 
 export default function CategoryDetailsScreen() {
   const router = useRouter();
@@ -20,30 +23,27 @@ export default function CategoryDetailsScreen() {
   const tasks = useTaskStore((state) => state.tasks);
   const toggleTaskStatus = useTaskStore((state) => state.toggleTaskStatus);
   const deleteTask = useTaskStore((state) => state.deleteTask);
-  const deleteCategory = useTaskStore((state) => state.deleteCategory);
   const timeFormat = useTaskStore((state) => state.settings.timeFormat);
 
   const [editModalVisible, setEditModalVisible] = useState(false);
-  const [taskFilter, setTaskFilter] = useState<'all' | 'todo' | 'done'>('all');
+  const [taskFilter, setTaskFilter] = useState<CategoryTaskFilter>('all');
 
   const categoryId = Array.isArray(params.id) ? params.id[0] : params.id;
   const category = categories.find((item) => item.id === categoryId);
 
+  const categoryTasks = useMemo(() => {
+    const filtered = tasks.filter((task) => task.categoryId === categoryId);
+
+    if (taskFilter === 'all') {
+      return filtered;
+    }
+
+    return filtered.filter((task) => task.status === taskFilter);
+  }, [categoryId, taskFilter, tasks]);
+
   const totalTasks = tasks.filter((task) => task.categoryId === categoryId).length;
   const completedTasks = tasks.filter((task) => task.categoryId === categoryId && task.status === 'done').length;
   const remainingTasks = totalTasks - completedTasks;
-
-  const filteredTasks = useMemo(() => {
-    return tasks.filter((task) => {
-      if (task.categoryId !== categoryId) return false;
-      if (taskFilter === 'all') return true;
-      return task.status === taskFilter;
-    });
-  }, [categoryId, taskFilter, tasks]);
-
-  useEffect(() => {
-    runListAnimation();
-  }, [taskFilter]);
 
   const handleDelete = useCallback(
     (id: string) => {
@@ -53,12 +53,13 @@ export default function CategoryDetailsScreen() {
     [deleteTask]
   );
 
-  const handleDeleteCategory = useCallback(() => {
-    if (!categoryId) return;
-    runListAnimation();
-    deleteCategory(categoryId);
-    router.back();
-  }, [categoryId, deleteCategory, router]);
+  const handleToggle = useCallback(
+    (id: string) => {
+      runListAnimation();
+      toggleTaskStatus(id);
+    },
+    [toggleTaskStatus]
+  );
 
   if (!category) {
     return (
@@ -94,17 +95,13 @@ export default function CategoryDetailsScreen() {
         </View>
 
         <View style={[styles.heroCard, { backgroundColor: `${category.color}16`, borderColor: `${category.color}40` }]}> 
-          <View style={styles.heroTitleRow}>
-            <View style={styles.heroTextWrap}>
-              <Text style={[styles.heroTitle, { color: colors.text }]}>{category.name}</Text>
-              <Text style={[styles.heroSubtitle, { color: colors.textMuted }]} numberOfLines={2}>
-                {category.description || 'All tasks saved in this category appear here.'}
-              </Text>
-            </View>
-            <Pressable onPress={handleDeleteCategory} style={[styles.deleteButton, { borderColor: colors.border, backgroundColor: colors.surface }]}>
-              <Ionicons name="trash-outline" size={18} color={colors.text} />
-            </Pressable>
+          <View style={[styles.heroIcon, { backgroundColor: category.color }]}>
+            <Ionicons name="folder-open-outline" size={22} color="#F8FAFC" />
           </View>
+          <Text style={[styles.heroTitle, { color: colors.text }]}>{category.name}</Text>
+          <Text style={[styles.heroSubtitle, { color: colors.textMuted }]}>
+            {category.description || 'All tasks saved in this category appear here.'}
+          </Text>
 
           <View style={styles.statsRow}>
             <View style={[styles.statCard, { backgroundColor: colors.surface, borderColor: colors.border }]}> 
@@ -140,39 +137,29 @@ export default function CategoryDetailsScreen() {
                     borderColor: active ? category.color : colors.border,
                   },
                 ]}>
-                <Text style={[styles.filterChipText, { color: active ? '#F8FAFC' : colors.text }]}>{option.label}</Text>
+                <Text style={styles.filterChipText}>{option.label}</Text>
               </Pressable>
             );
           })}
         </View>
 
-        <View style={[styles.taskCard, { backgroundColor: colors.surface, borderColor: colors.border }]}>
-          <FlatList
-            contentContainerStyle={styles.listContent}
-            data={filteredTasks}
-            keyExtractor={(item) => item.id}
-            keyboardShouldPersistTaps="handled"
-            ListEmptyComponent={
-              <EmptyState
-                title="No tasks"
-                description={`No ${taskFilter === 'all' ? '' : taskFilter === 'todo' ? 'doing' : 'done'} tasks in this category yet.`}
-              />
-            }
-            renderItem={({ item }) => (
-              <TaskItem
-                task={item}
-                category={{ color: category.color, name: category.name }}
-                timeFormat={timeFormat}
-                onDelete={handleDelete}
-                onToggle={(id) => {
-                  runListAnimation();
-                  toggleTaskStatus(id);
-                }}
-              />
-            )}
-            showsVerticalScrollIndicator={false}
-          />
-        </View>
+        <FlatList
+          contentContainerStyle={styles.listContent}
+          data={categoryTasks}
+          keyExtractor={(item) => item.id}
+          keyboardShouldPersistTaps="handled"
+          ListEmptyComponent={<EmptyState title="No tasks here" description="Tasks in this category will appear here." />}
+          renderItem={({ item }) => (
+            <TaskItem
+              task={item}
+              category={{ color: category.color, name: category.name }}
+              timeFormat={timeFormat}
+              onDelete={handleDelete}
+              onToggle={handleToggle}
+            />
+          )}
+          showsVerticalScrollIndicator={false}
+        />
       </View>
 
       <CategoryFormModal
@@ -190,7 +177,7 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     paddingHorizontal: 12,
-    paddingTop: 10,
+    paddingTop: 6,
   },
   headerRow: {
     alignItems: 'center',
@@ -223,45 +210,37 @@ const styles = StyleSheet.create({
     borderRadius: 22,
     borderWidth: 1,
     marginBottom: 12,
-    paddingVertical: 18,
-    paddingHorizontal: 16,
+    padding: 14,
   },
-  heroTitleRow: {
-    flexDirection: 'row',
+  heroIcon: {
     alignItems: 'center',
-    justifyContent: 'space-between',
-    marginBottom: 10,
+    borderRadius: 18,
+    height: 46,
+    justifyContent: 'center',
+    marginBottom: 12,
+    width: 46,
   },
   heroTitle: {
     fontFamily: AppFonts.bold,
     fontSize: 24,
-  },
-  heroTextWrap: {
-    flex: 1,
-    paddingRight: 10,
-    paddingLeft: 4,
+    marginBottom: 4,
   },
   heroSubtitle: {
     fontFamily: AppFonts.medium,
     fontSize: 14,
     lineHeight: 20,
   },
-  deleteButton: {
-    borderRadius: 12,
-    borderWidth: 1,
-    padding: 8,
-  },
   statsRow: {
     flexDirection: 'row',
     gap: 8,
-    marginTop: 18,
+    marginTop: 14,
   },
   statCard: {
     borderRadius: 16,
     borderWidth: 1,
     flex: 1,
     paddingHorizontal: 10,
-    paddingVertical: 10,
+    paddingVertical: 12,
   },
   statValue: {
     fontFamily: AppFonts.bold,
@@ -275,28 +254,21 @@ const styles = StyleSheet.create({
   filterRow: {
     flexDirection: 'row',
     gap: 8,
-    marginBottom: 14,
+    marginBottom: 10,
   },
   filterChip: {
-    borderRadius: 12,
+    borderRadius: 999,
     borderWidth: 1,
-    height: 72,
-    width: 72,
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
-  filterChipText: {
-    fontFamily: AppFonts.semibold,
-    fontSize: 14,
-  },
-  taskCard: {
-    borderRadius: 16,
-    borderWidth: 1,
-    paddingHorizontal: 10,
+    paddingHorizontal: 12,
     paddingVertical: 8,
   },
+  filterChipText: {
+    color: '#F8FAFC',
+    fontFamily: AppFonts.semibold,
+    fontSize: 13,
+  },
   listContent: {
-    paddingVertical: 6,
-    gap: 10,
+    flexGrow: 1,
+    paddingBottom: 24,
   },
 });
