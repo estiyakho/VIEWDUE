@@ -3,6 +3,7 @@ import { useMemo, useState } from 'react';
 import { FlatList, Pressable, StyleSheet, Text, TextInput, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useRouter } from 'expo-router';
+import Svg, { Circle } from 'react-native-svg';
 
 import { CategoryFormModal } from '@/components/category-form-modal';
 import { FloatingActionButton } from '@/components/floating-action-button';
@@ -12,32 +13,42 @@ import { useTaskStore } from '@/store/use-task-store';
 import { runListAnimation } from '@/utils/layout-animation';
 
 function ProgressRing({ progress, color, labelColor, baseColor }: { progress: number; color: string; labelColor: string; baseColor: string }) {
-  const segmentCount = 32;
-  const filledSegments = Math.round((Math.max(0, Math.min(100, progress)) / 100) * segmentCount);
-  const radius = 26;
+  const size = 56;
+  const strokeWidth = 5;
+  const radius = (size - strokeWidth) / 2;
+  const circumference = 2 * Math.PI * radius;
+  
+  const clampedProgress = Math.min(Math.max(progress, 0), 100);
+  const strokeDashoffset = circumference - (clampedProgress / 100) * circumference;
 
   return (
     <View style={styles.ringWrap}>
-      {Array.from({ length: segmentCount }).map((_, index) => {
-        const angle = (index / segmentCount) * Math.PI * 2 - Math.PI / 2;
-        const translateX = Math.cos(angle) * radius;
-        const translateY = Math.sin(angle) * radius;
-
-        return (
-          <View
-            key={index}
-            style={[
-              styles.ringSegment,
-              {
-                backgroundColor: index < filledSegments ? color : baseColor,
-                transform: [{ translateX }, { translateY }],
-              },
-            ]}
+      <Svg width={size} height={size} viewBox={`0 0 ${size} ${size}`}>
+        <Circle
+          cx={size / 2}
+          cy={size / 2}
+          r={radius}
+          stroke={baseColor}
+          strokeWidth={strokeWidth}
+          fill="none"
+        />
+        {clampedProgress > 0 && (
+          <Circle
+            cx={size / 2}
+            cy={size / 2}
+            r={radius}
+            stroke={color}
+            strokeWidth={strokeWidth}
+            fill="none"
+            strokeDasharray={circumference}
+            strokeDashoffset={strokeDashoffset}
+            strokeLinecap="round"
+            transform={`rotate(-90 ${size / 2} ${size / 2})`}
           />
-        );
-      })}
-      <View style={styles.ringCenter}>
-        <Text style={[styles.ringText, { color: labelColor }]}>{progress}%</Text>
+        )}
+      </Svg>
+      <View style={[StyleSheet.absoluteFillObject, { alignItems: 'center', justifyContent: 'center' }]} pointerEvents="none">
+        <Text style={[styles.ringText, { color: labelColor }]}>{clampedProgress}%</Text>
       </View>
     </View>
   );
@@ -130,7 +141,7 @@ export default function CategoriesScreen() {
             </View>
             <View style={styles.summaryTextWrap}>
               <Text style={[styles.summaryTitle, { color: colors.text }]}>Let&apos;s start!</Text>
-              <Text style={[styles.summarySubtitle, { color: colors.textMuted }]}>Todos progress</Text>
+              <Text style={[styles.summarySubtitle, { color: colors.textMuted }]}>All Todos progress</Text>
             </View>
           </View>
 
@@ -393,19 +404,6 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     position: 'relative',
     width: 64,
-  },
-  ringSegment: {
-    borderRadius: 999,
-    height: 8,
-    position: 'absolute',
-    width: 8,
-  },
-  ringCenter: {
-    alignItems: 'center',
-    backgroundColor: 'transparent',
-    height: 42,
-    justifyContent: 'center',
-    width: 42,
   },
   ringText: {
     fontFamily: AppFonts.bold,
