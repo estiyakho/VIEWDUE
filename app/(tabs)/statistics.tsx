@@ -1,8 +1,9 @@
 import { Ionicons } from "@expo/vector-icons";
-import { useMemo } from "react";
-import { ScrollView, StyleSheet, Text, View } from "react-native";
+import { useMemo, useState } from "react";
+import { Pressable, ScrollView, StyleSheet, Text, View } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 
+import { SettingsOptionSheet } from "@/components/settings-option-sheet";
 import { AppFonts } from "@/constants/fonts";
 import { useAppTheme } from "@/hooks/use-app-theme";
 import { useTaskStore } from "@/store/use-task-store";
@@ -43,8 +44,13 @@ export default function StatisticsScreen() {
   const insets = useSafeAreaInsets();
   const accent = colors.accent;
   const tasks = useTaskStore((state) => state.tasks);
+  const taskHistory = useTaskStore((state) => state.taskHistory);
   const statsResetAt = useTaskStore((state) => state.settings.statsResetAt);
   const firstDayOfWeek = useTaskStore((state) => state.settings.firstDayOfWeek);
+
+  const [historyViewMode, setHistoryViewMode] = useState<"weekly" | "monthly">("weekly");
+  const [selectedTaskTitle, setSelectedTaskTitle] = useState<string | undefined>(undefined);
+  const [isTaskSelectorVisible, setIsTaskSelectorVisible] = useState(false);
 
   const statsTasks = useMemo(() => {
     if (!statsResetAt) {
@@ -232,6 +238,42 @@ export default function StatisticsScreen() {
   const maxWeekday = Math.max(...weekdayCounts.map((item) => item.count)) || 1;
   const maxHourly = Math.max(...hourlyCounts.map((item) => item.count)) || 1;
 
+  const availableHistoryTasks = useMemo(() => {
+    const historicalTitles = taskHistory.map((h) => h.title);
+    const activeTitles = tasks.map((t) => t.title);
+    const uniqueTitles = Array.from(new Set([...historicalTitles, ...activeTitles]));
+    return uniqueTitles.map((title) => ({ label: title, value: title }));
+  }, [taskHistory, tasks]);
+
+  const currentSelectedTaskTitle = selectedTaskTitle || availableHistoryTasks[0]?.value;
+
+  const historyChartData = useMemo(() => {
+    if (!currentSelectedTaskTitle) return [];
+
+    const daysCount = historyViewMode === "weekly" ? 7 : 30;
+    const data = [];
+    const now = new Date();
+
+    for (let i = daysCount - 1; i >= 0; i--) {
+      const d = new Date(now);
+      d.setDate(now.getDate() - i);
+      const dateStr = d.toISOString().split("T")[0];
+      const count = taskHistory.filter(
+        (h) => h.title === currentSelectedTaskTitle && h.date === dateStr
+      ).length;
+
+      data.push({
+        date: dateStr,
+        day: d.getDate(),
+        weekday: d.toLocaleDateString(undefined, { weekday: 'short' }),
+        count,
+      });
+    }
+    return data;
+  }, [currentSelectedTaskTitle, historyViewMode, taskHistory]);
+
+  const maxHistoryCount = Math.max(...historyChartData.map((d) => d.count)) || 1;
+
   return (
     <View
       style={[styles.safeArea, { paddingTop: insets.top, backgroundColor: colors.background }]}
@@ -243,35 +285,109 @@ export default function StatisticsScreen() {
         ]}
         showsVerticalScrollIndicator={false}
       >
-        <View style={styles.statsGrid}>
-          <StatBox
-            colors={colors}
-            icon="checkmark-circle-outline"
-            label="Today"
-            tint={accent}
-            value={`${today}`}
-          />
-          <StatBox
-            colors={colors}
-            icon="calendar-outline"
-            label="This Week"
-            tint={accent}
-            value={`${thisWeek}`}
-          />
-          <StatBox
-            colors={colors}
-            icon="albums-outline"
-            label="Total"
-            tint={accent}
-            value={`${total}`}
-          />
-          <StatBox
-            colors={colors}
-            icon="pie-chart-outline"
-            label="Completion"
-            tint={accent}
-            value={`${completionRate}%`}
-          />
+        <View style={styles.headerRow}>
+          <Text style={[styles.sectionTitle, { color: colors.text, marginBottom: 0 }]}>Statistics</Text>
+        </View>
+
+        <View style={styles.historySection}>
+          <View style={styles.historyHeader}>
+            <Pressable
+              onPress={() => setIsTaskSelectorVisible(true)}
+              style={[styles.taskSelector, { backgroundColor: colors.surfaceElevated, borderColor: colors.border }]}
+            >
+              <Ionicons name="bookmark" size={16} color={accent} />
+              <Text style={[styles.taskSelectorText, { color: colors.text }]} numberOfLines={1}>
+                {currentSelectedTaskTitle || "No Tasks Yet"}
+              </Text>
+              <Ionicons name="chevron-down" size={14} color={colors.textMuted} />
+            </Pressable>
+
+            <View style={[styles.modeToggle, { backgroundColor: colors.surfaceMuted }]}>
+              <Pressable
+                onPress={() => setHistoryViewMode("weekly")}
+                style={[styles.modeBtn, historyViewMode === "weekly" && { backgroundColor: colors.surfaceElevated }]}
+              >
+                <Text style={[styles.modeBtnText, { color: historyViewMode === "weekly" ? colors.text : colors.textMuted }]}>W</Text>
+              </Pressable>
+              <Pressable
+                onPress={() => setHistoryViewMode("monthly")}
+                style={[styles.modeBtn, historyViewMode === "monthly" && { backgroundColor: colors.surfaceElevated }]}
+              >
+                <Text style={[styles.modeBtnText, { color: historyViewMode === "monthly" ? colors.text : colors.textMuted }]}>M</Text>
+              </Pressable>
+            </View>
+          </View>
+
+          <View style={[styles.chartCard, { backgroundColor: colors.surfaceElevated, borderColor: colors.border }]}>
+            <Text style={[styles.chartTitle, { color: colors.text }]}>Task Persistence</Text>
+            {currentSelectedTaskTitle ? (
+              <ScrollView horizontal showsHorizontalScrollIndicator={false} style={styles.horizontalChart}>
+                <View style={[styles.chartArea, { minWidth: historyViewMode === "weekly" ? '100.1%' : 800, height: 120, alignItems: 'flex-end' }]}>
+                  {historyChartData.map((item) => (
+                    <View key={item.date} style={[styles.barWrap, { minWidth: historyViewMode === "weekly" ? 44 : 32 }]}>
+                      <View style={[styles.barTrack, { backgroundColor: colors.surfaceMuted, height: 60, width: 18 }]}>
+                        <View
+                          style={[
+                            styles.barFill,
+                            {
+                              backgroundColor: item.count > 0 ? accent : 'transparent',
+                              height: '100%',
+                            },
+                          ]}
+                        />
+                      </View>
+                      <Text style={[styles.histDate, { color: colors.text, fontSize: 11 }]} numberOfLines={1}>
+                        {item.day}
+                      </Text>
+                      <Text style={[styles.histWeekday, { color: colors.textSoft, fontSize: 9 }]} numberOfLines={1}>
+                        {item.weekday}
+                      </Text>
+                    </View>
+                  ))}
+                </View>
+              </ScrollView>
+            ) : (
+              <View style={[styles.chartArea, { height: 120, justifyContent: 'center', alignItems: 'center' }]}>
+                <Text style={{ color: colors.textMuted, fontFamily: AppFonts.medium }}>No Task Selected</Text>
+              </View>
+            )}
+          </View>
+        </View>
+
+        <View style={styles.sectionWrap}>
+          <Text style={[styles.sectionTitle, { color: colors.text, marginBottom: 12 }]}>
+            Task Overview
+          </Text>
+          <View style={styles.statsGrid}>
+            <StatBox
+              colors={colors}
+              icon="checkmark-circle-outline"
+              label="Today"
+              tint={accent}
+              value={`${today}`}
+            />
+            <StatBox
+              colors={colors}
+              icon="calendar-outline"
+              label="This Week"
+              tint={accent}
+              value={`${thisWeek}`}
+            />
+            <StatBox
+              colors={colors}
+              icon="albums-outline"
+              label="Total"
+              tint={accent}
+              value={`${total}`}
+            />
+            <StatBox
+              colors={colors}
+              icon="pie-chart-outline"
+              label="Completion"
+              tint={accent}
+              value={`${completionRate}%`}
+            />
+          </View>
         </View>
 
         <View style={styles.sectionWrap}>
@@ -388,6 +504,18 @@ export default function StatisticsScreen() {
           </View>
         </View>
       </ScrollView>
+
+      <SettingsOptionSheet
+        visible={isTaskSelectorVisible}
+        title="Select Task"
+        iconName="bookmark-outline"
+        options={availableHistoryTasks}
+        selectedValue={currentSelectedTaskTitle}
+        onClose={() => setIsTaskSelectorVisible(false)}
+        onSelect={(val) => {
+          setSelectedTaskTitle(val as string);
+        }}
+      />
     </View>
   );
 }
@@ -432,6 +560,64 @@ const styles = StyleSheet.create({
     fontFamily: AppFonts.bold,
     fontSize: 22,
     marginBottom: 10,
+  },
+  histDate: {
+    fontFamily: AppFonts.bold,
+    marginTop: 8,
+    textAlign: 'center',
+  },
+  histWeekday: {
+    fontFamily: AppFonts.medium,
+    textTransform: 'uppercase',
+    textAlign: 'center',
+  },
+  headerRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    marginBottom: 16,
+  },
+  historySection: {
+    marginBottom: 20,
+  },
+  historyHeader: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    marginBottom: 12,
+    gap: 12,
+  },
+  taskSelector: {
+    flex: 1,
+    flexDirection: 'row',
+    alignItems: 'center',
+    paddingHorizontal: 12,
+    paddingVertical: 10,
+    borderRadius: 14,
+    borderWidth: 1,
+    gap: 8,
+  },
+  taskSelectorText: {
+    flex: 1,
+    fontFamily: AppFonts.bold,
+    fontSize: 14,
+  },
+  modeToggle: {
+    flexDirection: 'row',
+    padding: 3,
+    borderRadius: 12,
+  },
+  modeBtn: {
+    paddingHorizontal: 12,
+    paddingVertical: 6,
+    borderRadius: 9,
+  },
+  modeBtnText: {
+    fontFamily: AppFonts.bold,
+    fontSize: 11,
+  },
+  horizontalChart: {
+    marginTop: 8,
   },
   rowTwo: {
     flexDirection: "row",

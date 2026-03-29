@@ -8,6 +8,8 @@ import {
   ScheduledTask,
   Settings,
   Task,
+  TaskHistoryEntry,
+  TaskStatus,
 } from "@/types/task";
 import { DEFAULT_CATEGORIES, DEFAULT_SETTINGS } from "@/utils/app-defaults";
 import { shouldResetTasks } from "@/utils/reset";
@@ -21,6 +23,7 @@ type TaskStore = {
   hydrated: boolean;
   tasks: Task[];
   scheduledTasks: ScheduledTask[];
+  taskHistory: TaskHistoryEntry[];
   categories: Category[];
   settings: Settings;
   addScheduledTask: (input: {
@@ -102,6 +105,7 @@ export const useTaskStore = create<TaskStore>()(
       categories: DEFAULT_CATEGORIES,
       settings: DEFAULT_SETTINGS,
       scheduledTasks: [],
+      taskHistory: [],
       addScheduledTask: async ({ title, description, date, time }) => {
         const { settings } = get();
         const trimmedTitle = title.trim();
@@ -235,16 +239,35 @@ export const useTaskStore = create<TaskStore>()(
         return id;
       },
       toggleTaskStatus: (id: string) =>
-        set((state) => ({
-          tasks: state.tasks.map((task) =>
-            task.id === id
-              ? {
-                  ...task,
-                  status: task.status === "todo" ? "done" : "todo",
-                }
-              : task,
-          ),
-        })),
+        set((state) => {
+          const task = state.tasks.find((t) => t.id === id);
+          if (!task) return state;
+
+          const newStatus = (task.status === "todo" ? "done" : "todo") as TaskStatus;
+          const newTasks = state.tasks.map((t) =>
+            t.id === id ? { ...t, status: newStatus } : t
+          );
+
+          let newTaskHistory = [...state.taskHistory];
+          if (newStatus === "done") {
+            const today = new Date().toISOString().split("T")[0];
+            const alreadyLogged = state.taskHistory.find(
+              (h) => h.taskId === id && h.date === today
+            );
+
+            if (!alreadyLogged) {
+              newTaskHistory.push({
+                id: `${Date.now()}-${Math.random().toString(36).slice(2, 8)}`,
+                taskId: id,
+                title: task.title,
+                date: today,
+                completedAt: new Date().toISOString(),
+              });
+            }
+          }
+
+          return { ...state, tasks: newTasks, taskHistory: newTaskHistory };
+        }),
       setTaskNotAvailable: (id: string) =>
         set((state) => ({
           tasks: state.tasks.map((task) =>
@@ -401,11 +424,12 @@ export const useTaskStore = create<TaskStore>()(
     }),
     {
       name: "todo-app-storage",
-      version: 4,
+      version: 5,
       storage: createJSONStorage(() => AsyncStorage),
       partialize: (state) => ({
         tasks: state.tasks,
         scheduledTasks: state.scheduledTasks,
+        taskHistory: state.taskHistory,
         categories: state.categories,
         settings: state.settings,
       }),
@@ -413,6 +437,7 @@ export const useTaskStore = create<TaskStore>()(
         const state = persistedState as Partial<{
           tasks: Task[];
           scheduledTasks: ScheduledTask[];
+          taskHistory: TaskHistoryEntry[];
           categories: Category[];
           settings: Partial<Settings> & {
             dynamicColors?: boolean;
@@ -424,6 +449,7 @@ export const useTaskStore = create<TaskStore>()(
         return {
           tasks: state?.tasks ?? [],
           scheduledTasks: (state as any)?.scheduledTasks ?? [],
+          taskHistory: state?.taskHistory ?? [],
           categories: (state?.categories ?? DEFAULT_CATEGORIES).map(
             (category) => ({
               ...category,

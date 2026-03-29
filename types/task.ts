@@ -61,3 +61,11 @@ export type ScheduledTask = {
   createdAt: string;
 };
 
+export type TaskHistoryEntry = {
+  id: string;
+  taskId: string;
+  title: string;
+  date: string; // ISO date (YYYY-MM-DD)
+  completedAt: string; // ISO string 
+};
+
