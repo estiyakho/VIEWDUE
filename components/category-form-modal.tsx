@@ -20,6 +20,8 @@ import { Category } from '@/types/task';
 import { COLOR_PALETTES, findPaletteByColor } from '@/utils/color-palettes';
 import { runListAnimation } from '@/utils/layout-animation';
 
+const MIN_FIELD_HEIGHT = 56;
+
 type CategoryFormModalProps = {
   visible: boolean;
   onClose: () => void;
@@ -37,6 +39,7 @@ export function CategoryFormModal({ visible, onClose, onCreated, onSaved, initia
   const [description, setDescription] = useState('');
   const [selectedColor, setSelectedColor] = useState(accentColor);
   const [colorPickerVisible, setColorPickerVisible] = useState(false);
+  const [descriptionHeight, setDescriptionHeight] = useState(MIN_FIELD_HEIGHT);
 
   const isEditing = Boolean(initialCategory);
 
@@ -47,6 +50,7 @@ export function CategoryFormModal({ visible, onClose, onCreated, onSaved, initia
 
     setName(initialCategory?.name ?? '');
     setDescription(initialCategory?.description ?? '');
+    setDescriptionHeight(MIN_FIELD_HEIGHT);
     setSelectedColor(initialCategory?.color ?? accentColor);
   }, [accentColor, initialCategory, visible]);
 
@@ -105,7 +109,7 @@ export function CategoryFormModal({ visible, onClose, onCreated, onSaved, initia
                 ) : null}
 
                 <View style={styles.form}>
-                  <View>
+                  <View style={styles.formField}>
                     <Text style={[styles.label, { color: colors.textSoft }]}>Name</Text>
                     <TextInput
                       autoFocus
@@ -117,21 +121,32 @@ export function CategoryFormModal({ visible, onClose, onCreated, onSaved, initia
                     />
                   </View>
 
-                  <View>
+                  <View style={styles.formField}>
                     <Text style={[styles.label, { color: colors.textSoft }]}>Description</Text>
                     <TextInput
                       multiline
-                      numberOfLines={2}
                       onChangeText={setDescription}
+                      onContentSizeChange={(event) =>
+                        setDescriptionHeight(Math.max(MIN_FIELD_HEIGHT, Math.min(200, event.nativeEvent.contentSize.height)))
+                      }
                       placeholder="A short note for this category"
                       placeholderTextColor="#64748B"
-                      style={[styles.input, styles.textArea, { backgroundColor: colors.surface, borderColor: colors.border, color: colors.text }]}
+                      style={[
+                        styles.input,
+                        styles.textArea,
+                        {
+                          backgroundColor: colors.surface,
+                          borderColor: colors.border,
+                          color: colors.text,
+                          height: descriptionHeight,
+                        },
+                      ]}
                       textAlignVertical="top"
                       value={description}
                     />
                   </View>
 
-                  <View>
+                  <View style={styles.formField}>
                     <Pressable
                       onPress={() => setColorPickerVisible(true)}
                       style={[styles.colorTrigger, { backgroundColor: colors.surface, borderColor: colors.border }]}>
@@ -239,6 +254,11 @@ const styles = StyleSheet.create({
   form: {
     gap: 14,
   },
+  formField: {
+    alignSelf: 'center',
+    width: '100%',
+    maxWidth: 480,
+  },
   label: {
     fontFamily: AppFonts.semibold,
     fontSize: 14,
@@ -249,12 +269,12 @@ const styles = StyleSheet.create({
     borderWidth: 1,
     fontFamily: AppFonts.medium,
     fontSize: 16,
-    minHeight: 56,
+    minHeight: MIN_FIELD_HEIGHT,
     paddingHorizontal: 14,
     paddingVertical: 12,
   },
   textArea: {
-    minHeight: 64,
+    minHeight: MIN_FIELD_HEIGHT,
   },
   colorTrigger: {
     borderRadius: 18,

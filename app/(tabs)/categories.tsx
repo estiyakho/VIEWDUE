@@ -107,7 +107,7 @@ export default function CategoriesScreen() {
 
         <View style={[styles.summaryCard, { backgroundColor: colors.surfaceElevated, borderColor: colors.border }]}> 
           <View style={styles.summaryTop}>
-            <View style={[styles.summaryIconWrap, { backgroundColor: `${colors.accent}55` }]}>
+            <View style={[styles.summaryIconWrap, { backgroundColor: `${colors.accent}CC` }]}>
               <Ionicons color="#F8FAFC" name="flag-outline" size={22} />
             </View>
             <View style={styles.summaryTextWrap}>

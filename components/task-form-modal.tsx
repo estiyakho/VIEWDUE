@@ -8,6 +8,8 @@ import { useAppTheme } from '@/hooks/use-app-theme';
 import { useTaskStore } from '@/store/use-task-store';
 import { runListAnimation } from '@/utils/layout-animation';
 
+const MIN_FIELD_HEIGHT = 56;
+
 type TaskFormModalProps = {
   visible: boolean;
   initialCategoryId?: string;
@@ -22,6 +24,7 @@ export function TaskFormModal({ visible, initialCategoryId, onClose }: TaskFormM
   const [description, setDescription] = useState('');
   const [selectedCategoryId, setSelectedCategoryId] = useState<string | undefined>(initialCategoryId);
   const [categoryModalVisible, setCategoryModalVisible] = useState(false);
+  const [descriptionHeight, setDescriptionHeight] = useState(MIN_FIELD_HEIGHT);
 
   useEffect(() => {
     if (!visible) {
@@ -30,6 +33,7 @@ export function TaskFormModal({ visible, initialCategoryId, onClose }: TaskFormM
 
     setTitle('');
     setDescription('');
+    setDescriptionHeight(MIN_FIELD_HEIGHT);
     setSelectedCategoryId(initialCategoryId);
   }, [initialCategoryId, visible]);
 
@@ -91,11 +95,22 @@ export function TaskFormModal({ visible, initialCategoryId, onClose }: TaskFormM
                     <Text style={[styles.label, { color: colors.textSoft }]}>Description</Text>
                     <TextInput
                       multiline
-                      numberOfLines={4}
                       onChangeText={setDescription}
+                      onContentSizeChange={(event) =>
+                        setDescriptionHeight(Math.max(MIN_FIELD_HEIGHT, Math.min(220, event.nativeEvent.contentSize.height)))
+                      }
                       placeholder="Optional details"
                       placeholderTextColor="#64748B"
-                      style={[styles.input, styles.textArea, { backgroundColor: colors.surface, borderColor: colors.border, color: colors.text }]}
+                      style={[
+                        styles.input,
+                        styles.textArea,
+                        {
+                          backgroundColor: colors.surface,
+                          borderColor: colors.border,
+                          color: colors.text,
+                          height: descriptionHeight,
+                        },
+                      ]}
                       textAlignVertical="top"
                       value={description}
                     />
@@ -236,12 +251,12 @@ const styles = StyleSheet.create({
     borderWidth: 1,
     fontFamily: AppFonts.medium,
     fontSize: 16,
-    minHeight: 56,
+    minHeight: MIN_FIELD_HEIGHT,
     paddingHorizontal: 14,
     paddingVertical: 12,
   },
   textArea: {
-    minHeight: 88,
+    minHeight: MIN_FIELD_HEIGHT,
   },
   categoryHeader: {
     alignItems: 'center',
