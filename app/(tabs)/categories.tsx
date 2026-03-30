@@ -1,8 +1,9 @@
 import { Ionicons } from '@expo/vector-icons';
 import { useMemo, useState } from 'react';
-import { FlatList, Pressable, StyleSheet, Text, TextInput, View } from 'react-native';
+import { Pressable, StyleSheet, Text, TextInput, View } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useRouter } from 'expo-router';
+import DraggableFlatList, { ScaleDecorator, RenderItemParams } from 'react-native-draggable-flatlist';
 import Svg, { Circle } from 'react-native-svg';
 
 import { CategoryFormModal } from '@/components/category-form-modal';
@@ -63,6 +64,7 @@ export default function CategoriesScreen() {
   const insets = useSafeAreaInsets();
   const categories = useTaskStore((state) => state.categories);
   const tasks = useTaskStore((state) => state.tasks);
+  const reorderCategories = useTaskStore((state) => state.reorderCategories);
 
   const [query, setQuery] = useState('');
   const [activeTab, setActiveTab] = useState<CategoryTab>('active');
@@ -89,13 +91,19 @@ export default function CategoriesScreen() {
   const filteredCategories = useMemo(() => {
     const normalizedQuery = query.trim().toLowerCase();
 
-    return categorySummaries.filter((category) => {
+    const results = categorySummaries.filter((category) => {
       const matchesTab = activeTab === 'active' ? !category.isArchived : category.isArchived;
       const matchesQuery =
         !normalizedQuery ||
         category.name.toLowerCase().includes(normalizedQuery) ||
         category.description?.toLowerCase().includes(normalizedQuery);
       return matchesTab && matchesQuery;
+    });
+
+    return results.sort((a, b) => {
+      const orderA = a.orderIndex ?? new Date(a.createdAt).getTime();
+      const orderB = b.orderIndex ?? new Date(b.createdAt).getTime();
+      return orderB - orderA;
     });
   }, [activeTab, categorySummaries, query]);
 
@@ -182,16 +190,21 @@ export default function CategoriesScreen() {
           </Pressable>
         </View>
 
-        <FlatList
+        <DraggableFlatList
+          activationDistance={20}
+          onDragEnd={({ data }) => reorderCategories(data.map(c => c.id))}
           contentContainerStyle={[styles.listContent, { paddingBottom: Math.max(92, insets.bottom + 80) }]}
           data={filteredCategories}
           keyExtractor={(item) => item.id}
           keyboardShouldPersistTaps="handled"
           removeClippedSubviews
-          renderItem={({ item }) => (
-            <Pressable
-              onPress={() => router.push({ pathname: '/category/[id]', params: { id: item.id } })}
-              style={[styles.card, { backgroundColor: colors.surfaceElevated, borderColor: colors.border }]}> 
+          renderItem={({ item, drag, isActive }: RenderItemParams<typeof filteredCategories[0]>) => (
+            <ScaleDecorator>
+              <Pressable
+                onLongPress={activeTab === 'active' && !isActive ? drag : undefined}
+                delayLongPress={200}
+                onPress={() => router.push({ pathname: '/category/[id]', params: { id: item.id } })}
+                style={[styles.card, { backgroundColor: colors.surfaceElevated, borderColor: colors.border }]}> 
               <View style={styles.cardLeft}>
                 <ProgressRing color={item.color} progress={item.progress} labelColor={colors.text} baseColor={colors.border} />
                 <View style={styles.cardTextWrap}>
@@ -222,7 +235,8 @@ export default function CategoriesScreen() {
                   </View>
                 )}
               </View>
-            </Pressable>
+              </Pressable>
+            </ScaleDecorator>
           )}
           ListEmptyComponent={
             <View style={styles.emptyWrap}>

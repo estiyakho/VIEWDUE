@@ -7,7 +7,6 @@ import {
   useState
 } from "react";
 import {
-  FlatList,
   Pressable,
   ScrollView,
   StyleSheet,
@@ -16,6 +15,7 @@ import {
   View,
 } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
+import DraggableFlatList, { ScaleDecorator, RenderItemParams } from "react-native-draggable-flatlist";
 
 import { EmptyState } from "@/components/empty-state";
 import { FloatingActionButton } from "@/components/floating-action-button";
@@ -39,6 +39,7 @@ const SORT_OPTIONS = [
   { label: "Oldest First", value: "oldest" as const },
   { label: "Title A-Z", value: "title-asc" as const },
   { label: "Title Z-A", value: "title-desc" as const },
+  { label: "Custom (Drag)", value: "custom" as const },
 ];
 
 type SortMode = (typeof SORT_OPTIONS)[number]["value"];
@@ -53,6 +54,7 @@ export default function TodosScreen() {
   const toggleTaskStatus = useTaskStore((state) => state.toggleTaskStatus);
   const deleteTask = useTaskStore((state) => state.deleteTask);
   const setTaskNotAvailable = useTaskStore((state) => state.setTaskNotAvailable);
+  const reorderTasks = useTaskStore((state) => state.reorderTasks);
   const timeFormat = useTaskStore((state) => state.settings.timeFormat);
 
   const initialCategory = Array.isArray(params.categoryId)
@@ -103,6 +105,12 @@ export default function TodosScreen() {
 
       if (sortMode === "title-asc") {
         return left.title.localeCompare(right.title);
+      }
+
+      if (sortMode === "custom") {
+        const leftOrder = left.orderIndex ?? new Date(left.createdAt).getTime();
+        const rightOrder = right.orderIndex ?? new Date(right.createdAt).getTime();
+        return rightOrder - leftOrder;
       }
 
       return right.title.localeCompare(left.title);
@@ -157,20 +165,23 @@ export default function TodosScreen() {
   );
 
   const renderTask = useCallback(
-    ({ item }: { item: (typeof filteredTasks)[number] }) => (
-      <TaskItem
-        task={item}
-        category={
-          item.categoryId ? categoryMap.get(item.categoryId) : undefined
-        }
-        timeFormat={timeFormat}
-        onDelete={handleDelete}
-        onToggle={handleToggle}
-        onNotAvailable={handleNotAvailable}
-        onEdit={handleEdit}
-      />
+    ({ item, drag, isActive }: RenderItemParams<Task>) => (
+      <ScaleDecorator>
+        <TaskItem
+          task={item}
+          category={
+            item.categoryId ? categoryMap.get(item.categoryId) : undefined
+          }
+          timeFormat={timeFormat}
+          onDelete={handleDelete}
+          onToggle={handleToggle}
+          onNotAvailable={handleNotAvailable}
+          onEdit={handleEdit}
+          onLongPress={sortMode === "custom" && !isActive ? drag : undefined}
+        />
+      </ScaleDecorator>
     ),
-    [categoryMap, handleDelete, handleToggle, handleEdit, timeFormat],
+    [categoryMap, handleDelete, handleToggle, handleEdit, timeFormat, handleNotAvailable, sortMode],
   );
 
   return (
@@ -279,7 +290,9 @@ export default function TodosScreen() {
           })}
         </ScrollView>
 
-        <FlatList
+        <DraggableFlatList
+          activationDistance={20}
+          onDragEnd={({ data }) => reorderTasks(data.map(t => t.id))}
           contentContainerStyle={[styles.listContent, { paddingBottom: Math.max(92, insets.bottom + 80) }]}
           data={filteredTasks}
           keyExtractor={(item) => item.id}

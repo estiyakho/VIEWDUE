@@ -24,6 +24,7 @@ export type Category = {
   icon: string;
   isArchived: boolean;
   createdAt: string;
+  orderIndex?: number;
 };
 
 export type Task = {
@@ -33,6 +34,7 @@ export type Task = {
   categoryId?: string;
   status: TaskStatus;
   createdAt: string;
+  orderIndex?: number;
 };
 
 export type Settings = {

@@ -18,15 +18,16 @@ type TaskItemProps = {
   onDelete: (id: string) => void;
   onNotAvailable?: (id: string) => void;
   onEdit?: (task: Task) => void;
+  onLongPress?: () => void;
 };
 
-function TaskItemComponent({ task, category, timeFormat, onToggle, onDelete, onNotAvailable, onEdit }: TaskItemProps) {
+function TaskItemComponent({ task, category, timeFormat, onToggle, onDelete, onNotAvailable, onEdit, onLongPress }: TaskItemProps) {
   const colors = useAppTheme();
   const done = task.status === 'done';
   const notAvailable = task.status === 'not-available';
 
   return (
-    <View style={[styles.card, { backgroundColor: colors.surfaceElevated, borderColor: colors.border }]}> 
+    <Pressable onLongPress={onLongPress} delayLongPress={200} style={[styles.card, { backgroundColor: colors.surfaceElevated, borderColor: colors.border }]}> 
       <View style={styles.leftInteraction}>
         <Pressable 
           hitSlop={12}
@@ -88,7 +89,7 @@ function TaskItemComponent({ task, category, timeFormat, onToggle, onDelete, onN
           </Pressable>
         )}
       </View>
-    </View>
+    </Pressable>
   );
 }
 

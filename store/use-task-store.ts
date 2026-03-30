@@ -64,6 +64,8 @@ type TaskStore = {
     description?: string;
     color?: string;
   }) => string | null;
+  reorderCategories: (activeIdsInNewOrder: string[]) => void;
+  reorderTasks: (activeIdsInNewOrder: string[]) => void;
   archiveCategory: (id: string) => void;
   unarchiveCategory: (id: string) => void;
   deleteCategory: (id: string) => void;
@@ -216,6 +218,7 @@ export const useTaskStore = create<TaskStore>()(
               categoryId: categoryId || undefined,
               status: "todo",
               createdAt: createdAt ?? new Date().toISOString(),
+              orderIndex: Date.now(),
             },
             ...state.tasks,
           ],
@@ -305,6 +308,7 @@ export const useTaskStore = create<TaskStore>()(
           icon: CATEGORY_ICONS[nextIndex % CATEGORY_ICONS.length],
           isArchived: false,
           createdAt: new Date().toISOString(),
+          orderIndex: Date.now(),
         };
 
         set((state) => ({
@@ -345,6 +349,34 @@ export const useTaskStore = create<TaskStore>()(
 
         return id;
       },
+      reorderCategories: (activeIdsInNewOrder: string[]) => set((state) => {
+        const sortedOrderIndices = state.categories
+          .filter(c => activeIdsInNewOrder.includes(c.id))
+          .map(c => c.orderIndex ?? new Date(c.createdAt).getTime())
+          .sort((a, b) => b - a);
+          
+        const newCategories = state.categories.map(c => {
+          const newIndex = activeIdsInNewOrder.indexOf(c.id);
+          if (newIndex === -1) return c;
+          return { ...c, orderIndex: sortedOrderIndices[newIndex] };
+        });
+        
+        return { categories: newCategories };
+      }),
+      reorderTasks: (activeIdsInNewOrder: string[]) => set((state) => {
+        const sortedOrderIndices = state.tasks
+          .filter(t => activeIdsInNewOrder.includes(t.id))
+          .map(t => t.orderIndex ?? new Date(t.createdAt).getTime())
+          .sort((a, b) => b - a);
+          
+        const newTasks = state.tasks.map(t => {
+          const newIndex = activeIdsInNewOrder.indexOf(t.id);
+          if (newIndex === -1) return t;
+          return { ...t, orderIndex: sortedOrderIndices[newIndex] };
+        });
+        
+        return { tasks: newTasks };
+      }),
       archiveCategory: (id: string) =>
         set((state) => ({
           categories: state.categories.map((category) =>

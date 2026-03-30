@@ -1,8 +1,9 @@
 import { Ionicons } from '@expo/vector-icons';
 import { Stack, useLocalSearchParams, useRouter } from 'expo-router';
 import { useCallback, useMemo, useState } from 'react';
-import { FlatList, Pressable, StyleSheet, Text, View } from 'react-native';
+import { Pressable, StyleSheet, Text, View } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
+import DraggableFlatList, { ScaleDecorator, RenderItemParams } from 'react-native-draggable-flatlist';
 
 import { CategoryFormModal } from '@/components/category-form-modal';
 import { TaskFormModal } from '@/components/task-form-modal';
@@ -21,6 +22,7 @@ const SORT_OPTIONS = [
   { label: "Oldest First", value: "oldest" as const },
   { label: "Title A-Z", value: "title-asc" as const },
   { label: "Title Z-A", value: "title-desc" as const },
+  { label: "Custom (Drag)", value: "custom" as const },
 ];
 
 type SortMode = (typeof SORT_OPTIONS)[number]["value"];
@@ -36,6 +38,7 @@ export default function CategoryDetailsScreen() {
   const toggleTaskStatus = useTaskStore((state) => state.toggleTaskStatus);
   const deleteTask = useTaskStore((state) => state.deleteTask);
   const setTaskNotAvailable = useTaskStore((state) => state.setTaskNotAvailable);
+  const reorderTasks = useTaskStore((state) => state.reorderTasks);
   const archiveCategory = useTaskStore((state) => state.archiveCategory);
   const unarchiveCategory = useTaskStore((state) => state.unarchiveCategory);
   const timeFormat = useTaskStore((state) => state.settings.timeFormat);
@@ -67,6 +70,11 @@ export default function CategoryDetailsScreen() {
       }
       if (sortMode === "title-asc") {
         return left.title.localeCompare(right.title);
+      }
+      if (sortMode === "custom") {
+        const leftOrder = left.orderIndex ?? new Date(left.createdAt).getTime();
+        const rightOrder = right.orderIndex ?? new Date(right.createdAt).getTime();
+        return rightOrder - leftOrder;
       }
       return right.title.localeCompare(left.title);
     });
@@ -198,22 +206,27 @@ export default function CategoryDetailsScreen() {
           </Pressable>
         </View>
 
-        <FlatList
+        <DraggableFlatList
+          activationDistance={20}
+          onDragEnd={({ data }) => reorderTasks(data.map(t => t.id))}
           contentContainerStyle={[styles.listContent, { paddingBottom: Math.max(92, insets.bottom + 80) }]}
           data={categoryTasks}
           keyExtractor={(item) => item.id}
           keyboardShouldPersistTaps="handled"
           ListEmptyComponent={<EmptyState title="No tasks here" description="Tasks in this category will appear here." />}
-          renderItem={({ item }) => (
-            <TaskItem
-              task={item}
-              category={{ color: category.color, name: category.name }}
-              timeFormat={timeFormat}
-              onDelete={handleDelete}
-              onToggle={handleToggle}
-              onNotAvailable={handleNotAvailable}
-              onEdit={(task) => setEditingTask(task)}
-            />
+          renderItem={({ item, drag, isActive }: RenderItemParams<Task>) => (
+            <ScaleDecorator>
+              <TaskItem
+                task={item}
+                category={{ color: category.color, name: category.name }}
+                timeFormat={timeFormat}
+                onDelete={handleDelete}
+                onToggle={handleToggle}
+                onNotAvailable={handleNotAvailable}
+                onEdit={(task) => setEditingTask(task)}
+                onLongPress={sortMode === "custom" && !isActive ? drag : undefined}
+              />
+            </ScaleDecorator>
           )}
           showsVerticalScrollIndicator={false}
         />
