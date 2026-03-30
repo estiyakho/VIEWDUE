@@ -71,7 +71,7 @@ export default function CategoriesScreen() {
 
   const categorySummaries = useMemo(() => {
     return categories.map((category) => {
-      const relatedTasks = tasks.filter((task) => task.categoryId === category.id);
+      const relatedTasks = tasks.filter((task) => task.categoryId === category.id && task.status !== 'not-available');
       const completed = relatedTasks.filter((task) => task.status === 'done').length;
       const remaining = relatedTasks.length - completed;
       const progress = relatedTasks.length ? Math.round((completed / relatedTasks.length) * 100) : 0;
@@ -99,8 +99,9 @@ export default function CategoriesScreen() {
     });
   }, [activeTab, categorySummaries, query]);
 
-  const totalTasks = tasks.length;
-  const completedTasks = tasks.filter((task) => task.status === 'done').length;
+  const availableTasks = tasks.filter((task) => task.status !== 'not-available');
+  const totalTasks = availableTasks.length;
+  const completedTasks = availableTasks.filter((task) => task.status === 'done').length;
   const remainingTasks = totalTasks - completedTasks;
   const overallProgress = totalTasks ? Math.round((completedTasks / totalTasks) * 100) : 0;
 

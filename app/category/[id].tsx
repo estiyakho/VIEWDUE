@@ -48,8 +48,9 @@ export default function CategoryDetailsScreen() {
     return filtered.filter((task) => task.status === taskFilter);
   }, [categoryId, taskFilter, tasks]);
 
-  const totalTasks = tasks.filter((task) => task.categoryId === categoryId).length;
-  const completedTasks = tasks.filter((task) => task.categoryId === categoryId && task.status === 'done').length;
+  const availableTasks = tasks.filter((task) => task.categoryId === categoryId && task.status !== 'not-available');
+  const totalTasks = availableTasks.length;
+  const completedTasks = availableTasks.filter((task) => task.status === 'done').length;
   const remainingTasks = totalTasks - completedTasks;
 
   const handleDelete = useCallback(
