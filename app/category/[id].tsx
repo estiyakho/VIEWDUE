@@ -1,7 +1,6 @@
-import * as Haptics from 'expo-haptics';
 import { Ionicons } from '@expo/vector-icons';
 import { Stack, useLocalSearchParams, useRouter } from 'expo-router';
-import { useCallback, useMemo, useState } from 'react';
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { Pressable, StyleSheet, Text, View } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import DraggableFlatList, { RenderItemParams } from 'react-native-draggable-flatlist';
@@ -51,6 +50,8 @@ export default function CategoryDetailsScreen() {
   const [taskFilter, setTaskFilter] = useState<CategoryTaskFilter>('all');
   const [sortMode, setSortMode] = useState<SortMode>("manual");
   const [sortSheetVisible, setSortSheetVisible] = useState(false);
+  const [listData, setListData] = useState<Task[]>([]);
+  const justDragged = useRef(false);
 
   const categoryId = Array.isArray(params.id) ? params.id[0] : params.id;
   const category = categories.find((item) => item.id === categoryId);
@@ -83,6 +84,14 @@ export default function CategoryDetailsScreen() {
 
     return result;
   }, [categoryId, taskFilter, sortMode, tasks]);
+
+  useEffect(() => {
+    if (justDragged.current) {
+      justDragged.current = false;
+      return;
+    }
+    setListData(categoryTasks);
+  }, [categoryTasks]);
 
   const availableTasks = tasks.filter((task) => task.categoryId === categoryId && task.status !== 'not-available');
   const totalTasks = availableTasks.length;
@@ -229,19 +238,14 @@ export default function CategoryDetailsScreen() {
         </View>
 
         <DraggableFlatList
-          onDragBegin={() => {
-            Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Medium);
-          }}
           onDragEnd={({ data }) => {
-            Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
-            if (sortMode !== 'manual') {
-              setSortMode('manual');
-            }
-            const ids = data.map(t => t.id);
-            reorderTasks(ids);
+            justDragged.current = true;
+            setListData(data);
+            if (sortMode !== 'manual') setSortMode('manual');
+            reorderTasks(data.map(t => t.id));
           }}
           contentContainerStyle={[styles.listContent, { paddingBottom: Math.max(92, insets.bottom + 80) }]}
-          data={categoryTasks}
+          data={listData}
           keyExtractor={(item) => item.id}
           keyboardShouldPersistTaps="handled"
           ListEmptyComponent={<EmptyState title="No tasks here" description="Tasks in this category will appear here." />}

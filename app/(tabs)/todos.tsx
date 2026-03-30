@@ -2,8 +2,10 @@ import { Ionicons } from "@expo/vector-icons";
 import { useLocalSearchParams } from "expo-router";
 import {
   useCallback,
+  useEffect,
   useLayoutEffect,
   useMemo,
+  useRef,
   useState
 } from "react";
 import {
@@ -15,7 +17,6 @@ import {
   View,
 } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
-import * as Haptics from 'expo-haptics';
 import DraggableFlatList, { RenderItemParams } from "react-native-draggable-flatlist";
 
 import { EmptyState } from "@/components/empty-state";
@@ -28,7 +29,7 @@ import { AppFonts } from "@/constants/fonts";
 import { useAppTheme } from "@/hooks/use-app-theme";
 import { useTaskStore } from "@/store/use-task-store";
 import { Task, TaskStatus } from "@/types/task";
-import { runListAnimation, runSpringAnimation } from "@/utils/layout-animation";
+import { runListAnimation } from "@/utils/layout-animation";
 
 const FILTER_OPTIONS: { label: string; value: TaskStatus }[] = [
   { label: "Doing", value: "todo" },
@@ -69,6 +70,8 @@ export default function TodosScreen() {
   const [sortSheetVisible, setSortSheetVisible] = useState(false);
   const [addTaskModalVisible, setAddTaskModalVisible] = useState(false);
   const [editingTask, setEditingTask] = useState<Task | undefined>(undefined);
+  const [listData, setListData] = useState<Task[]>([]);
+  const justDragged = useRef(false);
 
   useLayoutEffect(() => {
     if (initialCategory) {
@@ -120,6 +123,14 @@ export default function TodosScreen() {
 
     return result;
   }, [activeFilter, query, selectedCategoryId, sortMode, tasks]);
+
+  useEffect(() => {
+    if (justDragged.current) {
+      justDragged.current = false;
+      return;
+    }
+    setListData(filteredTasks);
+  }, [filteredTasks]);
 
   const categoryMap = useMemo(
     () =>
@@ -295,19 +306,14 @@ export default function TodosScreen() {
         </ScrollView>
 
         <DraggableFlatList
-          onDragBegin={() => {
-            Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Medium);
-          }}
           onDragEnd={({ data }) => {
-            Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
-            if (sortMode !== 'manual') {
-              setSortMode('manual');
-            }
-            const ids = data.map(t => t.id);
-            reorderTasks(ids);
+            justDragged.current = true;
+            setListData(data);
+            if (sortMode !== 'manual') setSortMode('manual');
+            reorderTasks(data.map(t => t.id));
           }}
           contentContainerStyle={[styles.listContent, { paddingBottom: Math.max(92, insets.bottom + 80) }]}
-          data={filteredTasks}
+          data={listData}
           keyExtractor={(item) => item.id}
           keyboardShouldPersistTaps="handled"
           ListEmptyComponent={

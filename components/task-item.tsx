@@ -105,7 +105,18 @@ function TaskItemComponent({ task, category, timeFormat, onToggle, onDelete, onN
   );
 }
 
-export const TaskItem = memo(TaskItemComponent);
+export const TaskItem = memo(TaskItemComponent, (prev, next) => {
+  return (
+    prev.task.id === next.task.id &&
+    prev.task.status === next.task.status &&
+    prev.task.title === next.task.title &&
+    prev.task.description === next.task.description &&
+    prev.task.categoryId === next.task.categoryId &&
+    prev.timeFormat === next.timeFormat &&
+    prev.category?.color === next.category?.color &&
+    prev.category?.name === next.category?.name
+  );
+});
 
 const styles = StyleSheet.create({
   card: {
