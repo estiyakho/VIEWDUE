@@ -27,7 +27,19 @@ function TaskItemComponent({ task, category, timeFormat, onToggle, onDelete, onN
   const notAvailable = task.status === 'not-available';
 
   return (
-    <Pressable onLongPress={onLongPress} delayLongPress={200} style={[styles.card, { backgroundColor: colors.surfaceElevated, borderColor: colors.border }]}> 
+    <Pressable 
+      onLongPress={onLongPress} 
+      onPress={() => onEdit?.(task)}
+      delayLongPress={250} 
+      style={({ pressed }) => [
+        styles.card, 
+        { 
+          backgroundColor: colors.surfaceElevated, 
+          borderColor: colors.border,
+          opacity: pressed ? 0.95 : 1
+        }
+      ]}
+    > 
       <View style={styles.leftInteraction}>
         <Pressable 
           hitSlop={12}
@@ -43,7 +55,7 @@ function TaskItemComponent({ task, category, timeFormat, onToggle, onDelete, onN
           {done ? <Ionicons name="checkmark" size={14} color={colors.isLight ? "#0F172A" : "#FFFFFF"} /> : null}
         </Pressable>
         
-        <Pressable onPress={() => onEdit?.(task)} style={styles.textBlock}>
+        <View style={styles.textBlock}>
           <Text numberOfLines={1} style={[styles.title, { color: colors.text }, done && { color: colors.textSoft, textDecorationLine: 'line-through' }]}>
             {task.title}
           </Text>
@@ -61,7 +73,7 @@ function TaskItemComponent({ task, category, timeFormat, onToggle, onDelete, onN
               </Text>
             </View>
           </View>
-        </Pressable>
+        </View>
       </View>
 
       <View style={styles.rightColumn}>

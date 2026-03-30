@@ -15,9 +15,10 @@ import {
   View,
 } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
-import DraggableFlatList, { ScaleDecorator, RenderItemParams } from "react-native-draggable-flatlist";
+import DraggableFlatList, { RenderItemParams } from "react-native-draggable-flatlist";
 
 import { EmptyState } from "@/components/empty-state";
+import { VerticalScaleDecorator } from "@/components/vertical-scale-decorator";
 import { FloatingActionButton } from "@/components/floating-action-button";
 import { SettingsOptionSheet } from "@/components/settings-option-sheet";
 import { TaskFormModal } from "@/components/task-form-modal";
@@ -39,7 +40,7 @@ const SORT_OPTIONS = [
   { label: "Oldest First", value: "oldest" as const },
   { label: "Title A-Z", value: "title-asc" as const },
   { label: "Title Z-A", value: "title-desc" as const },
-  { label: "Custom (Drag)", value: "custom" as const },
+  { label: "Manual", value: "manual" as const },
 ];
 
 type SortMode = (typeof SORT_OPTIONS)[number]["value"];
@@ -63,7 +64,7 @@ export default function TodosScreen() {
   const [activeFilter, setActiveFilter] = useState<TaskStatus>("todo");
   const [selectedCategoryId, setSelectedCategoryId] = useState<string>("all");
   const [query, setQuery] = useState("");
-  const [sortMode, setSortMode] = useState<SortMode>("newest");
+  const [sortMode, setSortMode] = useState<SortMode>("manual");
   const [sortSheetVisible, setSortSheetVisible] = useState(false);
   const [addTaskModalVisible, setAddTaskModalVisible] = useState(false);
   const [editingTask, setEditingTask] = useState<Task | undefined>(undefined);
@@ -107,7 +108,7 @@ export default function TodosScreen() {
         return left.title.localeCompare(right.title);
       }
 
-      if (sortMode === "custom") {
+      if (sortMode === "manual") {
         const leftOrder = left.orderIndex ?? new Date(left.createdAt).getTime();
         const rightOrder = right.orderIndex ?? new Date(right.createdAt).getTime();
         return rightOrder - leftOrder;
@@ -166,7 +167,7 @@ export default function TodosScreen() {
 
   const renderTask = useCallback(
     ({ item, drag, isActive }: RenderItemParams<Task>) => (
-      <ScaleDecorator>
+      <VerticalScaleDecorator activeScale={1.03}>
         <TaskItem
           task={item}
           category={
@@ -177,9 +178,9 @@ export default function TodosScreen() {
           onToggle={handleToggle}
           onNotAvailable={handleNotAvailable}
           onEdit={handleEdit}
-          onLongPress={sortMode === "custom" && !isActive ? drag : undefined}
+          onLongPress={!isActive ? drag : undefined}
         />
-      </ScaleDecorator>
+      </VerticalScaleDecorator>
     ),
     [categoryMap, handleDelete, handleToggle, handleEdit, timeFormat, handleNotAvailable, sortMode],
   );
@@ -291,8 +292,10 @@ export default function TodosScreen() {
         </ScrollView>
 
         <DraggableFlatList
-          activationDistance={20}
-          onDragEnd={({ data }) => reorderTasks(data.map(t => t.id))}
+          onDragEnd={({ data }) => {
+            reorderTasks(data.map(t => t.id));
+            if (sortMode !== 'manual') setSortMode('manual');
+          }}
           contentContainerStyle={[styles.listContent, { paddingBottom: Math.max(92, insets.bottom + 80) }]}
           data={filteredTasks}
           keyExtractor={(item) => item.id}
@@ -315,7 +318,6 @@ export default function TodosScreen() {
               }
             />
           }
-          removeClippedSubviews
           renderItem={renderTask}
           showsVerticalScrollIndicator={false}
           windowSize={8}
@@ -331,7 +333,7 @@ export default function TodosScreen() {
         visible={sortSheetVisible}
         title="Sort Todos"
         iconName="swap-vertical-outline"
-        options={SORT_OPTIONS}
+        options={SORT_OPTIONS.filter(o => o.value !== 'manual')}
         selectedValue={sortMode}
         onClose={() => setSortSheetVisible(false)}
         onSelect={setSortMode}

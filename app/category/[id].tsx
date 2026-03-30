@@ -3,9 +3,10 @@ import { Stack, useLocalSearchParams, useRouter } from 'expo-router';
 import { useCallback, useMemo, useState } from 'react';
 import { Pressable, StyleSheet, Text, View } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
-import DraggableFlatList, { ScaleDecorator, RenderItemParams } from 'react-native-draggable-flatlist';
+import DraggableFlatList, { RenderItemParams } from 'react-native-draggable-flatlist';
 
 import { CategoryFormModal } from '@/components/category-form-modal';
+import { VerticalScaleDecorator } from '@/components/vertical-scale-decorator';
 import { TaskFormModal } from '@/components/task-form-modal';
 import { EmptyState } from '@/components/empty-state';
 import { FloatingActionButton } from '@/components/floating-action-button';
@@ -22,7 +23,7 @@ const SORT_OPTIONS = [
   { label: "Oldest First", value: "oldest" as const },
   { label: "Title A-Z", value: "title-asc" as const },
   { label: "Title Z-A", value: "title-desc" as const },
-  { label: "Custom (Drag)", value: "custom" as const },
+  { label: "Manual", value: "manual" as const },
 ];
 
 type SortMode = (typeof SORT_OPTIONS)[number]["value"];
@@ -47,7 +48,7 @@ export default function CategoryDetailsScreen() {
   const [editingTask, setEditingTask] = useState<Task | undefined>(undefined);
   const [isAddingTask, setIsAddingTask] = useState(false);
   const [taskFilter, setTaskFilter] = useState<CategoryTaskFilter>('all');
-  const [sortMode, setSortMode] = useState<SortMode>("newest");
+  const [sortMode, setSortMode] = useState<SortMode>("manual");
   const [sortSheetVisible, setSortSheetVisible] = useState(false);
 
   const categoryId = Array.isArray(params.id) ? params.id[0] : params.id;
@@ -71,7 +72,7 @@ export default function CategoryDetailsScreen() {
       if (sortMode === "title-asc") {
         return left.title.localeCompare(right.title);
       }
-      if (sortMode === "custom") {
+      if (sortMode === "manual") {
         const leftOrder = left.orderIndex ?? new Date(left.createdAt).getTime();
         const rightOrder = right.orderIndex ?? new Date(right.createdAt).getTime();
         return rightOrder - leftOrder;
@@ -207,15 +208,17 @@ export default function CategoryDetailsScreen() {
         </View>
 
         <DraggableFlatList
-          activationDistance={20}
-          onDragEnd={({ data }) => reorderTasks(data.map(t => t.id))}
+          onDragEnd={({ data }) => {
+            reorderTasks(data.map(t => t.id));
+            if (sortMode !== 'manual') setSortMode('manual');
+          }}
           contentContainerStyle={[styles.listContent, { paddingBottom: Math.max(92, insets.bottom + 80) }]}
           data={categoryTasks}
           keyExtractor={(item) => item.id}
           keyboardShouldPersistTaps="handled"
           ListEmptyComponent={<EmptyState title="No tasks here" description="Tasks in this category will appear here." />}
           renderItem={({ item, drag, isActive }: RenderItemParams<Task>) => (
-            <ScaleDecorator>
+            <VerticalScaleDecorator activeScale={1.03}>
               <TaskItem
                 task={item}
                 category={{ color: category.color, name: category.name }}
@@ -224,9 +227,9 @@ export default function CategoryDetailsScreen() {
                 onToggle={handleToggle}
                 onNotAvailable={handleNotAvailable}
                 onEdit={(task) => setEditingTask(task)}
-                onLongPress={sortMode === "custom" && !isActive ? drag : undefined}
+                onLongPress={!isActive ? drag : undefined}
               />
-            </ScaleDecorator>
+            </VerticalScaleDecorator>
           )}
           showsVerticalScrollIndicator={false}
         />
@@ -254,7 +257,7 @@ export default function CategoryDetailsScreen() {
         visible={sortSheetVisible}
         title="Sort Todos"
         iconName="swap-vertical-outline"
-        options={SORT_OPTIONS}
+        options={SORT_OPTIONS.filter(o => o.value !== 'manual')}
         selectedValue={sortMode}
         onClose={() => setSortSheetVisible(false)}
         onSelect={setSortMode}

@@ -3,12 +3,13 @@ import { useMemo, useState } from 'react';
 import { Pressable, StyleSheet, Text, TextInput, View } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useRouter } from 'expo-router';
-import DraggableFlatList, { ScaleDecorator, RenderItemParams } from 'react-native-draggable-flatlist';
+import DraggableFlatList, { RenderItemParams } from 'react-native-draggable-flatlist';
 import Svg, { Circle } from 'react-native-svg';
 
 import { CategoryFormModal } from '@/components/category-form-modal';
 import { FloatingActionButton } from '@/components/floating-action-button';
 import { ModernConfirmationModal } from '@/components/modern-confirmation-modal';
+import { VerticalScaleDecorator } from '@/components/vertical-scale-decorator';
 import { AppFonts } from '@/constants/fonts';
 import { useAppTheme } from '@/hooks/use-app-theme';
 import { useTaskStore } from '@/store/use-task-store';
@@ -191,17 +192,15 @@ export default function CategoriesScreen() {
         </View>
 
         <DraggableFlatList
-          activationDistance={20}
           onDragEnd={({ data }) => reorderCategories(data.map(c => c.id))}
           contentContainerStyle={[styles.listContent, { paddingBottom: Math.max(92, insets.bottom + 80) }]}
           data={filteredCategories}
           keyExtractor={(item) => item.id}
           keyboardShouldPersistTaps="handled"
-          removeClippedSubviews
           renderItem={({ item, drag, isActive }: RenderItemParams<typeof filteredCategories[0]>) => (
-            <ScaleDecorator>
+            <VerticalScaleDecorator activeScale={1.04}>
               <Pressable
-                onLongPress={activeTab === 'active' && !isActive ? drag : undefined}
+                onLongPress={!isActive ? drag : undefined}
                 delayLongPress={200}
                 onPress={() => router.push({ pathname: '/category/[id]', params: { id: item.id } })}
                 style={[styles.card, { backgroundColor: colors.surfaceElevated, borderColor: colors.border }]}> 
@@ -236,7 +235,7 @@ export default function CategoriesScreen() {
                 )}
               </View>
               </Pressable>
-            </ScaleDecorator>
+            </VerticalScaleDecorator>
           )}
           ListEmptyComponent={
             <View style={styles.emptyWrap}>
