@@ -7,11 +7,7 @@
     "icon": "./assets/images/icon.png",
     "scheme": "viewdue",
     "userInterfaceStyle": "automatic",
-    "splash": {
-      "image": "./assets/images/splash.png",
-      "resizeMode": "contain",
-      "backgroundColor": "#000000"
-    },
+
     "ios": {
       "bundleIdentifier": "com.viewdue.app",
       "supportsTablet": true
@@ -26,7 +22,8 @@
         "foregroundImage": "./assets/images/icon.png",
         "backgroundColor": "#000000"
       },
-      "predictiveBackGestureEnabled": false
+      "predictiveBackGestureEnabled": false,
+      "softwareKeyboardLayoutMode": "resize"
     },
     "web": {
       "output": "static",

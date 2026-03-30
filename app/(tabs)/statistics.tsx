@@ -46,6 +46,7 @@ export default function StatisticsScreen() {
   const accent = colors.accent;
   const tasks = useTaskStore((state) => state.tasks);
   const taskHistory = useTaskStore((state) => state.taskHistory);
+  const categories = useTaskStore((state) => state.categories);
   const statsResetAt = useTaskStore((state) => state.settings.statsResetAt);
   const firstDayOfWeek = useTaskStore((state) => state.settings.firstDayOfWeek);
 
@@ -240,16 +241,36 @@ export default function StatisticsScreen() {
   const maxHourly = Math.max(...hourlyCounts.map((item) => item.count)) || 1;
 
   const availableHistoryTasks = useMemo(() => {
-    const historicalTitles = taskHistory.map((h) => h.title);
-    const activeTitles = tasks.map((t) => t.title);
-    const uniqueTitles = Array.from(new Set([...historicalTitles, ...activeTitles]));
-    return uniqueTitles.map((title) => ({ label: title, value: title }));
-  }, [taskHistory, tasks]);
+    const combined = [
+      ...taskHistory.map((h) => ({ title: h.title, categoryId: h.categoryId })),
+      ...tasks.map((t) => ({ title: t.title, categoryId: t.categoryId })),
+    ];
 
-  const currentSelectedTaskTitle = selectedTaskTitle || availableHistoryTasks[0]?.value;
+    const uniqueMap = new Map<string, { title: string; categoryId?: string }>();
+    combined.forEach((entry) => {
+      const key = `${entry.title}|${entry.categoryId || ""}`;
+      if (!uniqueMap.has(key)) {
+        uniqueMap.set(key, entry);
+      }
+    });
+
+    return Array.from(uniqueMap.values())
+      .sort((a, b) => a.title.localeCompare(b.title))
+      .map((entry) => {
+        const category = entry.categoryId ? categories.find((c) => c.id === entry.categoryId) : undefined;
+        return {
+          label: entry.title,
+          value: `${entry.title}|${entry.categoryId || ""}`,
+          color: category?.color,
+        };
+      });
+  }, [taskHistory, tasks, categories]);
+
+  const currentSelectedTaskIdentity = selectedTaskTitle || availableHistoryTasks[0]?.value;
 
   const historyChartData = useMemo(() => {
-    if (!currentSelectedTaskTitle) return [];
+    if (!currentSelectedTaskIdentity) return [];
+    const [title, categoryId] = currentSelectedTaskIdentity.split("|");
 
     const daysCount = historyViewMode === "weekly" ? 7 : 30;
     const data = [];
@@ -260,7 +281,7 @@ export default function StatisticsScreen() {
       d.setDate(now.getDate() - i);
       const dateStr = `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`;
       const count = taskHistory.filter(
-        (h) => h.title === currentSelectedTaskTitle && h.date === dateStr
+        (h) => h.title === title && (h.categoryId || "") === categoryId && h.date === dateStr
       ).length;
 
       data.push({
@@ -271,12 +292,13 @@ export default function StatisticsScreen() {
       });
     }
     return data;
-  }, [currentSelectedTaskTitle, historyViewMode, taskHistory]);
+  }, [currentSelectedTaskIdentity, historyViewMode, taskHistory]);
 
   const maxHistoryCount = Math.max(...historyChartData.map((d: any) => d.count)) || 1;
 
   const snapshotData = useMemo(() => {
-    if (!currentSelectedTaskTitle) return [];
+    if (!currentSelectedTaskIdentity) return [];
+    const [title, categoryId] = currentSelectedTaskIdentity.split("|");
     
     const now = new Date();
     const grid = getMonthGrid(now, firstDayOfWeek);
@@ -285,7 +307,7 @@ export default function StatisticsScreen() {
        const d = cell.date;
        const dateStr = `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`;
        const count = taskHistory.filter(
-         (h) => h.title === currentSelectedTaskTitle && h.date === dateStr
+         (h) => h.title === title && (h.categoryId || "") === categoryId && h.date === dateStr
        ).length;
        
        return { 
@@ -294,7 +316,7 @@ export default function StatisticsScreen() {
          isCurrentMonth: cell.inCurrentMonth 
        };
     });
-  }, [currentSelectedTaskTitle, taskHistory, firstDayOfWeek]);
+  }, [currentSelectedTaskIdentity, taskHistory, firstDayOfWeek]);
 
   return (
     <View
@@ -317,10 +339,21 @@ export default function StatisticsScreen() {
               onPress={() => setIsTaskSelectorVisible(true)}
               style={[styles.taskSelector, { backgroundColor: colors.surfaceElevated, borderColor: colors.border }]}
             >
-              <Ionicons name="bookmark" size={16} color={accent} />
-              <Text style={[styles.taskSelectorText, { color: colors.text }]} numberOfLines={1}>
-                {currentSelectedTaskTitle || "No Tasks Yet"}
-              </Text>
+              {(() => {
+                 const identity = availableHistoryTasks.find(t => t.value === currentSelectedTaskIdentity);
+                 return (
+                   <>
+                     {identity?.color ? (
+                       <View style={[styles.inlineDot, { backgroundColor: identity.color }]} />
+                     ) : (
+                       <Ionicons name="bookmark" size={16} color={accent} />
+                     )}
+                     <Text style={[styles.taskSelectorText, { color: colors.text }]} numberOfLines={1}>
+                       {identity?.label || "No Tasks Yet"}
+                     </Text>
+                   </>
+                 );
+              })()}
               <Ionicons name="chevron-down" size={14} color={colors.textMuted} />
             </Pressable>
 
@@ -342,7 +375,7 @@ export default function StatisticsScreen() {
 
           <View style={[styles.chartCard, { backgroundColor: colors.surfaceElevated, borderColor: colors.border }]}>
             <Text style={[styles.chartTitle, { color: colors.text }]}>Task Persistence</Text>
-            {currentSelectedTaskTitle ? (
+            {currentSelectedTaskIdentity ? (
               <ScrollView horizontal showsHorizontalScrollIndicator={false} style={styles.horizontalChart}>
                 <View style={[styles.chartArea, { minWidth: historyViewMode === "weekly" ? '100.1%' : 800, height: 120, alignItems: 'flex-end' }]}>
                   {historyChartData.map((item: any) => (
@@ -575,7 +608,7 @@ export default function StatisticsScreen() {
         title="Select Task"
         iconName="bookmark-outline"
         options={availableHistoryTasks}
-        selectedValue={currentSelectedTaskTitle}
+        selectedValue={currentSelectedTaskIdentity}
         onClose={() => setIsTaskSelectorVisible(false)}
         onSelect={(val) => {
           setSelectedTaskTitle(val as string);
@@ -661,6 +694,12 @@ const styles = StyleSheet.create({
     borderRadius: 14,
     borderWidth: 1,
     gap: 8,
+  },
+  inlineDot: {
+    borderRadius: 5,
+    height: 10,
+    width: 10,
+    marginRight: 2,
   },
   taskSelectorText: {
     flex: 1,

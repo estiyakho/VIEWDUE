@@ -7,6 +7,7 @@ import { useAppTheme } from '@/hooks/use-app-theme';
 type Option<T extends string | number> = {
   label: string;
   value: T;
+  color?: string; // Optional dot color
 };
 
 type SettingsOptionSheetProps<T extends string | number> = {
@@ -57,9 +58,14 @@ export function SettingsOptionSheet<T extends string | number>({
                     onClose();
                   }}
                   style={styles.option}>
-                  <Text style={[styles.optionLabel, { color: selected ? accentColor : colors.textSoft }]}>
-                    {option.label}
-                  </Text>
+                  <View style={styles.optionContent}>
+                    {option.color ? (
+                      <View style={[styles.optionDot, { backgroundColor: option.color }]} />
+                    ) : null}
+                    <Text style={[styles.optionLabel, { color: selected ? accentColor : colors.textSoft }]}>
+                      {option.label}
+                    </Text>
+                  </View>
                   <View style={styles.checkWrap}>
                     {selected ? <Ionicons name="checkmark-circle" size={20} color={accentColor} /> : null}
                   </View>
@@ -112,10 +118,21 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     minHeight: 48,
   },
-  optionLabel: {
+  optionContent: {
+    alignItems: 'center',
+    flexDirection: 'row',
     flex: 1,
+    gap: 12,
+  },
+  optionDot: {
+    borderRadius: 6,
+    height: 12,
+    width: 12,
+  },
+  optionLabel: {
     fontFamily: AppFonts.semibold,
     fontSize: 17,
+    marginTop: -1, // Visual alignment
   },
   checkWrap: {
     alignItems: 'center',

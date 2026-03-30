@@ -65,6 +65,7 @@ export type TaskHistoryEntry = {
   id: string;
   taskId: string;
   title: string;
+  categoryId?: string; // Track which category this task was in when completed
   date: string; // ISO date (YYYY-MM-DD)
   completedAt: string; // ISO string 
 };

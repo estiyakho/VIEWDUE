@@ -261,6 +261,7 @@ export const useTaskStore = create<TaskStore>()(
                 id: `${Date.now()}-${Math.random().toString(36).slice(2, 8)}`,
                 taskId: id,
                 title: task.title,
+                categoryId: task.categoryId,
                 date: today,
                 completedAt: new Date().toISOString(),
               });

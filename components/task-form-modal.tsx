@@ -102,7 +102,7 @@ export function TaskFormModal({
         </Animated.View>
 
         <KeyboardAvoidingView 
-          behavior={Platform.OS === 'ios' ? 'padding' : undefined}
+          behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
           style={styles.modalWrapper}>
           <Animated.View 
             entering={SlideInDown.duration(400)}
