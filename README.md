@@ -1,7 +1,12 @@
 # View Due
 
 `View Due` is a local-first task manager built with Expo, React Native, and Expo Router. It helps users organize todos into categories, review progress by date, and track completion trends from a mobile-friendly tabbed interface.
-<img width="778" height="1600" alt="image" src="https://github.com/user-attachments/assets/4319744f-7af0-4351-8e5f-3e21800d2de6" /><img width="778" height="1600" alt="image" src="https://github.com/user-attachments/assets/66975c18-db12-4461-9f5a-41b26714577f" /><img width="778" height="1600" alt="image" src="https://github.com/user-attachments/assets/c1ef4a99-3d80-4dbb-b0f2-045e8e1565a9" /> <img width="778" height="1600" alt="image" src="https://github.com/user-attachments/assets/f03feca8-9bda-4a62-adde-200cd125c892" />
+<p align="center">
+  <img src="https://github.com/user-attachments/assets/4319744f-7af0-4351-8e5f-3e21800d2de6" width="22%" />
+  <img src="https://github.com/user-attachments/assets/66975c18-db12-4461-9f5a-41b26714577f" width="22%" />
+  <img src="https://github.com/user-attachments/assets/c1ef4a99-3d80-4dbb-b0f2-045e8e1565a9" width="22%" />
+  <img src="https://github.com/user-attachments/assets/f03feca8-9bda-4a62-adde-200cd125c892" width="22%" />
+</p>
 
 ## What The App Does
 
