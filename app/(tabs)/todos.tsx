@@ -10,21 +10,21 @@ import {
 } from "react";
 import {
   Pressable,
-  ScrollView,
   StyleSheet,
   Text,
   TextInput,
   View,
 } from "react-native";
-import { useSafeAreaInsets } from "react-native-safe-area-context";
 import DraggableFlatList, { RenderItemParams } from "react-native-draggable-flatlist";
+import { ScrollView } from 'react-native-gesture-handler';
+import { useSafeAreaInsets } from "react-native-safe-area-context";
 
 import { EmptyState } from "@/components/empty-state";
-import { VerticalScaleDecorator } from "@/components/vertical-scale-decorator";
 import { FloatingActionButton } from "@/components/floating-action-button";
 import { SettingsOptionSheet } from "@/components/settings-option-sheet";
 import { TaskFormModal } from "@/components/task-form-modal";
 import { TaskItem } from "@/components/task-item";
+import { VerticalScaleDecorator } from "@/components/vertical-scale-decorator";
 import { AppFonts } from "@/constants/fonts";
 import { useAppTheme } from "@/hooks/use-app-theme";
 import { useTaskStore } from "@/store/use-task-store";
@@ -90,7 +90,7 @@ export default function TodosScreen() {
   const [sortSheetVisible, setSortSheetVisible] = useState(false);
   const [addTaskModalVisible, setAddTaskModalVisible] = useState(false);
   const [editingTask, setEditingTask] = useState<Task | undefined>(undefined);
-  
+
   const [listData, setListData] = useState<Task[]>(() => getInitialFilteredTasks("todo", "all", "", "manual"));
   const justDragged = useRef(false);
 
@@ -100,7 +100,7 @@ export default function TodosScreen() {
     }
   }, [initialCategory]);
 
-  const filteredTasks = useMemo(() => 
+  const filteredTasks = useMemo(() =>
     getInitialFilteredTasks(activeFilter, selectedCategoryId, query, sortMode),
     [getInitialFilteredTasks, activeFilter, selectedCategoryId, query, sortMode]
   );
@@ -263,8 +263,10 @@ export default function TodosScreen() {
               <ScrollView
                 horizontal
                 showsHorizontalScrollIndicator={false}
+                nestedScrollEnabled={true}
+                disallowInterruption={true}
                 contentContainerStyle={styles.chipsContent}
-                style={styles.chipsRow}
+                style={[styles.chipsRow, { width: '100%' }]}
               >
                 <Pressable
                   onPress={() => setSelectedCategoryId("all")}
@@ -308,10 +310,10 @@ export default function TodosScreen() {
           ListEmptyComponent={
             <EmptyState
               title={
-                activeFilter === "todo" 
-                  ? "Add a Todo" 
-                  : activeFilter === "done" 
-                    ? "Finished Tasks" 
+                activeFilter === "todo"
+                  ? "Add a Todo"
+                  : activeFilter === "done"
+                    ? "Finished Tasks"
                     : "Not Available"
               }
               description={
