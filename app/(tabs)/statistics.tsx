@@ -8,6 +8,7 @@ import { AppFonts } from "@/constants/fonts";
 import { useAppTheme } from "@/hooks/use-app-theme";
 import { useTaskStore } from "@/store/use-task-store";
 import { getMonthGrid, getWeekdayLabels } from "@/utils/calendar";
+import { getHistoryDateString } from "@/utils/date-utils";
 
 function StatBox({
   icon,
@@ -81,7 +82,7 @@ export default function StatisticsScreen() {
 
   const overviewStats = useMemo(() => {
     const now = new Date();
-    const todayStr = `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}-${String(now.getDate()).padStart(2, '0')}`;
+    const todayStr = getHistoryDateString(now);
 
     let startDate = new Date(now);
     if (overviewPeriod === "today") {
@@ -97,7 +98,7 @@ export default function StatisticsScreen() {
       startDate = new Date(now.getFullYear(), now.getMonth(), 1);
     }
 
-    const startStr = `${startDate.getFullYear()}-${String(startDate.getMonth() + 1).padStart(2, '0')}-${String(startDate.getDate()).padStart(2, '0')}`;
+    const startStr = getHistoryDateString(startDate);
 
     // 1. Get historical stats from history (excluding today to avoid double counting with current tasks)
     const historyInRange = taskHistory.filter(h => h.date >= startStr && h.date < todayStr);
@@ -108,6 +109,10 @@ export default function StatisticsScreen() {
 
     // 2. Add current day stats from active tasks
     tasks.forEach(task => {
+      // Skip tasks in archived categories
+      const category = categories.find(c => c.id === task.categoryId);
+      if (category?.isArchived) return;
+
       if (task.status === 'done') done++;
       else if (task.status === 'todo') missed++;
       else if (task.status === 'not-available') na++;
@@ -290,7 +295,7 @@ export default function StatisticsScreen() {
         d.setDate(weekStart.getDate() + i);
         const dateStr = `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`;
         const count = taskHistory.filter(
-          (h) => h.title === title && (h.categoryId || "") === categoryId && h.date === dateStr
+          (h) => h.title === title && (h.categoryId || "") === categoryId && h.date === dateStr && h.status === 'done'
         ).length;
         data.push({
           date: dateStr,
@@ -328,9 +333,9 @@ export default function StatisticsScreen() {
 
     return grid.map((cell: any) => {
       const d = cell.date;
-      const dateStr = `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`;
+      const dateStr = getHistoryDateString(d);
       const count = taskHistory.filter(
-        (h) => h.title === title && (h.categoryId || "") === categoryId && h.date === dateStr
+        (h) => h.title === title && (h.categoryId || "") === categoryId && h.date === dateStr && h.status === 'done'
       ).length;
 
       return {

@@ -15,6 +15,7 @@ export type FirstDayOfWeek =
 export type SnoozeDuration = 5 | 10 | 15 | 30;
 export type DefaultScreen = 'categories' | 'todos' | 'calendar' | 'statistics' | 'settings';
 export type Language = 'english' | 'spanish' | 'french';
+export type SortMode = 'manual' | 'newest' | 'oldest' | 'title-asc' | 'title-desc';
 
 export type Category = {
   id: string;
@@ -49,6 +50,7 @@ export type Settings = {
   snoozeDuration: SnoozeDuration;
   defaultScreen: DefaultScreen;
   language: Language;
+  taskSortMode: SortMode;
   hasCompletedNotificationOnboarding: boolean;
 };
 

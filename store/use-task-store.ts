@@ -13,6 +13,7 @@ import {
 } from "@/types/task";
 import { DEFAULT_CATEGORIES, DEFAULT_SETTINGS } from "@/utils/app-defaults";
 import { shouldResetTasks } from "@/utils/reset";
+import { getHistoryDateString } from "@/utils/date-utils";
 import { 
   scheduleReminderNotification, 
   cancelNotification,
@@ -253,9 +254,8 @@ export const useTaskStore = create<TaskStore>()(
 
           let newTaskHistory = [...state.taskHistory];
           if (newStatus === "done") {
-            const now = new Date();
-            const today = `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}-${String(now.getDate()).padStart(2, '0')}`;
-            const alreadyLogged = state.taskHistory.find(
+            const today = getHistoryDateString(new Date());
+            const alreadyLogged = state.taskHistory.some(
               (h) => h.taskId === id && h.date === today
             );
 
@@ -276,11 +276,40 @@ export const useTaskStore = create<TaskStore>()(
           return { ...state, tasks: newTasks, taskHistory: newTaskHistory };
         }),
       setTaskNotAvailable: (id: string) =>
-        set((state) => ({
-          tasks: state.tasks.map((task) =>
-            task.id === id ? { ...task, status: task.status === "not-available" ? "todo" : "not-available" } : task,
-          ),
-        })),
+        set((state) => {
+          const task = state.tasks.find((t) => t.id === id);
+          if (!task) return state;
+
+          const nextStatus = task.status === "not-available" ? "todo" : "not-available";
+          
+          let newTaskHistory = [...state.taskHistory];
+          if (nextStatus === "not-available") {
+            const today = getHistoryDateString(new Date());
+            const alreadyLogged = state.taskHistory.some(
+              (h) => h.taskId === id && h.date === today
+            );
+
+            if (!alreadyLogged) {
+              newTaskHistory.push({
+                id: `${Date.now()}-${Math.random().toString(36).slice(2, 8)}`,
+                taskId: id,
+                title: task.title,
+                categoryId: task.categoryId,
+                status: "not-available",
+                date: today,
+                completedAt: new Date().toISOString(),
+              });
+            }
+          }
+
+          return {
+            ...state,
+            tasks: state.tasks.map((t) =>
+              t.id === id ? { ...t, status: nextStatus as TaskStatus } : t,
+            ),
+            taskHistory: newTaskHistory
+          };
+        }),
       deleteTask: (id: string) =>
         set((state) => ({
           tasks: state.tasks.filter((task) => task.id !== id),
@@ -385,7 +414,10 @@ export const useTaskStore = create<TaskStore>()(
           return { ...t, orderIndex: sortedOrderIndices[newIndex] };
         });
         
-        return { tasks: newTasks };
+        return { 
+          tasks: newTasks,
+          settings: { ...state.settings, taskSortMode: 'manual' }
+        };
       }),
       archiveCategory: (id: string) =>
         set((state) => ({
@@ -410,6 +442,7 @@ export const useTaskStore = create<TaskStore>()(
           tasks: [],
           categories: [],
           scheduledTasks: [],
+          taskHistory: [],
           settings: {
             ...state.settings,
             lastResetAt: new Date().toISOString(),
@@ -458,31 +491,44 @@ export const useTaskStore = create<TaskStore>()(
 
         set((state) => {
           const now = new Date();
-          const resetDate = `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}-${String(now.getDate()).padStart(2, '0')}`;
+          
+          // Calculate the date for which we are logging history.
+          // This should be the period that just ended. Since shouldResetTasks returned true,
+          // it means the 'now' is a new day/week/etc. compared to 'lastResetAt'.
+          // We'll log the final state for the date of the LAST reset.
+          const logDate = state.settings.lastResetAt 
+            ? getHistoryDateString(new Date(state.settings.lastResetAt))
+            : getHistoryDateString(new Date(now.getTime() - 1000 * 60 * 60 * 24)); // Default to yesterday
 
-          // Record ALL active tasks into history before resetting
+          // Optimization: create a set of taskId|date that are already logged to avoid O(T*H)
+          // We only care about logs for the target logDate.
+          const loggedTodaySet = new Set(
+            state.taskHistory
+              .filter(h => h.date === logDate)
+              .map(h => h.taskId)
+          );
+
           const newHistoryEntries: TaskHistoryEntry[] = [];
-          for (const task of state.tasks) {
-            // Check if this task already has history for today (to avoid duplicates if already marked done)
-            const alreadyLogged = state.taskHistory.some(
-              (h) => h.taskId === task.id && h.date === resetDate
-            );
+          
+          state.tasks.forEach(task => {
+            // Check if category is archived
+            const category = state.categories.find(c => c.id === task.categoryId);
+            if (category?.isArchived) return; // Skip archived
 
-            if (!alreadyLogged) {
+            if (!loggedTodaySet.has(task.id)) {
               newHistoryEntries.push({
                 id: `${Date.now()}-${Math.random().toString(36).slice(2, 8)}`,
                 taskId: task.id,
                 title: task.title,
                 categoryId: task.categoryId,
-                status: task.status, // Current status (todo, done, or not-available)
-                date: resetDate,
+                status: task.status,
+                date: logDate,
                 completedAt: now.toISOString(),
               });
             }
-          }
+          });
 
           return {
-            // Reset active tasks back to 'todo' status, but skip archived categories
             tasks: state.tasks.map((task) => {
               const category = state.categories.find(c => c.id === task.categoryId);
               if (category?.isArchived) {
@@ -547,6 +593,7 @@ export const useTaskStore = create<TaskStore>()(
             accentColor:
               state?.settings?.accentColor ??
               (state?.settings?.dynamicColors ? "#8B7CF6" : "#2563EB"),
+            taskSortMode: state?.settings?.taskSortMode ?? 'manual',
           },
         };
       },

@@ -57,6 +57,8 @@ export default function TodosScreen() {
   const deleteTask = useTaskStore((state) => state.deleteTask);
   const setTaskNotAvailable = useTaskStore((state) => state.setTaskNotAvailable);
   const reorderTasks = useTaskStore((state) => state.reorderTasks);
+  const taskSortMode = useTaskStore((state) => state.settings.taskSortMode);
+  const updateSettings = useTaskStore((state) => state.updateSettings);
   const timeFormat = useTaskStore((state) => state.settings.timeFormat);
 
   const initialCategory = Array.isArray(params.categoryId)
@@ -86,7 +88,6 @@ export default function TodosScreen() {
   const [activeFilter, setActiveFilter] = useState<TaskStatus>("todo");
   const [selectedCategoryId, setSelectedCategoryId] = useState<string>("all");
   const [query, setQuery] = useState("");
-  const [sortMode, setSortMode] = useState<SortMode>("manual");
   const [sortSheetVisible, setSortSheetVisible] = useState(false);
   const [addTaskModalVisible, setAddTaskModalVisible] = useState(false);
   const [editingTask, setEditingTask] = useState<Task | undefined>(undefined);
@@ -101,8 +102,8 @@ export default function TodosScreen() {
   }, [initialCategory]);
 
   const filteredTasks = useMemo(() => 
-    getInitialFilteredTasks(activeFilter, selectedCategoryId, query, sortMode),
-    [getInitialFilteredTasks, activeFilter, selectedCategoryId, query, sortMode]
+    getInitialFilteredTasks(activeFilter, selectedCategoryId, query, taskSortMode),
+    [getInitialFilteredTasks, activeFilter, selectedCategoryId, query, taskSortMode]
   );
 
   useEffect(() => {
@@ -187,7 +188,6 @@ export default function TodosScreen() {
           onDragEnd={({ data }) => {
             justDragged.current = true;
             setListData(data);
-            setSortMode("manual");
             reorderTasks(data.map(t => t.id));
           }}
           contentContainerStyle={[styles.listContent, { paddingBottom: Math.max(92, insets.bottom + 80) }]}
@@ -337,9 +337,12 @@ export default function TodosScreen() {
         title="Sort Todos"
         iconName="swap-vertical-outline"
         options={SORT_OPTIONS}
-        selectedValue={sortMode}
+        selectedValue={taskSortMode}
         onClose={() => setSortSheetVisible(false)}
-        onSelect={setSortMode}
+        onSelect={(val) => {
+          runListAnimation();
+          updateSettings({ taskSortMode: val as SortMode });
+        }}
       />
 
       <TaskFormModal

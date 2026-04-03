@@ -45,13 +45,14 @@ export default function CategoryDetailsScreen() {
   const reorderTasks = useTaskStore((state) => state.reorderTasks);
   const archiveCategory = useTaskStore((state) => state.archiveCategory);
   const unarchiveCategory = useTaskStore((state) => state.unarchiveCategory);
+  const taskSortMode = useTaskStore((state) => state.settings.taskSortMode);
+  const updateSettings = useTaskStore((state) => state.updateSettings);
   const timeFormat = useTaskStore((state) => state.settings.timeFormat);
 
   const [editModalVisible, setEditModalVisible] = useState(false);
   const [editingTask, setEditingTask] = useState<Task | undefined>(undefined);
   const [isAddingTask, setIsAddingTask] = useState(false);
   const [taskFilter, setTaskFilter] = useState<CategoryTaskFilter>("todo");
-  const [sortMode, setSortMode] = useState<SortMode>("manual");
   const [sortSheetVisible, setSortSheetVisible] = useState(false);
 
   const categoryId = Array.isArray(params.id) ? params.id[0] : params.id || "";
@@ -69,29 +70,29 @@ export default function CategoryDetailsScreen() {
     }
 
     result.sort((left, right) => {
-      if (sortMode === "manual") {
+      if (taskSortMode === "manual") {
         return (right.orderIndex ?? 0) - (left.orderIndex ?? 0);
       }
-      if (sortMode === "newest") {
+      if (taskSortMode === "newest") {
         return (
           new Date(right.createdAt).getTime() -
           new Date(left.createdAt).getTime()
         );
       }
-      if (sortMode === "oldest") {
+      if (taskSortMode === "oldest") {
         return (
           new Date(left.createdAt).getTime() -
           new Date(right.createdAt).getTime()
         );
       }
-      if (sortMode === "title-asc") {
+      if (taskSortMode === "title-asc") {
         return left.title.localeCompare(right.title);
       }
       return right.title.localeCompare(left.title);
     });
 
     return result;
-  }, [categoryId, taskFilter, sortMode, tasks]);
+  }, [categoryId, taskFilter, taskSortMode, tasks]);
 
   const [listData, setListData] = useState<Task[]>(categoryTasks);
   const justDragged = useRef(false);
@@ -257,7 +258,6 @@ export default function CategoryDetailsScreen() {
           onDragEnd={({ data }) => {
             justDragged.current = true;
             setListData(data);
-            setSortMode("manual");
             reorderTasks(data.map((t) => t.id));
           }}
           ListHeaderComponent={
@@ -461,11 +461,11 @@ export default function CategoryDetailsScreen() {
           title="Sort Todos"
           iconName="swap-vertical"
           options={SORT_OPTIONS}
-          selectedValue={sortMode}
+          selectedValue={taskSortMode}
           onClose={() => setSortSheetVisible(false)}
           onSelect={(val) => {
             runListAnimation();
-            setSortMode(val as SortMode);
+            updateSettings({ taskSortMode: val as SortMode });
           }}
         />
       </View>
