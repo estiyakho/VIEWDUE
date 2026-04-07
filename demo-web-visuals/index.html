@@ -1,430 +1,771 @@
-<!DOCTYPE html><html  lang="en"><head><title data-rh="true"></title><meta charSet="utf-8"/><meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no"/><meta http-equiv="X-UA-Compatible" content="IE=edge"/><style id="expo-reset">#root,body,html{height:100%}body{overflow:hidden}#root{display:flex}</style><style id="react-native-stylesheet">[stylesheet-group="0"]{}
-body{margin:0;}
-button::-moz-focus-inner,input::-moz-focus-inner{border:0;padding:0;}
-html{-ms-text-size-adjust:100%;-webkit-text-size-adjust:100%;-webkit-tap-highlight-color:rgba(0,0,0,0);}
-input::-webkit-search-cancel-button,input::-webkit-search-decoration,input::-webkit-search-results-button,input::-webkit-search-results-decoration{display:none;}
-[stylesheet-group="1"]{}
-.css-11aywtz{-moz-appearance:textfield;-webkit-appearance:none;background-color:rgba(0,0,0,0.00);border-bottom-left-radius:0px;border-bottom-right-radius:0px;border-top-left-radius:0px;border-top-right-radius:0px;border:0 solid black;box-sizing:border-box;font:14px -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;margin:0px;padding:0px;resize:none;}
-.css-146c3p1{background-color:rgba(0,0,0,0.00);border:0 solid black;box-sizing:border-box;color:rgba(0,0,0,1.00);display:inline;font:14px -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;list-style:none;margin:0px;padding:0px;position:relative;text-align:start;text-decoration:none;white-space:pre-wrap;word-wrap:break-word;}
-.css-1jxf684{background-color:rgba(0,0,0,0.00);border:0 solid black;box-sizing:border-box;color:inherit;display:inline;font:inherit;list-style:none;margin:0px;padding:0px;position:relative;text-align:inherit;text-decoration:none;white-space:inherit;word-wrap:break-word;}
-.css-9pa8cd{bottom:0px;height:100%;left:0px;opacity:0;position:absolute;right:0px;top:0px;width:100%;z-index:-1;}
-.css-g5y9jx{align-content:flex-start;align-items:stretch;background-color:rgba(0,0,0,0.00);border:0 solid black;box-sizing:border-box;display:flex;flex-basis:auto;flex-direction:column;flex-shrink:0;list-style:none;margin:0px;min-height:0px;min-width:0px;padding:0px;position:relative;text-decoration:none;z-index:0;}
-[stylesheet-group="2"]{}
-.r-11mg6pl{border-bottom-color:rgba(255,255,255,1.00);border-left-color:rgba(255,255,255,1.00);border-right-color:rgba(255,255,255,1.00);border-top-color:rgba(255,255,255,1.00);}
-.r-13awgt0{flex:1;}
-.r-16uyjmq{border-bottom-left-radius:22px;border-bottom-right-radius:22px;border-top-left-radius:22px;border-top-right-radius:22px;}
-.r-1awa8pu{border-bottom-color:rgba(101,119,134,1.00);border-left-color:rgba(101,119,134,1.00);border-right-color:rgba(101,119,134,1.00);border-top-color:rgba(101,119,134,1.00);}
-.r-1bq2mok{margin:3px;}
-.r-1d4xg89{border-bottom-color:rgba(170,184,194,1.00);border-left-color:rgba(170,184,194,1.00);border-right-color:rgba(170,184,194,1.00);border-top-color:rgba(170,184,194,1.00);}
-.r-1dzdj1l{border-bottom-left-radius:10px;border-bottom-right-radius:10px;border-top-left-radius:10px;border-top-right-radius:10px;}
-.r-1f0042m{border-bottom-left-radius:5px;border-bottom-right-radius:5px;border-top-left-radius:5px;border-top-right-radius:5px;}
-.r-1fuqb1j{border-bottom-left-radius:24px;border-bottom-right-radius:24px;border-top-left-radius:24px;border-top-right-radius:24px;}
-.r-1j16mh1{border-bottom-left-radius:100%;border-bottom-right-radius:100%;border-top-left-radius:100%;border-top-right-radius:100%;}
-.r-1jkafct{border-bottom-left-radius:2px;border-bottom-right-radius:2px;border-top-left-radius:2px;border-top-right-radius:2px;}
-.r-1jyn79y{border-bottom-color:rgba(0,150,136,1.00);border-left-color:rgba(0,150,136,1.00);border-right-color:rgba(0,150,136,1.00);border-top-color:rgba(0,150,136,1.00);}
-.r-1llaxt6{border-bottom-left-radius:30px;border-bottom-right-radius:30px;border-top-left-radius:30px;border-top-right-radius:30px;}
-.r-1pcd2l5{padding:20px;}
-.r-1phboty{border-bottom-style:solid;border-left-style:solid;border-right-style:solid;border-top-style:solid;}
-.r-1q9bdsx{border-bottom-left-radius:12px;border-bottom-right-radius:12px;border-top-left-radius:12px;border-top-right-radius:12px;}
-.r-1qsk4np{overflow-x:clip;overflow-y:clip;}
-.r-1rf8fdq{border-bottom-width:1.5px;border-left-width:1.5px;border-right-width:1.5px;border-top-width:1.5px;}
-.r-1rvyss1{border-bottom-color:rgba(255,255,255,0.20);border-left-color:rgba(255,255,255,0.20);border-right-color:rgba(255,255,255,0.20);border-top-color:rgba(255,255,255,0.20);}
-.r-1sbahrg{padding:28px;}
-.r-1sp51qo{padding:10px;}
-.r-1udh08x{overflow-x:hidden;overflow-y:hidden;}
-.r-1uu6nss{padding:5px;}
-.r-1xfd6ze{border-bottom-left-radius:8px;border-bottom-right-radius:8px;border-top-left-radius:8px;border-top-right-radius:8px;}
-.r-42olwf{border-bottom-color:rgba(0,0,0,0.00);border-left-color:rgba(0,0,0,0.00);border-right-color:rgba(0,0,0,0.00);border-top-color:rgba(0,0,0,0.00);}
-.r-4a18lf{border-bottom-color:rgba(255,0,0,1.00);border-left-color:rgba(255,0,0,1.00);border-right-color:rgba(255,0,0,1.00);border-top-color:rgba(255,0,0,1.00);}
-.r-60ke3l{border-bottom-color:rgba(0,128,0,1.00);border-left-color:rgba(0,128,0,1.00);border-right-color:rgba(0,128,0,1.00);border-top-color:rgba(0,128,0,1.00);}
-.r-6ncur5{border-bottom-left-radius:18px;border-bottom-right-radius:18px;border-top-left-radius:18px;border-top-right-radius:18px;}
-.r-6t2glc{border-bottom-left-radius:40px;border-bottom-right-radius:40px;border-top-left-radius:40px;border-top-right-radius:40px;}
-.r-9x6qib{border-bottom-color:rgba(204,214,221,1.00);border-left-color:rgba(204,214,221,1.00);border-right-color:rgba(204,214,221,1.00);border-top-color:rgba(204,214,221,1.00);}
-.r-cdmcib{border-bottom-left-radius:3px;border-bottom-right-radius:3px;border-top-left-radius:3px;border-top-right-radius:3px;}
-.r-crgep1{margin:0px;}
-.r-d045u9{border-bottom-width:2px;border-left-width:2px;border-right-width:2px;border-top-width:2px;}
-.r-d23pfw{padding:24px;}
-.r-edyy15{padding:8px;}
-.r-fx7oqy{border-bottom-color:rgba(0,0,255,1.00);border-left-color:rgba(0,0,255,1.00);border-right-color:rgba(0,0,255,1.00);border-top-color:rgba(0,0,255,1.00);}
-.r-kdyh1x{border-bottom-left-radius:6px;border-bottom-right-radius:6px;border-top-left-radius:6px;border-top-right-radius:6px;}
-.r-krxsd3{display:-webkit-box;}
-.r-nsbfu8{padding:16px;}
-.r-nsiyw1{border-bottom-left-radius:32px;border-bottom-right-radius:32px;border-top-left-radius:32px;border-top-right-radius:32px;}
-.r-rs99b7{border-bottom-width:1px;border-left-width:1px;border-right-width:1px;border-top-width:1px;}
-.r-t23y2h{border-bottom-left-radius:14px;border-bottom-right-radius:14px;border-top-left-radius:14px;border-top-right-radius:14px;}
-.r-t60dpp{padding:0px;}
-.r-tuq35u{padding:4px;}
-.r-wg31gx{border-bottom-color:rgba(49,53,56,1.00);border-left-color:rgba(49,53,56,1.00);border-right-color:rgba(49,53,56,1.00);border-top-color:rgba(49,53,56,1.00);}
-.r-xoduu5{display:inline-flex;}
-.r-xyw6el{padding:12px;}
-.r-y47klf{border-bottom-left-radius:20px;border-bottom-right-radius:20px;border-top-left-radius:20px;border-top-right-radius:20px;}
-.r-ywje51{margin:auto;}
-.r-z2wwpe{border-bottom-left-radius:4px;border-bottom-right-radius:4px;border-top-left-radius:4px;border-top-right-radius:4px;}
-[stylesheet-group="2.1"]{}
-.r-11f147o{padding-bottom:8px;padding-top:8px;}
-.r-11gswi8{padding-left:3px;padding-right:3px;}
-.r-17q4wm6{margin-left:5px;margin-right:5px;}
-.r-184id4b{margin-bottom:12px;margin-top:12px;}
-.r-18c5d7m{padding-left:6px;padding-right:6px;}
-.r-1d7mnkm{padding-bottom:15px;padding-top:15px;}
-.r-1e084wi{padding-left:0px;padding-right:0px;}
-.r-1ml3abn{padding-bottom:14px;padding-top:14px;}
-.r-1mmae3n{padding-bottom:12px;padding-top:12px;}
-.r-1ntr0p{padding-left:5px;padding-right:5px;}
-.r-1rsorjc{padding-left:36px;padding-right:36px;}
-.r-1ubuhtd{padding-left:10px;padding-right:10px;}
-.r-1yd117h{padding-bottom:7px;padding-top:7px;}
-.r-3o4zer{padding-left:12px;padding-right:12px;}
-.r-3pj75a{padding-left:16px;padding-right:16px;}
-.r-cnw61z{padding-bottom:4px;padding-top:4px;}
-.r-cxgwc0{padding-left:24px;padding-right:24px;}
-.r-f8sm7e{margin-left:auto;margin-right:auto;}
-.r-is05cd{padding-left:8px;padding-right:8px;}
-.r-jdiy1a{margin-left:11px;margin-right:11px;}
-.r-jusfrs{margin-left:12px;margin-right:12px;}
-.r-n5f61p{margin-bottom:3px;margin-top:3px;}
-.r-n7gxbd{padding-left:4px;padding-right:4px;}
-.r-rehuqn{padding-bottom:5px;padding-top:5px;}
-.r-u9wvl5{padding-left:20px;padding-right:20px;}
-.r-ugi1tw{padding-left:5%;padding-right:5%;}
-.r-w7s2jr{padding-bottom:16px;padding-top:16px;}
-.r-ytbthy{padding-bottom:10px;padding-top:10px;}
-.r-zo2zu6{padding-bottom:24px;padding-top:24px;}
-[stylesheet-group="2.2"]{}
-.r-10s2tm5{left:0%;}
-.r-16o8guy{right:100%;}
-.r-1a11zyx{margin-right:12px;}
-.r-1cwvpvk{margin-left:12px;}
-.r-1e97lx8{margin-right:3px;}
-.r-1euzeng{padding-left:24px;}
-.r-1g4tz6n{margin-right:-14.5px;}
-.r-1h31txp{padding-right:16px;}
-.r-1lhn9r{margin-left:-14.5px;}
-.r-1sqnqi2{margin-left:3px;}
-.r-1vl2501{padding-right:24px;}
-.r-9mo606{margin-right:10px;}
-.r-c59us2{left:-3px;}
-.r-dqe1q{right:0%;}
-.r-qb41rp{margin-right:5px;}
-.r-rci37q{left:100%;}
-.r-uhung1{margin-left:10px;}
-.r-vpmibe{right:-3px;}
-.r-w67my2{padding-left:16px;}
-.r-wizibn{margin-left:5px;}
-[stylesheet-group="3"]{}
-.r-105ug2t{pointer-events:auto!important;}
-.r-10gryf7{min-height:56px;}
-.r-10ptun7{height:16px;}
-.r-10v3vxq{transform:scaleX(-1);}
-.r-10x49cs{font-size:10px;}
-.r-10xqauy{padding-top:env(safe-area-inset-top);}
-.r-117bsoe{margin-bottom:20px;}
-.r-11c0sde{margin-top:24px;}
-.r-11j9u27{visibility:hidden;}
-.r-11mpjr4{background-color:rgba(223,223,223,1.00);}
-.r-11udlyb{background-color:rgba(0,150,136,1.00);}
-.r-11v9fek{min-width:180px;}
-.r-11yh6sk{overflow-x:hidden;}
-.r-12f6czt{top:17px;}
-.r-12vffkv>* {pointer-events:auto;}
-.r-12vffkv{pointer-events:none!important;}
-.r-131xog0{width:38px;}
-.r-135wba7{line-height:24px;}
-.r-13aq9py{animation-name:r-1iq689l;}
-.r-13hce6t{margin-left:4px;}
-.r-13qz1uu{width:100%;}
-.r-13tjlyg{transition-duration:0.1s;}
-.r-1472mwg{height:24px;}
-.r-14gqq1x{margin-top:4px;}
-.r-14lw9ot{background-color:rgba(255,255,255,1.00);}
-.r-14sbq61{background-color:rgba(33,150,243,1.00);}
-.r-150rngu{-webkit-overflow-scrolling:touch;}
-.r-15d164r{margin-bottom:10px;}
-.r-15pk7w6{box-shadow:0px 2px 4px rgba(0,0,0,0.20);}
-.r-15vwib9{font-family:Inconsolata_700Bold;}
-.r-16eto9q{width:12px;}
-.r-16f090s{border-bottom-right-radius:28px;}
-.r-16xzs2v{box-shadow:0px 4px 4px rgba(0,0,0,0.20);}
-.r-16y2uox{flex-grow:1;}
-.r-173mn98{align-self:flex-end;}
-.r-173mzie{transform:scaleY(-1);}
-.r-1777fci{justify-content:center;}
-.r-17bb2tj{animation-duration:0.75s;}
-.r-17leim2{background-repeat:repeat;}
-.r-17s6mgv{justify-content:flex-end;}
-.r-17tb59b{opacity:0.7;}
-.r-17tloay{opacity:0.6;}
-.r-17u3ijr{background-color:rgba(155,161,166,0.27);}
-.r-184en5c{z-index:1;}
-.r-18nhz7w{top:-3px;}
-.r-18u1ve8{color:rgba(255,255,255,0.40);}
-.r-18u37iz{flex-direction:row;}
-.r-195d4m8{height:46px;}
-.r-19i43ro{margin-top:-1px;}
-.r-19oahor{font-size:64px;}
-.r-19wmn03{width:20px;}
-.r-19z077z{touch-action:none;}
-.r-1a2p6p6{-webkit-text-decoration-style:solid;text-decoration-style:solid;}
-.r-1a8msfu{height:38px;}
-.r-1abnn5w{animation-play-state:paused;}
-.r-1acpoxo{width:36px;}
-.r-1aiqnjv{font-family:monospace,monospace;}
-.r-1aockid{width:40px;}
-.r-1awozwy{align-items:center;}
-.r-1ay1djp{animation-duration:1s;}
-.r-1b43r93{font-size:14px;}
-.r-1b82v2m{max-height:76%;}
-.r-1c6unfx{forced-color-adjust:none;}
-.r-1c85bru{width:270px;}
-.r-1cad53l{margin-bottom:14px;}
-.r-1cmwbt1{gap:8px;}
-.r-1d2f490{left:0px;}
-.r-1d5kdc7{flex-direction:column-reverse;}
-.r-1dbxxms{box-shadow:0px -4px 12px rgba(0,0,0,0.10);}
-.r-1ddef8g{-webkit-text-decoration-line:underline;text-decoration-line:underline;}
-.r-1dernwh{height:70%;}
-.r-1e50gmw{width:86px;}
-.r-1ei5mc7{cursor:inherit;}
-.r-1enofrn{font-size:12px;}
-.r-1euycsn{flex-direction:row-reverse;}
-.r-1ewcgjf{box-shadow:0px 1px 3px rgba(0,0,0,0.5);}
-.r-1ff274t{text-align:right;}
-.r-1ff5aok{right:20px;}
-.r-1ffj0ar{background-color:rgba(0,0,0,0.40);}
-.r-1g80hic{opacity:0.8;}
-.r-1ge9hsw{max-width:960px;}
-.r-1ghxqbu{font-variant:tabular-nums;}
-.r-1gkfh8e{font-size:11px;}
-.r-1h0z5md{justify-content:flex-start;}
-.r-1habvwh{align-items:flex-start;}
-.r-1hts4yj{box-shadow:0px 8px 12px rgba(0,0,0,0.30);}
-.r-1i10wst{font-size:18px;}
-.r-1i6wzkk{-moz-transition-property:opacity;-webkit-transition-property:opacity;transition-property:opacity;}
-.r-1i71y14{gap:14px;}
-.r-1ifxtd0{margin-bottom:16px;}
-.r-1ikidpy{letter-spacing:0.5px;}
-.r-1iln25a{word-wrap:normal;}
-.r-1inkyih{font-size:17px;}
-.r-1iusvr4{flex-basis:0px;}
-.r-1iww7jx{width:28px;}
-.r-1janqcz{width:16px;}
-.r-1jg9483{width:8px;}
-.r-1jkjb{margin-left:8px;}
-.r-1kb76zh{margin-right:8px;}
-.r-1kfrs79{font-weight:600;}
-.r-1kihuf0{align-self:center;}
-.r-1knelpx{padding-top:20px;}
-.r-1l7z4oj{padding-bottom:16px;}
-.r-1ld3bg{top:-4px;}
-.r-1ldzwu0{animation-timing-function:linear;}
-.r-1loqt21{cursor:pointer;}
-.r-1mlwlqe{flex-basis:auto;}
-.r-1mrlafo{background-position:0;}
-.r-1muvv40{animation-iteration-count:infinite;}
-.r-1mwlp6a{height:56px;}
-.r-1niwhzg{background-color:rgba(0,0,0,0.00);}
-.r-1nlw0im{bottom:8px;}
-.r-1no09lo{margin-top:28px;}
-.r-1nxhmzv{margin-bottom:28px;}
-.r-1ny4l3l{outline-style:none;}
-.r-1o09x9d{border-top-color:rgba(255,255,255,0.05);}
-.r-1ocf4r9{scroll-snap-type:y mandatory;}
-.r-1onu96p{border-curve:continuous;}
-.r-1or9b2r{height:10px;}
-.r-1oryc5g{background-color:rgba(2,6,23,0.62);}
-.r-1oszu61{align-items:stretch;}
-.r-1otgn73{touch-action:manipulation;}
-.r-1p0dtai{bottom:0px;}
-.r-1pcdyqj{margin-right:6px;}
-.r-1peese0{margin-bottom:24px;}
-.r-1pi2tsx{height:100%;}
-.r-1pl7oy7{min-height:48px;}
-.r-1pm8pkb{font-family:Courier;}
-.r-1pz39u2{align-self:stretch;}
-.r-1qd0xha{font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;}
-.r-1qulhi1{animation-name:r-1pzkwqh;}
-.r-1r4fvd0{color:rgba(82,169,255,1.00);}
-.r-1r74h94{left:8px;}
-.r-1r8g8re{height:36px;}
-.r-1rnoaur{overflow-y:auto;}
-.r-1s2bzr4{margin-top:12px;}
-.r-1sg8ghl{z-index:1000;}
-.r-1sn7ly2{height:54px;}
-.r-1ssbvtb{gap:12px;}
-.r-1sxrcry{background-size:auto;}
-.r-1t9nq9{color:rgba(248,250,252,1.00);}
-.r-1txn52o{box-shadow:0px 6px 12px rgba(0,0,0,0.28);}
-.r-1udbk01{text-overflow:ellipsis;}
-.r-1ugchlj{height:44px;}
-.r-1ui5ee8{font-size:32px;}
-.r-1uv9fpa{border-top-left-radius:28px;}
-.r-1vr29t4{font-weight:800;}
-.r-1w6e6rj{flex-wrap:wrap;}
-.r-1wbh5a2{flex-shrink:1;}
-.r-1wd366l{height:86px;}
-.r-1wtj0ep{justify-content:space-between;}
-.r-1wyyakw{z-index:-1;}
-.r-1x0uki6{margin-top:20px;}
-.r-1xbve24{height:6px;}
-.r-1xcajam{position:fixed;}
-.r-1xhymv3{box-shadow:0px 10px 20px rgba(0,0,0,0.30);}
-.r-1xnzce8{-moz-user-select:text;-webkit-user-select:text;user-select:text;}
-.r-1xpsq9i{box-shadow:0px 3px 3px rgba(0, 0, 0, 0.33);}
-.r-1xzupcd{width:13px;}
-.r-1yef0xd{animation-name:r-11cv4x;}
-.r-1yjoy8w{font-family:Inconsolata_600SemiBold;}
-.r-2eszeu::-webkit-scrollbar{display:none}
-.r-2eszeu{scrollbar-width:none;}
-.r-30o5oe{-moz-appearance:none;-ms-appearance:none;-webkit-appearance:none;appearance:none;}
-.r-356f0p{letter-spacing:0.35px;}
-.r-3da1kt{height:8px;}
-.r-3mc0re{right:8px;}
-.r-3s2u2q{white-space:nowrap;}
-.r-417010{z-index:0;}
-.r-4gszlv{background-size:cover;}
-.r-4v7adb{height:5px;}
-.r-5kkj8d{border-top-width:1px;}
-.r-5orghg{width:34px;}
-.r-5oul0u{margin-bottom:8px;}
-.r-5soawk{width:10px;}
-.r-60vfwk{min-width:1px;}
-.r-633pao>* {pointer-events:none;}
-.r-633pao{pointer-events:none!important;}
-.r-6dt33c{opacity:1;}
-.r-6gpygo{margin-bottom:12px;}
-.r-6pziz6{opacity:0.45;}
-.r-6taxm2:-ms-input-placeholder{color:var(--placeholderTextColor);opacity:1;}
-.r-6taxm2::-moz-placeholder{color:var(--placeholderTextColor);opacity:1;}
-.r-6taxm2::-webkit-input-placeholder{color:var(--placeholderTextColor);opacity:1;}
-.r-6taxm2::placeholder{color:var(--placeholderTextColor);opacity:1;}
-.r-726pan{width:31px;}
-.r-76blku{height:21px;}
-.r-7cikom{font-size:inherit;}
-.r-7q8q6z{cursor:default;}
-.r-8akbws{-webkit-box-orient:vertical;}
-.r-8ay8q1{letter-spacing:0.1px;}
-.r-8br3cv{width:54px;}
-.r-8d26hk{margin-bottom:40px;}
-.r-92ng3h{width:1px;}
-.r-92sni{border-top-right-radius:28px;}
-.r-95jzfe{padding-top:16px;}
-.r-97e31f{padding-bottom:env(safe-area-inset-bottom);}
-.r-9daxd3{animation-duration:250ms;}
-.r-a023e6{font-size:15px;}
-.r-adyw6z{font-size:20px;}
-.r-agouwx{transform:translateZ(0);}
-.r-ah5dr5>* {pointer-events:none;}
-.r-ah5dr5{pointer-events:auto!important;}
-.r-aruset{font-weight:200;}
-.r-bcqeeo{min-width:0px;}
-.r-bi4vy9{transform:translateY(100%);}
-.r-bt1l66{min-height:20px;}
-.r-buy8e9{overflow-y:hidden;}
-.r-bv2aro{padding-left:env(safe-area-inset-left);}
-.r-c68hjy{color:rgba(161,161,161,1.00);}
-.r-cpa5s6{scroll-snap-align:start;}
-.r-cqee49{color:rgba(0,0,0,1.00);}
-.r-csky4y{box-shadow:0px 2px 8px rgba(0,0,0,0.05);}
-.r-dkge59{background-color:rgba(170,184,194,1.00);}
-.r-dnmrzs{max-width:100%;}
-.r-eafdt9{transition-duration:0.15s;}
-.r-ebwn4k{animation-name:r-q67da2;}
-.r-ehq7j7{background-size:contain;}
-.r-eqz5dr{flex-direction:column;}
-.r-eu3ka{height:40px;}
-.r-evnaw{font-size:22px;}
-.r-f1odvy{margin-bottom:6px;}
-.r-f4gmv6{gap:16px;}
-.r-fdjqy7{text-align:left;}
-.r-g3mlsw{animation-name:r-t2lo5v;}
-.r-ghxds0{transform:translateY(0%);}
-.r-gtdqiz{position:-webkit-sticky;position:sticky;}
-.r-h0d30l{height:28px;}
-.r-h3s6tt{height:48px;}
-.r-hdaws3{height:4px;}
-.r-hxflta{padding-right:env(safe-area-inset-right);}
-.r-icoktb{opacity:0.5;}
-.r-ipm5af{top:0px;}
-.r-jwli3a{color:rgba(255,255,255,1.00);}
-.r-k200y{align-self:flex-start;}
-.r-k8qxaj{padding-bottom:20px;}
-.r-kemksi{background-color:rgba(0,0,0,1.00);}
-.r-kizejy{color:rgba(155,161,166,1.00);}
-.r-knv0ih{margin-top:8px;}
-.r-kubx7a{border-bottom-left-radius:28px;}
-.r-leqjx2{animation-timing-function:cubic-bezier(0.215, 0.61, 0.355, 1);}
-.r-lltvgl{overflow-x:auto;}
-.r-lpb231{height:168px;}
-.r-lrsllp{width:24px;}
-.r-lrvibr{-moz-user-select:none;-webkit-user-select:none;user-select:none;}
-.r-mabqd8{height:32px;}
-.r-majxgm{font-weight:500;}
-.r-mfh4gg{scroll-snap-type:x mandatory;}
-.r-mhe3cw{z-index:10;}
-.r-mjyw6{min-height:80px;}
-.r-mro3nb{background-color:rgba(21,23,24,1.00);}
-.r-n6v787{font-size:13px;}
-.r-ndvcnb{border-bottom-width:0px;}
-.r-o4n3w5{width:23px;}
-.r-ojf8lh{gap:6px;}
-.r-orgf3d{opacity:0;}
-.r-q4m81j{text-align:center;}
-.r-qfi6ny{top:30000px;}
-.r-qklmqi{border-bottom-width:1px;}
-.r-qn3fzs{padding-bottom:24px;}
-.r-r5vmyo{z-index:1002;}
-.r-rjixqe{line-height:20px;}
-.r-rs94m5{background-image:url("data:image/svg+xml;base64,PD94bWwgdmVyc2lvbj0iMS4wIiBlbmNvZGluZz0iVVRGLTgiIHN0YW5kYWxvbmU9Im5vIj8+CjxzdmcKICAgeG1sbnM6ZGM9Imh0dHA6Ly9wdXJsLm9yZy9kYy9lbGVtZW50cy8xLjEvIgogICB4bWxuczpjYz0iaHR0cDovL2NyZWF0aXZlY29tbW9ucy5vcmcvbnMjIgogICB4bWxuczpyZGY9Imh0dHA6Ly93d3cudzMub3JnLzE5OTkvMDIvMjItcmRmLXN5bnRheC1ucyMiCiAgIHhtbG5zOnN2Zz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciCiAgIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyIKICAgdmVyc2lvbj0iMS4xIgogICB2aWV3Qm94PSIwIDAgMSAxIgogICBwcmVzZXJ2ZUFzcGVjdFJhdGlvPSJ4TWluWU1pbiBtZWV0Ij4KICA8cGF0aAogICAgIGQ9Ik0gMC4wNDAzODA1OSwwLjYyNjc3NjcgMC4xNDY0NDY2MSwwLjUyMDcxMDY4IDAuNDI5Mjg5MzIsMC44MDM1NTMzOSAwLjMyMzIyMzMsMC45MDk2MTk0MSB6IE0gMC4yMTcxNTcyOSwwLjgwMzU1MzM5IDAuODUzNTUzMzksMC4xNjcxNTcyOSAwLjk1OTYxOTQxLDAuMjczMjIzMyAwLjMyMzIyMzMsMC45MDk2MTk0MSB6IgogICAgIGlkPSJyZWN0Mzc4MCIKICAgICBzdHlsZT0iZmlsbDojZmZmZmZmO2ZpbGwtb3BhY2l0eToxO3N0cm9rZTpub25lIiAvPgo8L3N2Zz4K");}
-.r-rwqe4o{width:48px;}
-.r-s62m2j{animation-timing-function:cubic-bezier(0.47, 0, 0.745, 0.715);}
-.r-s6jyr4{font-family:Inconsolata_500Medium;}
-.r-sfbmgh{z-index:9999;}
-.r-sgbo92{opacity:0.9;}
-.r-so7y2g{line-height:64px;}
-.r-t4w6jl{min-width:72px;}
-.r-tbmifm{height:12px;}
-.r-tskmnb{padding-top:8px;}
-.r-tsynxw{text-transform:uppercase;}
-.r-ttdzmv{padding-top:12px;}
-.r-u6sd8q{background-repeat:no-repeat;}
-.r-u8s1d{position:absolute;}
-.r-u92y06{background-color:rgba(255,165,0,1.00);}
-.r-uaa2di{gap:10px;}
-.r-ubezar{font-size:16px;}
-.r-uho16t{font-size:34px;}
-.r-usgzl9{width:44px;}
-.r-uvuy5l{height:60px;}
-.r-vacyoi{padding-bottom:64px;}
-.r-van48c{caret-color:transparent;}
-.r-vboj7i{top:-7px;}
-.r-vvn4in{background-position:center;}
-.r-vw2c0b{font-weight:bold;}
-.r-wfqgy4{transition-duration:100ms;}
-.r-ws9h79{left:4px;}
-.r-x11e5r{font-family:SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;}
-.r-x3cy2q{background-size:100% 100%;}
-.r-xd6kpl{padding-bottom:8px;}
-.r-xn48z5{transform:scale(0.96);}
-.r-xx3c9p{animation-name:r-imtty0;}
-.r-y7v2we{background-color:rgba(32,36,37,1.00);}
-.r-yie26v{z-index:1001;}
-.r-z80fyv{height:20px;}
-.r-zchlnj{right:0px;}
-.r-zd98yo{margin-bottom:32px;}
-.r-zj7e2s{max-height:70%;}
-.r-zl2h9q{margin-bottom:2px;}
-.r-zx9znk{height:34px;}
-.r-zz5t5d{font-size:28px;}
-@-webkit-keyframes r-11cv4x{0%{transform:rotate(0deg);}100%{transform:rotate(360deg);}}
-@-webkit-keyframes r-1iq689l{0%{transform:translateY(0%);}100%{transform:translateY(100%);}}
-@-webkit-keyframes r-1pzkwqh{0%{transform:translateY(100%);}100%{transform:translateY(0%);}}
-@-webkit-keyframes r-imtty0{0%{opacity:0;}100%{opacity:1;}}
-@-webkit-keyframes r-q67da2{0%{transform:translateX(-100%);}100%{transform:translateX(400%);}}
-@-webkit-keyframes r-t2lo5v{0%{opacity:1;}100%{opacity:0;}}
-@keyframes r-11cv4x{0%{transform:rotate(0deg);}100%{transform:rotate(360deg);}}
-@keyframes r-1iq689l{0%{transform:translateY(0%);}100%{transform:translateY(100%);}}
-@keyframes r-1pzkwqh{0%{transform:translateY(100%);}100%{transform:translateY(0%);}}
-@keyframes r-imtty0{0%{opacity:0;}100%{opacity:1;}}
-@keyframes r-q67da2{0%{transform:translateX(-100%);}100%{transform:translateX(400%);}}
-@keyframes r-t2lo5v{0%{opacity:1;}100%{opacity:0;}}</style><script type="module">globalThis.__EXPO_ROUTER_HYDRATE__=true;</script><link rel="icon" href="/VIEWDUE/favicon.ico" /></head><body><div id="root"><div class="css-g5y9jx r-13awgt0"><!--$--><!--/$--></div></div><script src="/VIEWDUE/_expo/static/js/web/entry-f69aa319504ce3c609c2bf5801419074.js" defer></script>
-</body></html>
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0"/>
+<title>Viewdue – Task Manager Demo</title>
+<link rel="preconnect" href="https://fonts.googleapis.com"/>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet"/>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css"/>
+<style>
+  *,*::before,*::after{box-sizing:border-box;margin:0;padding:0;}
+  :root{
+    --bg:#0F1117;
+    --surface:#1A1D27;
+    --surface2:#22263A;
+    --border:#2A2D3E;
+    --text:#F8FAFC;
+    --text2:#94A3B8;
+    --text3:#64748B;
+    --accent:#8B7CF6;
+    --accent-dim:rgba(139,124,246,0.15);
+    --green:#10B981;
+    --red:#F43F5E;
+    --yellow:#F59E0B;
+    --blue:#3B82F6;
+    --orange:#F97316;
+    --pink:#EC4899;
+    --radius:18px;
+    --tab-h:68px;
+  }
+  html,body{height:100%;background:#070B14;font-family:'Inter',sans-serif;color:var(--text);}
+
+  /* ─── Phone shell (desktop only) ─── */
+  .shell-wrap{
+    display:flex;align-items:center;justify-content:center;
+    min-height:100vh;padding:24px;
+  }
+  .shell{
+    width:390px;height:844px;
+    background:var(--bg);border-radius:48px;
+    box-shadow:0 0 0 8px #1a1d27,0 0 0 10px #2a2d3e,0 30px 80px rgba(0,0,0,.7);
+    overflow:hidden;position:relative;display:flex;flex-direction:column;
+    flex-shrink:0;
+  }
+  /* notch */
+  .shell::before{
+    content:'';position:absolute;top:0;left:50%;transform:translateX(-50%);
+    width:120px;height:32px;background:#070B14;border-radius:0 0 20px 20px;z-index:99;
+  }
+
+  /* ─── Full-screen mobile ─── */
+  @media(max-width:480px){
+    .shell-wrap{padding:0;background:var(--bg);}
+    .shell{width:100%;height:100dvh;border-radius:0;box-shadow:none;}
+    .shell::before{display:none;}
+  }
+
+  /* ─── Screen area ─── */
+  .screen-area{flex:1;overflow:hidden;position:relative;padding-top:44px;}
+  @media(max-width:480px){.screen-area{padding-top:env(safe-area-inset-top,0)}}
+
+  /* ─── Tabs ─── */
+  .tab-bar{
+    height:var(--tab-h);background:var(--surface);border-top:1px solid var(--border);
+    display:flex;align-items:flex-start;padding:8px 4px 0;
+    flex-shrink:0;
+  }
+  .tab-btn{
+    flex:1;display:flex;flex-direction:column;align-items:center;gap:4px;
+    padding:6px 4px;border:none;background:none;cursor:pointer;
+    color:var(--text3);transition:.2s;border-radius:12px;
+  }
+  .tab-btn.active{color:var(--accent);}
+  .tab-btn i{font-size:22px;}
+  .tab-btn span{font-size:10px;font-weight:600;letter-spacing:.3px;}
+  .tab-dot{width:4px;height:4px;border-radius:50%;background:var(--accent);display:none;}
+  .tab-btn.active .tab-dot{display:block;}
+
+  /* ─── Screens common ─── */
+  .screen{
+    display:none;position:absolute;inset:0;overflow-y:auto;overflow-x:hidden;
+    padding:16px 14px 16px;-webkit-overflow-scrolling:touch;
+    scrollbar-width:none;
+  }
+  .screen::-webkit-scrollbar{display:none;}
+  .screen.active{display:block;}
+  .page-title{font-size:28px;font-weight:800;margin-bottom:16px;padding-top:4px;}
+
+  /* ─── Search bar ─── */
+  .search-bar{
+    display:flex;align-items:center;gap:10px;
+    background:var(--surface);border:1px solid var(--border);
+    border-radius:18px;padding:12px 16px;margin-bottom:14px;
+  }
+  .search-bar i{color:var(--text3);font-size:17px;}
+  .search-bar span{color:var(--text3);font-size:15px;}
+
+  /* ─── Filter pills ─── */
+  .filter-row{display:flex;gap:10px;margin-bottom:14px;align-items:center;}
+  .pill-group{display:flex;background:var(--surface);border-radius:14px;padding:4px;gap:0;flex:1;}
+  .pill{
+    flex:1;padding:7px 4px;text-align:center;font-size:12px;font-weight:700;
+    border-radius:10px;cursor:pointer;color:var(--text3);transition:.15s;border:none;background:none;
+  }
+  .pill.active{background:var(--accent);color:#fff;}
+  .sort-btn{
+    display:flex;align-items:center;gap:5px;padding:8px 12px;
+    background:var(--surface);border:1px solid var(--border);border-radius:12px;
+    font-size:12px;font-weight:600;color:var(--text2);cursor:pointer;border:none;
+  }
+  .cat-chips{display:flex;gap:8px;overflow-x:auto;padding-bottom:4px;margin-bottom:14px;scrollbar-width:none;}
+  .cat-chips::-webkit-scrollbar{display:none;}
+  .cat-chip{
+    white-space:nowrap;padding:8px 14px;border-radius:14px;font-size:12px;font-weight:700;
+    border:1px solid;cursor:pointer;flex-shrink:0;transition:.15s;
+  }
+
+  /* ─── Task cards ─── */
+  .task-card{
+    background:var(--surface);border:1px solid var(--border);border-radius:16px;
+    padding:14px 14px 14px 16px;margin-bottom:10px;
+    display:flex;align-items:flex-start;gap:12px;
+  }
+  .task-check{
+    width:22px;height:22px;border-radius:8px;border:2px solid var(--border);
+    flex-shrink:0;margin-top:2px;display:flex;align-items:center;justify-content:center;
+    transition:.15s;cursor:pointer;
+  }
+  .task-check.done{background:var(--accent);border-color:var(--accent);}
+  .task-check.done::after{content:'✓';color:#fff;font-size:12px;font-weight:800;}
+  .task-check.na{background:var(--surface2);border-color:var(--border);}
+  .task-check.na::after{content:'–';color:var(--text3);font-size:14px;font-weight:800;}
+  .task-body{flex:1;min-width:0;}
+  .task-title{font-size:15px;font-weight:600;color:var(--text);line-height:1.4;}
+  .task-title.done{text-decoration:line-through;color:var(--text3);}
+  .task-title.na{color:var(--text3);}
+  .task-desc{font-size:12px;color:var(--text3);margin-top:3px;line-height:1.4;}
+  .task-cat-badge{
+    display:inline-flex;align-items:center;gap:5px;
+    padding:3px 10px;border-radius:20px;font-size:11px;font-weight:600;
+    margin-top:6px;
+  }
+  .task-cat-dot{width:7px;height:7px;border-radius:50%;}
+
+  /* ─── FAB ─── */
+  .fab{
+    position:absolute;bottom:16px;right:16px;
+    width:56px;height:56px;border-radius:20px;
+    background:var(--accent);border:none;cursor:pointer;
+    display:flex;align-items:center;justify-content:center;
+    font-size:26px;color:#fff;box-shadow:0 6px 20px rgba(139,124,246,.45);
+    transition:.15s;z-index:10;
+  }
+  .fab:hover{transform:scale(1.06);}
+
+  /* ─── Categories screen ─── */
+  .cat-card{
+    background:var(--surface);border:1px solid var(--border);border-radius:20px;
+    padding:16px;margin-bottom:10px;display:flex;align-items:center;gap:14px;
+    cursor:pointer;transition:.15s;
+  }
+  .cat-icon-wrap{
+    width:44px;height:44px;border-radius:16px;display:flex;align-items:center;
+    justify-content:center;flex-shrink:0;font-size:20px;
+  }
+  .cat-info{flex:1;min-width:0;}
+  .cat-name{font-size:15px;font-weight:700;}
+  .cat-desc{font-size:12px;color:var(--text3);margin-top:2px;}
+  .cat-count{font-size:12px;font-weight:600;color:var(--text3);}
+  .cat-chevron{color:var(--text3);font-size:14px;}
+
+  /* ─── Calendar screen ─── */
+  .cal-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:16px;}
+  .cal-nav{background:var(--surface);border:1px solid var(--border);border-radius:10px;
+    width:32px;height:32px;display:flex;align-items:center;justify-content:center;cursor:pointer;border:none;color:var(--text2);}
+  .cal-month{font-size:17px;font-weight:700;}
+  .cal-grid{display:grid;grid-template-columns:repeat(7,1fr);gap:4px;margin-bottom:16px;}
+  .cal-dow{text-align:center;font-size:11px;font-weight:600;color:var(--text3);padding:4px 0;}
+  .cal-day{
+    aspect-ratio:1;display:flex;align-items:center;justify-content:center;
+    font-size:13px;font-weight:500;border-radius:10px;cursor:pointer;
+    color:var(--text2);transition:.15s;position:relative;
+  }
+  .cal-day.today{background:var(--accent);color:#fff;font-weight:700;}
+  .cal-day.has-event::after{
+    content:'';position:absolute;bottom:3px;left:50%;transform:translateX(-50%);
+    width:4px;height:4px;border-radius:50%;background:var(--accent);
+  }
+  .cal-day.today.has-event::after{background:#fff;}
+  .cal-day.other-month{color:var(--text3);opacity:.4;}
+  .event-list{margin-top:4px;}
+  .event-item{
+    background:var(--surface);border:1px solid var(--border);border-radius:14px;
+    padding:12px 14px;margin-bottom:8px;display:flex;align-items:center;gap:10px;
+  }
+  .event-dot{width:10px;height:10px;border-radius:50%;flex-shrink:0;}
+  .event-info{flex:1;}
+  .event-title{font-size:14px;font-weight:600;}
+  .event-time{font-size:11px;color:var(--text3);margin-top:2px;}
+
+  /* ─── Stats screen ─── */
+  .stats-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:16px;}
+  .stat-box{
+    background:var(--surface);border:1px solid var(--border);border-radius:18px;
+    padding:14px;
+  }
+  .stat-icon-wrap{
+    width:32px;height:32px;border-radius:10px;display:flex;align-items:center;
+    justify-content:center;margin-bottom:8px;font-size:15px;
+  }
+  .stat-val{font-size:26px;font-weight:800;line-height:1;}
+  .stat-lbl{font-size:12px;color:var(--text3);margin-top:3px;font-weight:500;}
+  .section-title-sm{font-size:18px;font-weight:700;margin-bottom:10px;}
+  .chart-card{
+    background:var(--surface);border:1px solid var(--border);border-radius:18px;
+    padding:16px;margin-bottom:14px;
+  }
+  .chart-title{font-size:14px;font-weight:700;margin-bottom:14px;color:var(--text2);}
+  .bar-chart{display:flex;align-items:flex-end;gap:6px;height:80px;}
+  .bar-wrap{flex:1;display:flex;flex-direction:column;align-items:center;gap:4px;}
+  .bar-track{
+    width:16px;height:60px;background:var(--surface2);border-radius:6px;
+    overflow:hidden;display:flex;align-items:flex-end;
+  }
+  .bar-fill{width:100%;background:var(--accent);border-radius:6px;}
+  .bar-lbl{font-size:9px;color:var(--text3);font-weight:600;}
+  .heatmap{display:grid;grid-template-columns:repeat(7,1fr);gap:3px;margin-top:8px;}
+  .heat-cell{
+    aspect-ratio:1;border-radius:4px;background:var(--surface2);transition:.2s;
+  }
+  .heat-cell.l1{background:rgba(139,124,246,.25);}
+  .heat-cell.l2{background:rgba(139,124,246,.55);}
+  .heat-cell.l3{background:rgba(139,124,246,.85);}
+  .heat-cell.l4{background:var(--accent);}
+  .period-toggle{display:flex;background:var(--surface2);border-radius:12px;padding:3px;gap:0;}
+  .period-btn{
+    flex:1;padding:6px 0;text-align:center;font-size:11px;font-weight:700;
+    border-radius:9px;cursor:pointer;color:var(--text3);border:none;background:none;transition:.15s;
+  }
+  .period-btn.active{background:var(--surface);color:var(--text);}
+  .streak-row{display:flex;gap:10px;margin-bottom:16px;}
+  .streak-card{
+    flex:1;background:var(--surface2);border-radius:14px;padding:12px 14px;
+    display:flex;align-items:center;gap:8px;
+  }
+  .streak-card i{color:var(--accent);font-size:16px;}
+  .streak-val{font-size:14px;font-weight:700;}
+
+  /* ─── Settings screen ─── */
+  .settings-section{margin-bottom:18px;}
+  .settings-section-title{font-size:13px;font-weight:700;color:var(--accent);
+    text-transform:uppercase;letter-spacing:.5px;margin-bottom:8px;}
+  .settings-card{
+    background:var(--surface);border:1px solid var(--border);border-radius:22px;overflow:hidden;
+  }
+  .settings-row{
+    display:flex;align-items:center;justify-content:space-between;
+    padding:0 16px;min-height:68px;gap:10px;
+  }
+  .settings-row+.settings-row{border-top:1px solid var(--border);}
+  .settings-row-left{display:flex;align-items:center;gap:12px;flex:1;min-width:0;}
+  .settings-icon{
+    width:38px;height:38px;border-radius:13px;display:flex;align-items:center;
+    justify-content:center;font-size:17px;flex-shrink:0;
+  }
+  .settings-label{font-size:15px;font-weight:600;}
+  .settings-row-right{display:flex;align-items:center;gap:8px;color:var(--text3);flex-shrink:0;}
+  .settings-value{font-size:14px;font-weight:500;}
+  .toggle{
+    width:50px;height:28px;background:#3F3F46;border-radius:14px;position:relative;cursor:pointer;
+  }
+  .toggle.on{background:var(--accent);}
+  .toggle-knob{
+    position:absolute;top:3px;left:3px;width:22px;height:22px;
+    background:#fff;border-radius:50%;transition:.2s;
+  }
+  .toggle.on .toggle-knob{transform:translateX(22px);}
+  .color-dot{width:20px;height:20px;border-radius:8px;}
+  .settings-row.danger .settings-label{color:var(--red);}
+  .settings-row.danger .settings-icon{background:rgba(244,63,94,.1);}
+  .settings-row.danger .settings-icon i{color:var(--red);}
+  .settings-row.danger .settings-row-right{color:rgba(244,63,94,.6);}
+
+  /* ─── Empty state ─── */
+  .empty{display:flex;flex-direction:column;align-items:center;justify-content:center;
+    padding:48px 24px;color:var(--text3);}
+  .empty i{font-size:48px;margin-bottom:14px;opacity:.3;}
+  .empty-title{font-size:17px;font-weight:700;color:var(--text2);margin-bottom:6px;}
+  .empty-desc{font-size:13px;text-align:center;line-height:1.5;}
+
+  /* ─── Section header with toggle ─── */
+  .section-hdr{display:flex;align-items:center;justify-content:space-between;margin-bottom:12px;}
+
+  /* ─── Task selector pill ─── */
+  .task-sel{
+    flex:1;display:flex;align-items:center;gap:8px;padding:9px 12px;
+    background:var(--surface);border:1px solid var(--border);border-radius:14px;cursor:pointer;
+    font-size:13px;font-weight:700;overflow:hidden;
+  }
+  .task-sel-dot{width:10px;height:10px;border-radius:50%;flex-shrink:0;}
+  .task-sel-name{flex:1;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+
+  /* ─── Mini dot ─── */
+  .vdot{width:7px;height:7px;border-radius:50%;flex-shrink:0;}
+
+  /* scrollable hint on desktop */
+  @media(min-width:481px){
+    .shell-hint{
+      position:fixed;bottom:20px;left:50%;transform:translateX(-50%);
+      font-size:12px;color:rgba(255,255,255,.3);pointer-events:none;
+      font-family:'Inter',sans-serif;
+    }
+  }
+  @media(max-width:480px){.shell-hint{display:none;}}
+</style>
+</head>
+<body>
+
+<div class="shell-wrap">
+  <div class="shell">
+
+    <!-- ===== SCREEN AREA ===== -->
+    <div class="screen-area">
+
+      <!-- ── TODOS ── -->
+      <div class="screen active" id="screen-todos">
+        <div class="search-bar"><i class="fa-solid fa-magnifying-glass"></i><span>Search Todo</span></div>
+        <div class="filter-row">
+          <div class="pill-group">
+            <button class="pill active" onclick="filterTodos('todo',this)">Doing</button>
+            <button class="pill" onclick="filterTodos('done',this)">Done</button>
+            <button class="pill" onclick="filterTodos('na',this)">N/A</button>
+          </div>
+          <button class="sort-btn"><i class="fa-solid fa-arrow-up-down"></i> Sort</button>
+        </div>
+        <div class="cat-chips" id="todo-cat-chips">
+          <div class="cat-chip active" style="background:var(--accent);border-color:var(--accent);color:#fff;" onclick="filterCat('all',this)">All</div>
+          <div class="cat-chip" style="border-color:var(--border);color:var(--text2);" data-cat="work" onclick="filterCat('work',this)">Work</div>
+          <div class="cat-chip" style="border-color:var(--border);color:var(--text2);" data-cat="personal" onclick="filterCat('personal',this)">Personal</div>
+          <div class="cat-chip" style="border-color:var(--border);color:var(--text2);" data-cat="health" onclick="filterCat('health',this)">Health</div>
+          <div class="cat-chip" style="border-color:var(--border);color:var(--text2);" data-cat="learning" onclick="filterCat('learning',this)">Learning</div>
+        </div>
+        <div id="todo-list"></div>
+        <button class="fab" title="Add task">+</button>
+      </div>
+
+      <!-- ── CATEGORIES ── -->
+      <div class="screen" id="screen-categories">
+        <div class="page-title">Categories</div>
+        <div class="search-bar"><i class="fa-solid fa-magnifying-glass"></i><span>Search Category</span></div>
+        <div id="cat-list"></div>
+        <button class="fab" title="Add category">+</button>
+      </div>
+
+      <!-- ── CALENDAR ── -->
+      <div class="screen" id="screen-calendar">
+        <div class="cal-header">
+          <button class="cal-nav" onclick="shiftMonth(-1)"><i class="fa-solid fa-chevron-left"></i></button>
+          <span class="cal-month" id="cal-month-label"></span>
+          <button class="cal-nav" onclick="shiftMonth(1)"><i class="fa-solid fa-chevron-right"></i></button>
+        </div>
+        <div class="cal-grid" id="cal-grid"></div>
+        <div style="font-size:13px;font-weight:700;color:var(--text2);margin-bottom:10px;">Scheduled</div>
+        <div class="event-list" id="event-list"></div>
+        <button class="fab" title="Add event">+</button>
+      </div>
+
+      <!-- ── STATISTICS ── -->
+      <div class="screen" id="screen-statistics">
+        <div class="page-title">Statistics</div>
+
+        <!-- task selector -->
+        <div style="display:flex;gap:8px;align-items:center;margin-bottom:16px;">
+          <div class="task-sel">
+            <div class="task-sel-dot" style="background:var(--accent);"></div>
+            <span class="task-sel-name">Morning Jog</span>
+            <i class="fa-solid fa-chevron-down" style="font-size:12px;color:var(--text3);"></i>
+          </div>
+          <div class="period-toggle" style="width:64px;">
+            <button class="period-btn active">W</button>
+            <button class="period-btn">M</button>
+          </div>
+        </div>
+
+        <!-- week bar chart -->
+        <div class="chart-card">
+          <div class="chart-title">Week View</div>
+          <div class="bar-chart" id="week-bars"></div>
+        </div>
+
+        <!-- heatmap snapshot -->
+        <div class="chart-card" style="margin-bottom:16px;">
+          <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:12px;">
+            <div class="chart-title" style="margin-bottom:0;">Snap Shot</div>
+            <div style="display:flex;align-items:center;gap:8px;">
+              <button class="cal-nav"><i class="fa-solid fa-chevron-left"></i></button>
+              <span style="font-size:12px;font-weight:700;color:var(--text3);" id="heat-month"></span>
+              <button class="cal-nav"><i class="fa-solid fa-chevron-right"></i></button>
+            </div>
+          </div>
+          <div style="display:grid;grid-template-columns:repeat(7,1fr);gap:2px;margin-bottom:4px;" id="dow-labels"></div>
+          <div class="heatmap" id="heatmap"></div>
+        </div>
+
+        <!-- streak -->
+        <div class="section-title-sm" style="margin-bottom:10px;">Task Streak</div>
+        <div class="streak-row">
+          <div class="streak-card"><i class="fa-solid fa-bolt"></i><span class="streak-val">7 Current</span></div>
+          <div class="streak-card"><i class="fa-solid fa-trophy"></i><span class="streak-val">14 Longest</span></div>
+        </div>
+
+        <!-- overview -->
+        <div class="section-hdr">
+          <div class="section-title-sm" style="margin-bottom:0;">Task Overview</div>
+          <div class="period-toggle">
+            <button class="period-btn active" onclick="setPeriod('today',this)">Today</button>
+            <button class="period-btn" onclick="setPeriod('week',this)">Week</button>
+            <button class="period-btn" onclick="setPeriod('month',this)">Month</button>
+          </div>
+        </div>
+        <div class="stats-grid" id="stats-grid"></div>
+
+        <!-- weekly activity -->
+        <div class="chart-card">
+          <div class="chart-title">Weekly Activity</div>
+          <div class="bar-chart" id="weekly-bars"></div>
+        </div>
+
+        <!-- hourly heatmap -->
+        <div class="chart-card">
+          <div class="chart-title">Hourly Activity</div>
+          <div class="heatmap" id="hourly-heatmap" style="grid-template-columns:repeat(8,1fr);"></div>
+          <div style="font-size:10px;color:var(--text3);margin-top:8px;">Shows task performance trends per hour (12AM → 11PM)</div>
+        </div>
+      </div>
+
+      <!-- ── SETTINGS ── -->
+      <div class="screen" id="screen-settings">
+        <div class="page-title">Settings</div>
+
+        <div class="settings-section">
+          <div class="settings-section-title">Appearance</div>
+          <div class="settings-card">
+            <div class="settings-row">
+              <div class="settings-row-left">
+                <div class="settings-icon" style="background:rgba(139,124,246,.15);"><i class="fa-solid fa-sun" style="color:var(--accent);"></i></div>
+                <span class="settings-label">Theme</span>
+              </div>
+              <div class="settings-row-right"><span class="settings-value">Dark</span><i class="fa-solid fa-chevron-right"></i></div>
+            </div>
+            <div class="settings-row">
+              <div class="settings-row-left">
+                <div class="settings-icon" style="background:rgba(139,124,246,.15);"><i class="fa-solid fa-mobile-screen" style="color:var(--accent);"></i></div>
+                <span class="settings-label">AMOLED Theme</span>
+              </div>
+              <div class="toggle" onclick="this.classList.toggle('on')"><div class="toggle-knob"></div></div>
+            </div>
+            <div class="settings-row">
+              <div class="settings-row-left">
+                <div class="settings-icon" style="background:rgba(139,124,246,.15);"><i class="fa-solid fa-palette" style="color:var(--accent);"></i></div>
+                <span class="settings-label">Accent Color</span>
+              </div>
+              <div class="settings-row-right"><div class="color-dot" style="background:var(--accent);"></div><i class="fa-solid fa-chevron-right"></i></div>
+            </div>
+          </div>
+        </div>
+
+        <div class="settings-section">
+          <div class="settings-section-title">Date & Time</div>
+          <div class="settings-card">
+            <div class="settings-row">
+              <div class="settings-row-left">
+                <div class="settings-icon" style="background:rgba(139,124,246,.15);"><i class="fa-regular fa-clock" style="color:var(--accent);"></i></div>
+                <span class="settings-label">Time Format</span>
+              </div>
+              <div class="settings-row-right"><span class="settings-value">12-Hour</span><i class="fa-solid fa-chevron-right"></i></div>
+            </div>
+            <div class="settings-row">
+              <div class="settings-row-left">
+                <div class="settings-icon" style="background:rgba(139,124,246,.15);"><i class="fa-regular fa-calendar" style="color:var(--accent);"></i></div>
+                <span class="settings-label">First Day of Week</span>
+              </div>
+              <div class="settings-row-right"><span class="settings-value">Saturday</span><i class="fa-solid fa-chevron-right"></i></div>
+            </div>
+            <div class="settings-row">
+              <div class="settings-row-left">
+                <div class="settings-icon" style="background:rgba(139,124,246,.15);"><i class="fa-solid fa-bell" style="color:var(--accent);"></i></div>
+                <span class="settings-label">Snooze Duration</span>
+              </div>
+              <div class="settings-row-right"><span class="settings-value">10 min</span><i class="fa-solid fa-chevron-right"></i></div>
+            </div>
+          </div>
+        </div>
+
+        <div class="settings-section">
+          <div class="settings-section-title">App Preferences</div>
+          <div class="settings-card">
+            <div class="settings-row">
+              <div class="settings-row-left">
+                <div class="settings-icon" style="background:rgba(139,124,246,.15);"><i class="fa-solid fa-layer-group" style="color:var(--accent);"></i></div>
+                <span class="settings-label">Default Screen</span>
+              </div>
+              <div class="settings-row-right"><span class="settings-value">All Todos</span><i class="fa-solid fa-chevron-right"></i></div>
+            </div>
+            <div class="settings-row">
+              <div class="settings-row-left">
+                <div class="settings-icon" style="background:rgba(139,124,246,.15);"><i class="fa-solid fa-language" style="color:var(--accent);"></i></div>
+                <span class="settings-label">Language</span>
+              </div>
+              <div class="settings-row-right"><span class="settings-value">English</span><i class="fa-solid fa-chevron-right"></i></div>
+            </div>
+          </div>
+        </div>
+
+        <div class="settings-section">
+          <div class="settings-section-title">Data Management</div>
+          <div class="settings-card">
+            <div class="settings-row">
+              <div class="settings-row-left">
+                <div class="settings-icon" style="background:rgba(139,124,246,.15);"><i class="fa-solid fa-rotate" style="color:var(--accent);"></i></div>
+                <span class="settings-label">Reset Interval</span>
+              </div>
+              <div class="settings-row-right"><span class="settings-value">Daily</span><i class="fa-solid fa-chevron-right"></i></div>
+            </div>
+            <div class="settings-row">
+              <div class="settings-row-left">
+                <div class="settings-icon" style="background:rgba(139,124,246,.15);"><i class="fa-solid fa-box-archive" style="color:var(--accent);"></i></div>
+                <span class="settings-label">Stored Items</span>
+              </div>
+              <div class="settings-row-right"><span class="settings-value">11</span><i class="fa-solid fa-chevron-right"></i></div>
+            </div>
+            <div class="settings-row danger">
+              <div class="settings-row-left">
+                <div class="settings-icon"><i class="fa-solid fa-trash"></i></div>
+                <span class="settings-label">Reset Now</span>
+              </div>
+              <div class="settings-row-right"><i class="fa-solid fa-chevron-right"></i></div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+    </div><!-- /screen-area -->
+
+    <!-- ===== TAB BAR ===== -->
+    <div class="tab-bar">
+      <button class="tab-btn" onclick="switchTab('categories')"><i class="fa-solid fa-folder"></i><span>Categories</span><div class="tab-dot"></div></button>
+      <button class="tab-btn active" onclick="switchTab('todos')"><i class="fa-solid fa-list-check"></i><span>Todos</span><div class="tab-dot"></div></button>
+      <button class="tab-btn" onclick="switchTab('calendar')"><i class="fa-regular fa-calendar"></i><span>Calendar</span><div class="tab-dot"></div></button>
+      <button class="tab-btn" onclick="switchTab('statistics')"><i class="fa-solid fa-chart-bar"></i><span>Stats</span><div class="tab-dot"></div></button>
+      <button class="tab-btn" onclick="switchTab('settings')"><i class="fa-solid fa-gear"></i><span>Settings</span><div class="tab-dot"></div></button>
+    </div>
+
+  </div><!-- /shell -->
+</div><!-- /shell-wrap -->
+
+<div class="shell-hint">📱 Scroll inside the phone · tap tabs to navigate</div>
+
+<script>
+// ───────────────────────── DATA ─────────────────────────
+const CATS = [
+  { id:'work',     name:'Work',     desc:'Professional tasks',  color:'#F59E0B', icon:'💼', tasks:3 },
+  { id:'personal', name:'Personal', desc:'Everyday life',        color:'#8B7CF6', icon:'🏠', tasks:2 },
+  { id:'health',   name:'Health',   desc:'Mind & body',          color:'#10B981', icon:'🏃', tasks:2 },
+  { id:'learning', name:'Learning', desc:'Skills & knowledge',   color:'#3B82F6', icon:'📚', tasks:1 },
+  { id:'finance',  name:'Finance',  desc:'Budget & payments',    color:'#F43F5E', icon:'💰', tasks:1 },
+];
+
+const TASKS = [
+  { id:1, title:'Finish quarterly report',    desc:'Due end of sprint',       cat:'work',     status:'todo' },
+  { id:2, title:'Team standup',               desc:'9:00 AM – 15 min',        cat:'work',     status:'done' },
+  { id:3, title:'Review pull requests',       desc:'',                         cat:'work',     status:'todo' },
+  { id:4, title:'Buy groceries',              desc:'Milk, eggs, bread',        cat:'personal', status:'todo' },
+  { id:5, title:'Read 20 pages',              desc:'',                         cat:'personal', status:'done' },
+  { id:6, title:'Morning jog',               desc:'30 min / 5 km',            cat:'health',   status:'done' },
+  { id:7, title:'Drink 8 glasses of water',  desc:'Track throughout day',     cat:'health',   status:'todo' },
+  { id:8, title:'React Native deep-dive',    desc:'Finish sections 4–6',      cat:'learning', status:'na'   },
+  { id:9, title:'Pay electricity bill',      desc:'Before 15th',              cat:'finance',  status:'todo' },
+];
+
+const EVENTS = [
+  { title:'Pay bills',          time:'10:00 AM', cat:'finance'  },
+  { title:'Doctor appointment', time:'2:30 PM',  cat:'health'   },
+  { title:'Sprint planning',    time:'4:00 PM',  cat:'work'     },
+];
+
+// ─────────────────── TODOS ───────────────────
+let activeStatus = 'todo', activeCat = 'all';
+
+function getCatMeta(id){ return CATS.find(c=>c.id===id)||{color:'#64748B',name:''}; }
+
+function renderTodos(){
+  const list = document.getElementById('todo-list');
+  const filtered = TASKS.filter(t => {
+    const sMatch = t.status === activeStatus;
+    const cMatch = activeCat==='all' || t.cat===activeCat;
+    return sMatch && cMatch;
+  });
+  if(!filtered.length){
+    const labels = {todo:'Add a Todo',done:'Finished Tasks',na:'Not Available'};
+    const descs  = {todo:'Create a to-do to get started.',done:'Finished tasks will appear here.',na:'Tasks marked N/A appear here.'};
+    list.innerHTML=`<div class="empty"><i class="fa-regular fa-circle-check"></i><div class="empty-title">${labels[activeStatus]}</div><div class="empty-desc">${descs[activeStatus]}</div></div>`;
+    return;
+  }
+  list.innerHTML = filtered.map(t=>{
+    const cm = getCatMeta(t.cat);
+    const checkCls = t.status==='done'?'done':t.status==='na'?'na':'';
+    const titleCls = t.status==='done'?'done':t.status==='na'?'na':'';
+    return `<div class="task-card">
+      <div class="task-check ${checkCls}"></div>
+      <div class="task-body">
+        <div class="task-title ${titleCls}">${t.title}</div>
+        ${t.desc?`<div class="task-desc">${t.desc}</div>`:''}
+        <div class="task-cat-badge" style="background:${cm.color}22;">
+          <div class="task-cat-dot" style="background:${cm.color};"></div>
+          <span style="color:${cm.color};font-size:11px;font-weight:700;">${cm.name}</span>
+        </div>
+      </div>
+    </div>`;
+  }).join('');
+}
+
+function filterTodos(status,btn){
+  activeStatus=status;
+  document.querySelectorAll('.pill').forEach(p=>p.classList.remove('active'));
+  btn.classList.add('active');
+  renderTodos();
+}
+function filterCat(cat,el){
+  activeCat=cat;
+  document.querySelectorAll('.cat-chip').forEach(c=>{
+    const isMe = c===el;
+    const cm = isMe&&cat!=='all' ? getCatMeta(cat) : null;
+    if(cat==='all'&&isMe){ c.style.background='var(--accent)';c.style.borderColor='var(--accent)';c.style.color='#fff'; }
+    else if(isMe&&cm){ c.style.background=cm.color;c.style.borderColor=cm.color;c.style.color='#fff'; }
+    else { c.style.background='transparent';c.style.borderColor='var(--border)';c.style.color='var(--text2)'; }
+  });
+  renderTodos();
+}
+
+// ─────────────────── CATEGORIES ───────────────────
+function renderCats(){
+  document.getElementById('cat-list').innerHTML = CATS.map(c=>`
+    <div class="cat-card">
+      <div class="cat-icon-wrap" style="background:${c.color}22;">${c.icon}</div>
+      <div class="cat-info">
+        <div class="cat-name">${c.name}</div>
+        <div class="cat-desc">${c.desc}</div>
+      </div>
+      <div style="text-align:right;">
+        <div class="cat-count">${c.tasks} tasks</div>
+      </div>
+      <i class="fa-solid fa-chevron-right cat-chevron"></i>
+    </div>
+  `).join('');
+}
+
+// ─────────────────── CALENDAR ───────────────────
+let calDate = new Date();
+
+function renderCal(){
+  const y=calDate.getFullYear(), m=calDate.getMonth();
+  document.getElementById('cal-month-label').textContent =
+    calDate.toLocaleDateString('en',{month:'long',year:'numeric'});
+
+  const first = new Date(y,m,1).getDay();
+  const days  = new Date(y,m+1,0).getDate();
+  const today = new Date();
+  const dows  = ['Sun','Mon','Tue','Wed','Thu','Fri','Sat'];
+  const eventDays = [today.getDate()];
+
+  let html = dows.map(d=>`<div class="cal-dow">${d}</div>`).join('');
+  for(let i=0;i<first;i++) html+=`<div class="cal-day other-month">${new Date(y,m,0).getDate()-first+i+1}</div>`;
+  for(let d=1;d<=days;d++){
+    const isToday = d===today.getDate()&&m===today.getMonth()&&y===today.getFullYear();
+    const hasEv   = eventDays.includes(d) && isToday;
+    html+=`<div class="cal-day${isToday?' today':''}${hasEv?' has-event':''}">${d}</div>`;
+  }
+  document.getElementById('cal-grid').innerHTML = html;
+
+  document.getElementById('event-list').innerHTML = EVENTS.map(e=>{
+    const cm=getCatMeta(e.cat);
+    return `<div class="event-item">
+      <div class="event-dot" style="background:${cm.color};"></div>
+      <div class="event-info">
+        <div class="event-title">${e.title}</div>
+        <div class="event-time">${e.time}</div>
+      </div>
+      <i class="fa-solid fa-chevron-right" style="color:var(--text3);font-size:12px;"></i>
+    </div>`;
+  }).join('');
+}
+
+function shiftMonth(dir){ calDate.setMonth(calDate.getMonth()+dir); renderCal(); }
+
+// ─────────────────── STATISTICS ───────────────────
+const periods = { today:{done:4,missed:2,na:1}, week:{done:22,missed:8,na:3}, month:{done:87,missed:19,na:7} };
+let curPeriod = 'today';
+
+function renderStats(){
+  const p = periods[curPeriod];
+  const comp = Math.round(p.done/(p.done+p.missed)*100)||0;
+  document.getElementById('stats-grid').innerHTML = `
+    <div class="stat-box"><div class="stat-icon-wrap" style="background:rgba(139,124,246,.15);"><i class="fa-solid fa-check-double" style="color:var(--accent);"></i></div><div class="stat-val">${p.done}</div><div class="stat-lbl">Done</div></div>
+    <div class="stat-box"><div class="stat-icon-wrap" style="background:rgba(244,63,94,.15);"><i class="fa-solid fa-xmark" style="color:var(--red);"></i></div><div class="stat-val">${p.missed}</div><div class="stat-lbl">Did Not Do</div></div>
+    <div class="stat-box"><div class="stat-icon-wrap" style="background:rgba(100,116,139,.15);"><i class="fa-solid fa-eye-slash" style="color:var(--text3);"></i></div><div class="stat-val">${p.na}</div><div class="stat-lbl">Not Available</div></div>
+    <div class="stat-box"><div class="stat-icon-wrap" style="background:rgba(245,158,11,.15);"><i class="fa-solid fa-arrow-trend-up" style="color:var(--yellow);"></i></div><div class="stat-val">${comp}%</div><div class="stat-lbl">Completion</div></div>
+  `;
+}
+function setPeriod(p,btn){
+  curPeriod=p;
+  document.querySelectorAll('#screen-statistics .period-btn').forEach(b=>b.classList.remove('active'));
+  btn.classList.add('active');
+  renderStats();
+}
+
+function renderWeekBars(){
+  const days=['Mon','Tue','Wed','Thu','Fri','Sat','Sun'];
+  const vals=[3,5,2,7,4,6,3];
+  const max=Math.max(...vals);
+  document.getElementById('week-bars').innerHTML = days.map((d,i)=>`
+    <div class="bar-wrap">
+      <div class="bar-track"><div class="bar-fill" style="height:${vals[i]/max*100}%;"></div></div>
+      <span class="bar-lbl">${d}</span>
+    </div>`).join('');
+
+  document.getElementById('weekly-bars').innerHTML = days.map((d,i)=>`
+    <div class="bar-wrap">
+      <div class="bar-track"><div class="bar-fill" style="height:${vals[i]/max*100}%;"></div></div>
+      <span class="bar-lbl">${d}</span>
+    </div>`).join('');
+}
+
+function renderHeatmap(){
+  const now=new Date();
+  document.getElementById('heat-month').textContent=
+    now.toLocaleDateString('en',{month:'short',year:'numeric'});
+  // dow labels
+  const dows=['S','M','T','W','T','F','S'];
+  document.getElementById('dow-labels').innerHTML=dows.map(d=>`<div style="text-align:center;font-size:10px;color:var(--text3);font-weight:600;">${d}</div>`).join('');
+  // heatmap cells (42 cells)
+  const lvls=['','','l1','l2','l3','l4','l2','l1','','l3','l4','l2','','l1','','l3'];
+  document.getElementById('heatmap').innerHTML=Array.from({length:42},(_,i)=>`<div class="heat-cell ${lvls[i%lvls.length]}"></div>`).join('');
+  // hourly
+  const hourly=[0,0,0,0,0,0,1,2,3,2,1,0,1,2,1,0,0,1,2,3,2,1,0,0];
+  document.getElementById('hourly-heatmap').innerHTML=hourly.map(v=>{
+    const cls=v===0?'':v===1?'l1':v===2?'l2':'l3';
+    return `<div class="heat-cell ${cls}"></div>`;
+  }).join('');
+}
+
+// ─────────────────── TAB SWITCHER ───────────────────
+function switchTab(name){
+  document.querySelectorAll('.screen').forEach(s=>s.classList.remove('active'));
+  document.querySelectorAll('.tab-btn').forEach(b=>b.classList.remove('active'));
+  document.getElementById('screen-'+name).classList.add('active');
+  const btns=[...document.querySelectorAll('.tab-btn')];
+  const map={categories:0,todos:1,calendar:2,statistics:3,settings:4};
+  btns[map[name]].classList.add('active');
+}
+
+// ─────────────────── INIT ───────────────────
+renderTodos();
+renderCats();
+renderCal();
+renderStats();
+renderWeekBars();
+renderHeatmap();
+</script>
+</body>
+</html>
