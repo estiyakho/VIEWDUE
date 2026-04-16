@@ -184,129 +184,130 @@ export default function TodosScreen() {
   return (
     <View style={[styles.safeArea, { backgroundColor: colors.background }]}>
       <View style={[styles.container, { paddingTop: Math.max(insets.top, 6), backgroundColor: colors.background }]}>
+        <View style={styles.fixedHeader}>
+          <View
+            style={[
+              styles.searchBar,
+              {
+                backgroundColor: colors.surfaceElevated,
+                borderColor: colors.border,
+              },
+            ]}
+          >
+            <Ionicons color={colors.textMuted} name="search-outline" size={24} />
+            <TextInput
+              onChangeText={setQuery}
+              placeholder="Search Todo"
+              placeholderTextColor={colors.textMuted}
+              style={[styles.searchInput, { color: colors.text }]}
+              value={query}
+            />
+          </View>
+
+          <View style={styles.filterBar}>
+            <View style={[styles.chips, { backgroundColor: colors.surfaceElevated }]}>
+              {FILTER_OPTIONS.map((option) => {
+                const active = option.value === activeFilter;
+                return (
+                  <Pressable
+                    key={option.value}
+                    onPress={() => {
+                      runListAnimation();
+                      setActiveFilter(option.value);
+                    }}
+                    style={[
+                      styles.chipBtn,
+                      active && { backgroundColor: colors.accent },
+                    ]}
+                  >
+                    <Text
+                      style={[
+                        styles.chipText,
+                        { color: active ? (colors.isLight ? '#0F172A' : '#F8FAFC') : colors.textMuted },
+                      ]}
+                    >
+                      {option.label}
+                    </Text>
+                  </Pressable>
+                );
+              })}
+            </View>
+
+            <Pressable
+              onPress={() => setSortSheetVisible(true)}
+              style={[
+                styles.sortBtn,
+                { backgroundColor: colors.surfaceElevated, borderColor: colors.border },
+              ]}
+            >
+              <Ionicons
+                name="swap-vertical"
+                size={16}
+                color={colors.textSoft}
+              />
+              <Text style={[styles.sortText, { color: colors.textSoft }]}>Sort</Text>
+            </Pressable>
+          </View>
+
+          <ScrollView
+            horizontal
+            showsHorizontalScrollIndicator={false}
+            nestedScrollEnabled={true}
+            disallowInterruption={true}
+            contentContainerStyle={styles.chipsContent}
+            style={[styles.chipsRow, { width: '100%' }]}
+          >
+            <Pressable
+              onPress={() => setSelectedCategoryId("all")}
+              style={[
+                styles.chip,
+                {
+                  backgroundColor:
+                    selectedCategoryId === "all"
+                      ? colors.accent
+                      : colors.surfaceMuted,
+                  borderColor:
+                    selectedCategoryId === "all" ? colors.accent : colors.border,
+                },
+              ]}
+            >
+              <Text style={[styles.chipText, { color: selectedCategoryId === "all" ? (colors.isLight ? '#0F172A' : '#F8FAFC') : colors.textSoft }]}>All</Text>
+            </Pressable>
+            {categories.filter((c) => !c.isArchived).map((category) => {
+              const active = selectedCategoryId === category.id;
+              return (
+                <Pressable
+                  key={category.id}
+                  onPress={() => setSelectedCategoryId(category.id)}
+                  style={[
+                    styles.chip,
+                    {
+                      backgroundColor: active ? category.color : colors.surfaceMuted,
+                      borderColor: active ? category.color : colors.border,
+                    },
+                  ]}
+                >
+                  <Text style={[styles.chipText, { color: active ? (colors.isLight ? '#0F172A' : '#F8FAFC') : colors.textSoft }]}>
+                    {category.name}
+                  </Text>
+                </Pressable>
+              );
+            })}
+          </ScrollView>
+        </View>
+
         <DraggableFlatList
           onDragEnd={({ data }) => {
             justDragged.current = true;
             setListData(data);
             reorderTasks(data.map(t => t.id));
           }}
-          contentContainerStyle={[styles.listContent, { paddingBottom: Math.max(92, insets.bottom + 80) }]}
+          containerStyle={{ flex: 1 }}
+          style={{ flex: 1 }}
+          contentContainerStyle={[styles.listContent, { paddingBottom: Math.max(350, insets.bottom + 300) }]}
           data={listData}
           keyExtractor={(item) => item.id}
           keyboardShouldPersistTaps="handled"
-          ListHeaderComponent={
-            <View style={{ paddingTop: 6 }}>
-              <View
-                style={[
-                  styles.searchBar,
-                  {
-                    backgroundColor: colors.surfaceElevated,
-                    borderColor: colors.border,
-                  },
-                ]}
-              >
-                <Ionicons color={colors.textMuted} name="search-outline" size={24} />
-                <TextInput
-                  onChangeText={setQuery}
-                  placeholder="Search Todo"
-                  placeholderTextColor={colors.textMuted}
-                  style={[styles.searchInput, { color: colors.text }]}
-                  value={query}
-                />
-              </View>
-
-              <View style={styles.filterBar}>
-                <View style={[styles.chips, { backgroundColor: colors.surfaceElevated }]}>
-                  {FILTER_OPTIONS.map((option) => {
-                    const active = option.value === activeFilter;
-                    return (
-                      <Pressable
-                        key={option.value}
-                        onPress={() => {
-                          runListAnimation();
-                          setActiveFilter(option.value);
-                        }}
-                        style={[
-                          styles.chipBtn,
-                          active && { backgroundColor: colors.accent },
-                        ]}
-                      >
-                        <Text
-                          style={[
-                            styles.chipText,
-                            { color: active ? (colors.isLight ? '#0F172A' : '#F8FAFC') : colors.textMuted },
-                          ]}
-                        >
-                          {option.label}
-                        </Text>
-                      </Pressable>
-                    );
-                  })}
-                </View>
-
-                <Pressable
-                  onPress={() => setSortSheetVisible(true)}
-                  style={[
-                    styles.sortBtn,
-                    { backgroundColor: colors.surfaceElevated, borderColor: colors.border },
-                  ]}
-                >
-                  <Ionicons
-                    name="swap-vertical"
-                    size={16}
-                    color={colors.textSoft}
-                  />
-                  <Text style={[styles.sortText, { color: colors.textSoft }]}>Sort</Text>
-                </Pressable>
-              </View>
-
-              <ScrollView
-                horizontal
-                showsHorizontalScrollIndicator={false}
-                nestedScrollEnabled={true}
-                disallowInterruption={true}
-                contentContainerStyle={styles.chipsContent}
-                style={[styles.chipsRow, { width: '100%' }]}
-              >
-                <Pressable
-                  onPress={() => setSelectedCategoryId("all")}
-                  style={[
-                    styles.chip,
-                    {
-                      backgroundColor:
-                        selectedCategoryId === "all"
-                          ? colors.accent
-                          : colors.surfaceMuted,
-                      borderColor:
-                        selectedCategoryId === "all" ? colors.accent : colors.border,
-                    },
-                  ]}
-                >
-                  <Text style={[styles.chipText, { color: selectedCategoryId === "all" ? (colors.isLight ? '#0F172A' : '#F8FAFC') : colors.textSoft }]}>All</Text>
-                </Pressable>
-                {categories.filter((c) => !c.isArchived).map((category) => {
-                  const active = selectedCategoryId === category.id;
-                  return (
-                    <Pressable
-                      key={category.id}
-                      onPress={() => setSelectedCategoryId(category.id)}
-                      style={[
-                        styles.chip,
-                        {
-                          backgroundColor: active ? category.color : colors.surfaceMuted,
-                          borderColor: active ? category.color : colors.border,
-                        },
-                      ]}
-                    >
-                      <Text style={[styles.chipText, { color: active ? (colors.isLight ? '#0F172A' : '#F8FAFC') : colors.textSoft }]}>
-                        {category.name}
-                      </Text>
-                    </Pressable>
-                  );
-                })}
-              </ScrollView>
-            </View>
-          }
           ListEmptyComponent={
             <EmptyState
               title={
@@ -327,6 +328,9 @@ export default function TodosScreen() {
           }
           renderItem={renderTask}
           showsVerticalScrollIndicator={false}
+          scrollEventThrottle={16}
+          overScrollMode="never"
+          keyboardDismissMode="on-drag"
         />
 
         <FloatingActionButton onPress={() => setAddTaskModalVisible(true)} />
@@ -432,6 +436,10 @@ const styles = StyleSheet.create({
   },
   listContent: {
     flexGrow: 1,
-    paddingTop: 2,
+    paddingTop: 8,
+  },
+  fixedHeader: {
+    paddingTop: 6,
+    zIndex: 10,
   },
 });

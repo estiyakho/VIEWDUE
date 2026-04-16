@@ -9,6 +9,7 @@ import { useAppTheme } from "@/hooks/use-app-theme";
 import { useTaskStore } from "@/store/use-task-store";
 import { getMonthGrid, getWeekdayLabels } from "@/utils/calendar";
 import { getHistoryDateString } from "@/utils/date-utils";
+import { TaskStatus } from "@/types/task";
 
 function StatBox({
   icon,
@@ -48,14 +49,13 @@ export default function StatisticsScreen() {
   const tasks = useTaskStore((state) => state.tasks);
   const taskHistory = useTaskStore((state) => state.taskHistory);
   const categories = useTaskStore((state) => state.categories);
-  const statsResetAt = useTaskStore((state) => state.settings.statsResetAt);
   const firstDayOfWeek = useTaskStore((state) => state.settings.firstDayOfWeek);
 
   const [historyViewMode, setHistoryViewMode] = useState<"weekly" | "monthly">("weekly");
   const [selectedTaskTitle, setSelectedTaskTitle] = useState<string | undefined>(undefined);
   const [isTaskSelectorVisible, setIsTaskSelectorVisible] = useState(false);
   const [snapshotDate, setSnapshotDate] = useState(new Date());
-  const [overviewPeriod, setOverviewPeriod] = useState<"today" | "week" | "month">("today");
+  const [overviewPeriod, setOverviewPeriod] = useState<"today" | "week" | "month" | "all">("today");
 
   const handlePrevMonth = () => {
     const d = new Date(snapshotDate);
@@ -69,100 +69,57 @@ export default function StatisticsScreen() {
     setSnapshotDate(d);
   };
 
-  const statsTasks = useMemo(() => {
-    if (!statsResetAt) {
-      return tasks;
-    }
-
-    const resetTime = new Date(statsResetAt).getTime();
-    return tasks.filter(
-      (task) => new Date(task.createdAt).getTime() >= resetTime,
-    );
-  }, [statsResetAt, tasks]);
-
   const overviewStats = useMemo(() => {
     const now = new Date();
     const todayStr = getHistoryDateString(now);
 
-    let startDate = new Date(now);
+    let startStr = "";
     if (overviewPeriod === "today") {
-      startDate.setHours(0, 0, 0, 0);
+      startStr = todayStr;
     } else if (overviewPeriod === "week") {
       const dayNames = ["sunday", "monday", "tuesday", "wednesday", "thursday", "friday", "saturday"];
       const firstDayIndex = dayNames.indexOf(firstDayOfWeek);
       const currentDayIndex = now.getDay();
       const daysToSubtract = (currentDayIndex - firstDayIndex + 7) % 7;
+      const startDate = new Date(now);
       startDate.setDate(now.getDate() - daysToSubtract);
-      startDate.setHours(0, 0, 0, 0);
+      startStr = getHistoryDateString(startDate);
+    } else if (overviewPeriod === "month") {
+      const startDate = new Date(now.getFullYear(), now.getMonth(), 1);
+      startStr = getHistoryDateString(startDate);
     } else {
-      startDate = new Date(now.getFullYear(), now.getMonth(), 1);
+      // For "all", we start from the beginning of recorded history
+      startStr = "0000-00-00"; 
     }
 
-    const startStr = getHistoryDateString(startDate);
+    let done = 0;
+    let missed = 0;
+    let na = 0;
 
-    // 1. Get historical stats from history (excluding today to avoid double counting with current tasks)
+    // 1. Aggregate ALL historical stats in range (including tasks that may have been deleted)
     const historyInRange = taskHistory.filter(h => h.date >= startStr && h.date < todayStr);
+    
+    done += historyInRange.filter(h => h.status === 'done').length;
+    missed += historyInRange.filter(h => h.status === 'todo').length;
+    na += historyInRange.filter(h => h.status === 'not-available').length;
 
-    let done = historyInRange.filter(h => h.status === 'done').length;
-    let missed = historyInRange.filter(h => h.status === 'todo').length;
-    let na = historyInRange.filter(h => h.status === 'not-available').length;
+    // 2. Add current day stats from active tasks if "Today" is in range
+    if (todayStr >= startStr) {
+      tasks.forEach(task => {
+        // Skip archived categories
+        const category = categories.find(c => c.id === task.categoryId);
+        if (category?.isArchived) return;
 
-    // 2. Add current day stats from active tasks
-    tasks.forEach(task => {
-      // Skip tasks in archived categories
-      const category = categories.find(c => c.id === task.categoryId);
-      if (category?.isArchived) return;
-
-      if (task.status === 'done') done++;
-      else if (task.status === 'todo') missed++;
-      else if (task.status === 'not-available') na++;
-    });
+        if (task.status === 'done') done++;
+        else if (task.status === 'todo') missed++;
+        else if (task.status === 'not-available') na++;
+      });
+    }
 
     const completion = (done + missed) > 0 ? Math.round((done / (done + missed)) * 100) : 0;
 
     return { done, missed, na, completion };
-  }, [overviewPeriod, tasks, taskHistory, firstDayOfWeek]);
-
-  const weekdayCounts = useMemo(() => {
-    const dayNames: string[] = [
-      "sunday",
-      "monday",
-      "tuesday",
-      "wednesday",
-      "thursday",
-      "friday",
-      "saturday",
-    ];
-    const dayLabels: string[] = [
-      "Sun",
-      "Mon",
-      "Tue",
-      "Wed",
-      "Thu",
-      "Fri",
-      "Sat",
-    ];
-
-    // Create ordered arrays based on firstDayOfWeek
-    const firstDayIndex = dayNames.indexOf(firstDayOfWeek);
-    const orderedDayLabels: string[] = [];
-    const orderedDayIndices: number[] = [];
-
-    for (let i = 0; i < 7; i++) {
-      const dayIndex = (firstDayIndex + i) % 7;
-      orderedDayLabels.push(dayLabels[dayIndex]);
-      orderedDayIndices.push(dayIndex);
-    }
-
-    return orderedDayLabels.map((day, index) => ({
-      day,
-      count: statsTasks.filter((task) => {
-        if (task.status !== "done") return false;
-        const taskDay = new Date(task.createdAt).getDay();
-        return taskDay === orderedDayIndices[index];
-      }).length,
-    }));
-  }, [statsTasks, firstDayOfWeek]);
+  }, [overviewPeriod, tasks, taskHistory, firstDayOfWeek, categories]);
 
 
   const availableHistoryTasks = useMemo(() => {
@@ -193,85 +150,43 @@ export default function StatisticsScreen() {
 
   const currentSelectedTaskIdentity = selectedTaskTitle || availableHistoryTasks[0]?.value;
 
-  const hourlyStats = useMemo(() => {
-    const counts = Array(24).fill(0);
-    if (!currentSelectedTaskIdentity) return counts;
+  const [totalDone, weeklyDoneTotal, weeklyRemaining] = useMemo(() => {
+    if (!currentSelectedTaskIdentity) return [0, 0, 0];
     const [title, categoryId] = currentSelectedTaskIdentity.split("|");
 
-    const relevantHistory = taskHistory.filter(
+    // 1. Total Done (Historical + Current State)
+    const historyDone = taskHistory.filter(
       (h) => h.title === title && (h.categoryId || "") === categoryId && h.status === "done"
-    );
+    ).length;
 
-    relevantHistory.forEach(h => {
-      const hour = new Date(h.completedAt || h.date).getHours();
-      counts[hour]++;
-    });
+    const activeTask = tasks.find(t => t.title === title && (t.categoryId || "") === categoryId);
+    const currentDone = activeTask?.status === 'done' ? 1 : 0;
+    const total = historyDone + currentDone;
 
-    return counts;
-  }, [currentSelectedTaskIdentity, taskHistory]);
-
-  const [currentStreak, longestStreak] = useMemo(() => {
-    if (!currentSelectedTaskIdentity || taskHistory.length === 0) return [0, 0];
-    const [title, categoryId] = currentSelectedTaskIdentity.split("|");
-
-    const relevantHistory = taskHistory.filter(
-      (h) => h.title === title && (h.categoryId || "") === categoryId && h.status === "done"
-    );
-
-    if (relevantHistory.length === 0) return [0, 0];
-
-    const uniqueDates = Array.from(new Set(relevantHistory.map((h) => h.date))).sort(
-      (a, b) => b.localeCompare(a)
-    );
-
-    let current = 0;
+    // 2. Weekly Remaining
     const now = new Date();
-    const today = `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}-${String(now.getDate()).padStart(2, '0')}`;
-    const yesterday = new Date(now);
-    yesterday.setDate(now.getDate() - 1);
-    const yesterdayStr = `${yesterday.getFullYear()}-${String(yesterday.getMonth() + 1).padStart(2, '0')}-${String(yesterday.getDate()).padStart(2, '0')}`;
+    const dayNames = ['sunday', 'monday', 'tuesday', 'wednesday', 'thursday', 'friday', 'saturday'];
+    const firstDayIndex = dayNames.indexOf(firstDayOfWeek);
+    const currentDayIndex = now.getDay();
+    const daysToSubtract = (currentDayIndex - firstDayIndex + 7) % 7;
+    const weekStart = new Date(now);
+    weekStart.setDate(now.getDate() - daysToSubtract);
+    weekStart.setHours(0, 0, 0, 0);
+    const weekStartStr = getHistoryDateString(weekStart);
 
-    let cursor = uniqueDates.includes(today) ? today : (uniqueDates.includes(yesterdayStr) ? yesterdayStr : null);
+    const weeklyDoneInHistory = taskHistory.filter(
+      (h) => h.title === title && (h.categoryId || "") === categoryId && h.date >= weekStartStr && h.status === "done"
+    ).length;
 
-    if (cursor) {
-      let checkDate = new Date(cursor);
-      while (true) {
-        const dateStr = `${checkDate.getFullYear()}-${String(checkDate.getMonth() + 1).padStart(2, '0')}-${String(checkDate.getDate()).padStart(2, '0')}`;
-        if (uniqueDates.includes(dateStr)) {
-          current++;
-          checkDate.setDate(checkDate.getDate() - 1);
-        } else {
-          break;
-        }
-      }
-    }
+    const weeklyDoneTotal = weeklyDoneInHistory + currentDone;
 
-    let max = 0;
-    let tempMax = 0;
-    let prevDate: Date | null = null;
-    const sortedDatesStr = [...uniqueDates].sort((a, b) => a.localeCompare(b));
+    const interval = activeTask?.resetInterval || 'none';
+    let goal = 1;
+    if (interval === 'daily') goal = 7;
 
-    for (const dateStr of sortedDatesStr) {
-      const currDate = new Date(dateStr);
-      if (prevDate) {
-        const diffDays = Math.round((currDate.getTime() - prevDate.getTime()) / (1000 * 60 * 60 * 24));
-        if (diffDays === 1) {
-          tempMax++;
-        } else {
-          tempMax = 1;
-        }
-      } else {
-        tempMax = 1;
-      }
-      max = Math.max(max, tempMax);
-      prevDate = currDate;
-    }
+    return [total, weeklyDoneTotal, Math.max(0, goal - weeklyDoneTotal)];
+  }, [currentSelectedTaskIdentity, taskHistory, tasks, firstDayOfWeek]);
 
-    return [current, max];
-  }, [currentSelectedTaskIdentity, taskHistory]);
-
-  const maxWeekday = Math.max(...weekdayCounts.map((item) => item.count)) || 1;
-  const maxHourlyCount = Math.max(...hourlyStats) || 1;
 
   const historyChartData = useMemo(() => {
     if (!currentSelectedTaskIdentity) return [];
@@ -310,7 +225,7 @@ export default function StatisticsScreen() {
         d.setDate(now.getDate() - i);
         const dateStr = `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`;
         const count = taskHistory.filter(
-          (h) => h.title === title && (h.categoryId || "") === categoryId && h.date === dateStr
+          (h) => h.title === title && (h.categoryId || "") === categoryId && h.date === dateStr && h.status === 'done'
         ).length;
         data.push({
           date: dateStr,
@@ -330,21 +245,44 @@ export default function StatisticsScreen() {
     const [title, categoryId] = currentSelectedTaskIdentity.split("|");
 
     const grid = getMonthGrid(snapshotDate, firstDayOfWeek);
+    const now = new Date();
+    const todayStr = getHistoryDateString(now);
+
+    const activeTask = tasks.find(t => t.title === title && (t.categoryId || "") === categoryId);
+    const creationDate = activeTask ? getHistoryDateString(new Date(activeTask.createdAt)) : todayStr;
+    const historyForTask = taskHistory.filter(h => h.title === title && (h.categoryId || "") === categoryId);
+    const oldestHistory = historyForTask.length > 0 
+      ? historyForTask.sort((a, b) => a.date.localeCompare(b.date))[0].date 
+      : creationDate;
+    const taskStart = creationDate < oldestHistory ? creationDate : oldestHistory;
 
     return grid.map((cell: any) => {
       const d = cell.date;
       const dateStr = getHistoryDateString(d);
-      const count = taskHistory.filter(
-        (h) => h.title === title && (h.categoryId || "") === categoryId && h.date === dateStr && h.status === 'done'
-      ).length;
+      const isToday = dateStr === todayStr;
+      const isFuture = dateStr > todayStr;
+      const isWithinSpan = dateStr >= taskStart;
+
+      // Find status from history or current task
+      let status: TaskStatus | undefined;
+      if (isToday) {
+        status = activeTask?.status;
+      } else {
+        const historyEntry = historyForTask.find(h => h.date === dateStr);
+        status = historyEntry?.status;
+      }
 
       return {
         date: dateStr,
-        count,
+        dayNum: d.getDate(),
+        status,
+        isToday,
+        isFuture,
+        isWithinSpan,
         isCurrentMonth: cell.inCurrentMonth
       };
     });
-  }, [currentSelectedTaskIdentity, taskHistory, firstDayOfWeek, snapshotDate]);
+  }, [currentSelectedTaskIdentity, taskHistory, tasks, firstDayOfWeek, snapshotDate]);
 
   const filteredSnapshotData = useMemo(() => {
     // Always return the full grid (42 items / 6 rows) as requested
@@ -407,7 +345,7 @@ export default function StatisticsScreen() {
           </View>
 
           <View style={[styles.chartCard, { backgroundColor: colors.surfaceElevated, borderColor: colors.border }]}>
-            <Text style={[styles.chartTitle, { color: colors.text }]}>Week View</Text>
+            <Text style={[styles.chartTitle, { color: colors.text }]}>{historyViewMode === "weekly" ? "Week View" : "Month View"}</Text>
             {currentSelectedTaskIdentity ? (
               <ScrollView horizontal showsHorizontalScrollIndicator={false} style={styles.horizontalChart}>
                 <View style={[styles.chartArea, { minWidth: historyViewMode === "weekly" ? '100.1%' : 800, height: 120, alignItems: 'flex-end' }]}>
@@ -475,12 +413,38 @@ export default function StatisticsScreen() {
             </View>
             <View style={styles.snapshotGrid}>
               {filteredSnapshotData.map((item: any) => {
-                let opacity = 0.03; // Out of month
+                const identity = availableHistoryTasks.find(t => t.value === currentSelectedTaskIdentity);
+                const categoryColor = identity?.color || accent;
+                
+                const isDone = item.status === 'done';
+                const isNA = item.status === 'not-available';
+                const isPast = !item.isFuture && !item.isToday;
+                
+                let backgroundColor = 'transparent';
+                let borderColor = colors.surfaceMuted;
+                let opacity = 1;
+
                 if (item.isCurrentMonth) {
-                  opacity = item.count > 0 ? (item.count === 1 ? 0.4 : 1) : 0.1;
-                } else if (item.count > 0) {
-                  // Even if out of month, show color but ghosted
-                  opacity = 0.15;
+                  if (isDone) {
+                    backgroundColor = accent;
+                    borderColor = accent;
+                  } else if (item.isToday) {
+                    borderColor = accent;
+                    opacity = 1;
+                  } else if (isPast && item.isWithinSpan && !isNA) {
+                    // Only show missed border for past days within lifespan that aren't N/A
+                    borderColor = categoryColor;
+                    opacity = 0.5;
+                  } else {
+                    // Future, N/A, or Out of Span (but in month)
+                    borderColor = colors.border;
+                    opacity = 0.3;
+                  }
+                } else {
+                  // Out of month
+                  opacity = 0.05;
+                  if (isDone) backgroundColor = accent;
+                  else backgroundColor = colors.textMuted;
                 }
 
                 return (
@@ -489,48 +453,56 @@ export default function StatisticsScreen() {
                     style={[
                       styles.snapshotBlock,
                       {
-                        backgroundColor: item.count > 0 ? accent : colors.textMuted,
+                        backgroundColor,
+                        borderColor,
+                        borderWidth: 1,
                         opacity
                       }
                     ]}
-                  />
+                  >
+                    <Text 
+                      style={[
+                        styles.snapshotDayNum, 
+                        { 
+                          color: isDone ? (colors.isLight ? '#fff' : '#000') : colors.textSoft,
+                          opacity: item.isCurrentMonth ? 1 : 0.5
+                        }
+                      ]}
+                    >
+                      {item.dayNum}
+                    </Text>
+                  </View>
                 );
               })}
+            </View>
+
+            {/* Legend */}
+            <View style={styles.legendRow}>
+              <View style={styles.legendItem}>
+                <View style={[styles.legendDot, { backgroundColor: accent }]} />
+                <Text style={[styles.legendText, { color: colors.textSoft }]}>Done</Text>
+              </View>
+              <View style={styles.legendItem}>
+                <View style={[styles.legendDot, { borderColor: availableHistoryTasks.find(t => t.value === currentSelectedTaskIdentity)?.color || accent, borderWidth: 1 }]} />
+                <Text style={[styles.legendText, { color: colors.textSoft }]}>Missed</Text>
+              </View>
+              <View style={styles.legendItem}>
+                <View style={[styles.legendDot, { borderColor: accent, borderWidth: 1 }]} />
+                <Text style={[styles.legendText, { color: colors.textSoft }]}>Today</Text>
+              </View>
             </View>
           </View>
         </View>
 
         <View style={styles.sectionWrap}>
-          <Text style={[styles.sectionTitle, { color: colors.text, marginBottom: 12 }]}>Task Streak</Text>
           <View style={styles.rowTwo}>
-            <View
-              style={[
-                styles.miniCard,
-                {
-                  backgroundColor: colors.surfaceMuted,
-                  borderColor: 'transparent',
-                },
-              ]}
-            >
-              <Ionicons color={accent} name="flash-outline" size={16} />
-              <Text style={[styles.miniValue, { color: colors.text }]}>
-                {currentStreak} Current
-              </Text>
-            </View>
-            <View
-              style={[
-                styles.miniCard,
-                {
-                  backgroundColor: colors.surfaceMuted,
-                  borderColor: 'transparent',
-                },
-              ]}
-            >
-              <Ionicons color={accent} name="ribbon-outline" size={16} />
-              <Text style={[styles.miniValue, { color: colors.text }]}>
-                {longestStreak} Longest
-              </Text>
-            </View>
+            <StatBox
+              icon="calendar-outline"
+              label="Done Weekly"
+              value={String(weeklyDoneTotal)}
+              tint={colors.accent}
+              colors={colors}
+            />
           </View>
         </View>
 
@@ -540,7 +512,7 @@ export default function StatisticsScreen() {
               Task Overview
             </Text>
             <View style={[styles.periodToggle, { backgroundColor: colors.surfaceMuted }]}>
-              {(["today", "week", "month"] as const).map((p) => (
+              {(["today", "week", "month", "all"] as const).map((p) => (
                 <Pressable
                   key={p}
                   onPress={() => setOverviewPeriod(p)}
@@ -587,88 +559,6 @@ export default function StatisticsScreen() {
         </View>
 
 
-        <View
-          style={[
-            styles.chartCard,
-            {
-              backgroundColor: colors.surfaceElevated,
-              borderColor: colors.border,
-            },
-          ]}
-        >
-          <Text style={[styles.chartTitle, { color: colors.text }]}>
-            Weekly Activity
-          </Text>
-          <View style={styles.chartArea}>
-            {weekdayCounts.map((item) => (
-              <View key={item.day} style={styles.barWrap}>
-                <View
-                  style={[
-                    styles.barTrack,
-                    { backgroundColor: colors.surfaceMuted },
-                  ]}
-                >
-                  <View
-                    style={[
-                      styles.barFill,
-                      {
-                        backgroundColor: accent,
-                        height: `${(item.count / maxWeekday) * 100}%`,
-                      },
-                    ]}
-                  />
-                </View>
-                <Text style={[styles.barLabel, { color: colors.textMuted }]}>
-                  {item.day}
-                </Text>
-              </View>
-            ))}
-          </View>
-        </View>
-
-        <View
-          style={[
-            styles.chartCard,
-            {
-              backgroundColor: colors.surfaceElevated,
-              borderColor: colors.border,
-            },
-          ]}
-        >
-          <Text style={[styles.chartTitle, { color: colors.text }]}>
-            Hourly Activity
-          </Text>
-          <View style={[styles.snapshotGridWrapper, { marginTop: 8 }]}>
-            <View style={styles.snapshotGrid}>
-              {hourlyStats.map((count, hour) => {
-                const opacity = count > 0 ? (count / maxHourlyCount) * 0.8 + 0.2 : 0.05;
-                return (
-                  <View
-                    key={hour}
-                    style={[
-                      styles.snapshotBlock,
-                      {
-                        backgroundColor: count > 0 ? accent : colors.textMuted,
-                        opacity
-                      }
-                    ]}
-                  >
-                    {hour % 6 === 0 && (
-                      <Text style={[styles.hourLabelHint, { color: colors.textSoft }]}>
-                        {hour === 0 ? '12A' : hour === 12 ? '12P' : `${hour % 12}${hour < 12 ? 'A' : 'P'}`}
-                      </Text>
-                    )}
-                  </View>
-                );
-              })}
-            </View>
-            <View style={[styles.snapshotFooter, { marginTop: 12, alignItems: 'flex-start' }]}>
-              <Text style={[styles.snapshotFooterText, { color: colors.textMuted }]}>
-                Shows task performance trends per hour (12AM → 11PM)
-              </Text>
-            </View>
-          </View>
-        </View>
       </ScrollView>
 
       <SettingsOptionSheet
@@ -698,9 +588,10 @@ const styles = StyleSheet.create({
   statBox: {
     borderRadius: 18,
     borderWidth: 1,
-    minHeight: 92,
+    flex: 1,
+    minHeight: 90,
+    minWidth: 100,
     padding: 12,
-    width: "48.4%",
   },
   statIconWrap: {
     alignItems: "center",
@@ -833,29 +724,45 @@ const styles = StyleSheet.create({
     justifyContent: 'space-between',
   },
   snapshotBlock: {
-    width: 32,
-    height: 32,
-    borderRadius: 8,
+    width: 38,
+    height: 38,
+    borderRadius: 10,
     justifyContent: 'center',
     alignItems: 'center',
+    marginBottom: 4,
   },
-  hourLabelHint: {
+  snapshotDayNum: {
     fontFamily: AppFonts.bold,
-    fontSize: 8,
-    position: 'absolute',
-    bottom: -14,
+    fontSize: 11,
   },
-  snapshotFooter: {
-    marginTop: 14,
+  legendRow: {
+    flexDirection: 'row',
+    justifyContent: 'center',
+    gap: 16,
+    marginTop: 18,
+    paddingTop: 16,
+    borderTopWidth: 1,
+    borderTopColor: 'rgba(0,0,0,0.05)',
+  },
+  legendItem: {
+    flexDirection: 'row',
     alignItems: 'center',
+    gap: 6,
   },
-  snapshotFooterText: {
+  legendDot: {
+    width: 10,
+    height: 10,
+    borderRadius: 3,
+  },
+  legendText: {
     fontFamily: AppFonts.medium,
     fontSize: 11,
   },
   rowTwo: {
     flexDirection: "row",
+    flexWrap: "wrap",
     gap: 10,
+    justifyContent: "center",
   },
   miniCard: {
     alignItems: "center",
@@ -902,12 +809,6 @@ const styles = StyleSheet.create({
   barFill: {
     borderRadius: 999,
     width: "100%",
-  },
-  barLabel: {
-    fontFamily: AppFonts.medium,
-    fontSize: 11,
-    marginTop: 8,
-    textAlign: "center",
   },
   navRow: {
     flexDirection: 'row',

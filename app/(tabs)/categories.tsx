@@ -258,6 +258,8 @@ export default function CategoriesScreen() {
             setListData(data);
             reorderCategories(data.map(c => c.id));
           }}
+          containerStyle={{ flex: 1 }}
+          style={{ flex: 1 }}
           ListHeaderComponent={
             <View>
               <View style={[styles.summaryCard, { backgroundColor: colors.surfaceElevated, borderColor: colors.border }]}>
@@ -302,7 +304,7 @@ export default function CategoriesScreen() {
               </View>
             </View>
           }
-          contentContainerStyle={[styles.listContent, { paddingBottom: Math.max(92, insets.bottom + 80) }]}
+          contentContainerStyle={[styles.listContent, { paddingBottom: Math.max(350, insets.bottom + 300) }]}
           data={listData}
           keyExtractor={(item) => item.id}
           keyboardShouldPersistTaps="handled"
@@ -320,6 +322,9 @@ export default function CategoriesScreen() {
             </View>
           }
           showsVerticalScrollIndicator={false}
+          scrollEventThrottle={16}
+          overScrollMode="never"
+          keyboardDismissMode="on-drag"
         />
 
         <FloatingActionButton iconName="add" onPress={() => setCategoryModalVisible(true)} />

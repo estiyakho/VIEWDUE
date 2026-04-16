@@ -19,9 +19,11 @@ type TaskItemProps = {
   onNotAvailable?: (id: string) => void;
   onEdit?: (task: Task) => void;
   onLongPress?: () => void;
+  hideEdit?: boolean;
+  hideDelete?: boolean;
 };
 
-function TaskItemComponent({ task, category, timeFormat, onToggle, onDelete, onNotAvailable, onEdit, onLongPress }: TaskItemProps) {
+function TaskItemComponent({ task, category, timeFormat, onToggle, onDelete, onNotAvailable, onEdit, onLongPress, hideEdit, hideDelete }: TaskItemProps) {
   const colors = useAppTheme();
   const done = task.status === 'done';
   const notAvailable = task.status === 'not-available';
@@ -29,14 +31,14 @@ function TaskItemComponent({ task, category, timeFormat, onToggle, onDelete, onN
   return (
     <Pressable 
       onLongPress={onLongPress} 
-      onPress={() => onEdit?.(task)}
+      onPress={() => !hideEdit && onEdit?.(task)}
       delayLongPress={250} 
       style={({ pressed }) => [
         styles.card, 
         { 
           backgroundColor: colors.surfaceElevated, 
           borderColor: colors.border,
-          opacity: pressed ? 0.95 : 1
+          opacity: (pressed && !hideEdit) ? 0.95 : 1
         }
       ]}
     > 
@@ -77,12 +79,14 @@ function TaskItemComponent({ task, category, timeFormat, onToggle, onDelete, onN
       </View>
 
       <View style={styles.rightColumn}>
-        <Pressable 
-          onPress={() => onDelete(task.id)} 
-          style={[styles.deleteButton, { backgroundColor: `${colors.danger}12` }]}
-        >
-          <Ionicons name="trash-outline" size={16} color={colors.danger} />
-        </Pressable>
+        {!hideDelete && (
+          <Pressable 
+            onPress={() => onDelete(task.id)} 
+            style={[styles.deleteButton, { backgroundColor: `${colors.danger}12` }]}
+          >
+            <Ionicons name="trash-outline" size={16} color={colors.danger} />
+          </Pressable>
+        )}
         {!done && (
           <Pressable 
             onPress={() => onNotAvailable?.(task.id)}

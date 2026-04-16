@@ -24,11 +24,18 @@ import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { AppFonts } from "@/constants/fonts";
 import { useAppTheme } from "@/hooks/use-app-theme";
 import { useTaskStore } from "@/store/use-task-store";
-import { Task } from "@/types/task";
+import { ResetInterval, Task } from "@/types/task";
 import { runListAnimation } from "@/utils/layout-animation";
 import { CategoryOptionSheet } from "./category-option-sheet";
 
 const MIN_FIELD_HEIGHT = 56;
+
+const REPEAT_OPTIONS: { label: string; value: ResetInterval }[] = [
+  { label: "None", value: "none" },
+  { label: "Daily", value: "daily" },
+  { label: "Weekly", value: "weekly" },
+  { label: "Monthly", value: "monthly" },
+];
 
 type TaskFormModalProps = {
   visible: boolean;
@@ -57,14 +64,12 @@ export function TaskFormModal({
 
   const [title, setTitle] = useState("");
   const [description, setDescription] = useState("");
-  const [selectedCategoryId, setSelectedCategoryId] = useState<
-    string | undefined
-  >(defaultCategoryId);
+  const [selectedCategoryId, setSelectedCategoryId] = useState<string | undefined>(defaultCategoryId);
   const [descriptionHeight, setDescriptionHeight] = useState(MIN_FIELD_HEIGHT);
   const [categorySheetVisible, setCategorySheetVisible] = useState(false);
+  const [resetInterval, setResetInterval] = useState<ResetInterval>("none");
 
   const selectedCategory = categories.find((c) => c.id === selectedCategoryId);
-
   const isEditing = Boolean(initialTask);
 
   useEffect(() => {
@@ -73,6 +78,7 @@ export function TaskFormModal({
     setDescription(initialTask?.description ?? "");
     setSelectedCategoryId(initialTask?.categoryId ?? defaultCategoryId);
     setDescriptionHeight(MIN_FIELD_HEIGHT);
+    setResetInterval(initialTask?.resetInterval ?? "none");
   }, [initialTask, defaultCategoryId, visible]);
 
   const [isKeyboardVisible, setIsKeyboardVisible] = useState(false);
@@ -95,31 +101,29 @@ export function TaskFormModal({
   }, []);
 
   const trimmedTitle = title.trim();
-  const baseModalMaxHeight = Math.max(
-    320,
-    windowHeight - insets.top - insets.bottom - 48,
-  );
+  const baseModalMaxHeight = Math.max(320, windowHeight - insets.top - insets.bottom - 48);
   const keyboardAdjustedModalMaxHeight = isKeyboardVisible
-    ? Math.max(
-        260,
-        windowHeight - insets.top - insets.bottom - keyboardHeight - 80,
-      )
+    ? Math.max(260, windowHeight - insets.top - insets.bottom - keyboardHeight - 80)
     : baseModalMaxHeight;
 
   const handleSave = () => {
     if (!trimmedTitle) return;
 
     runListAnimation();
+    const interval = resetInterval === "none" ? undefined : resetInterval;
+
     const taskId = initialTask
       ? updateTask(initialTask.id, {
           title: trimmedTitle,
           description,
           categoryId: selectedCategoryId,
+          resetInterval: interval,
         })
       : addTask({
           title: trimmedTitle,
           description,
           categoryId: selectedCategoryId,
+          resetInterval: interval,
         });
 
     if (taskId) {
@@ -146,10 +150,7 @@ export function TaskFormModal({
           <BlurView
             intensity={25}
             tint="dark"
-            style={[
-              StyleSheet.absoluteFill,
-              { backgroundColor: "rgba(0, 0, 0, 0.4)" },
-            ]}
+            style={[StyleSheet.absoluteFill, { backgroundColor: "rgba(0, 0, 0, 0.4)" }]}
           >
             <Pressable style={StyleSheet.absoluteFill} onPress={onClose} />
           </BlurView>
@@ -157,10 +158,7 @@ export function TaskFormModal({
 
         <KeyboardAvoidingView
           behavior={Platform.OS === "ios" ? "padding" : "height"}
-          style={[
-            styles.modalWrapper,
-            isAndroid && styles.modalWrapperCentered,
-          ]}
+          style={[styles.modalWrapper, isAndroid && styles.modalWrapperCentered]}
         >
           <Animated.View
             entering={SlideInDown.duration(400)}
@@ -185,19 +183,14 @@ export function TaskFormModal({
               bounces={false}
               contentContainerStyle={styles.sheetScrollContent}
             >
-              <View
-                style={[styles.handle, { backgroundColor: colors.border }]}
-              />
+              <View style={[styles.handle, { backgroundColor: colors.border }]} />
               <View style={styles.header}>
                 <Text style={[styles.title, { color: colors.text }]}>
                   {isEditing ? "Edit Task" : "New Task"}
                 </Text>
                 <Pressable
                   onPress={onClose}
-                  style={[
-                    styles.closeButton,
-                    { backgroundColor: colors.surfaceMuted },
-                  ]}
+                  style={[styles.closeButton, { backgroundColor: colors.surfaceMuted }]}
                 >
                   <Ionicons name="close" size={18} color={colors.textSoft} />
                 </Pressable>
@@ -205,40 +198,24 @@ export function TaskFormModal({
 
               <View style={styles.form}>
                 <View style={styles.formField}>
-                  <Text style={[styles.label, { color: colors.textSoft }]}>
-                    Title
-                  </Text>
+                  <Text style={[styles.label, { color: colors.textSoft }]}>Title</Text>
                   <TextInput
                     autoFocus
                     onChangeText={setTitle}
                     placeholder="What needs to be done?"
                     placeholderTextColor="#64748B"
-                    style={[
-                      styles.input,
-                      {
-                        backgroundColor: colors.surface,
-                        borderColor: colors.border,
-                        color: colors.text,
-                      },
-                    ]}
+                    style={[styles.input, { backgroundColor: colors.surface, borderColor: colors.border, color: colors.text }]}
                     value={title}
                   />
                 </View>
 
                 <View style={styles.formField}>
-                  <Text style={[styles.label, { color: colors.textSoft }]}>
-                    Description
-                  </Text>
+                  <Text style={[styles.label, { color: colors.textSoft }]}>Description</Text>
                   <TextInput
                     multiline
                     onChangeText={setDescription}
                     onContentSizeChange={(e) =>
-                      setDescriptionHeight(
-                        Math.max(
-                          MIN_FIELD_HEIGHT,
-                          Math.min(150, e.nativeEvent.contentSize.height),
-                        ),
-                      )
+                      setDescriptionHeight(Math.max(MIN_FIELD_HEIGHT, Math.min(150, e.nativeEvent.contentSize.height)))
                     }
                     placeholder="Optional details"
                     placeholderTextColor="#64748B"
@@ -258,87 +235,71 @@ export function TaskFormModal({
                 </View>
 
                 <View style={styles.formField}>
-                  <Text style={[styles.label, { color: colors.textSoft }]}>
-                    Category
-                  </Text>
+                  <Text style={[styles.label, { color: colors.textSoft }]}>Category</Text>
                   <Pressable
                     onPress={() => setCategorySheetVisible(true)}
-                    style={[
-                      styles.pickerRow,
-                      {
-                        backgroundColor: colors.surface,
-                        borderColor: colors.border,
-                      },
-                    ]}
+                    style={[styles.pickerRow, { backgroundColor: colors.surface, borderColor: colors.border }]}
                   >
                     <View style={styles.pickerValue}>
                       {selectedCategory ? (
-                        <View
-                          style={[
-                            styles.pickerDot,
-                            { backgroundColor: selectedCategory.color },
-                          ]}
-                        />
+                        <View style={[styles.pickerDot, { backgroundColor: selectedCategory.color }]} />
                       ) : (
-                        <View
-                          style={[
-                            styles.pickerDot,
-                            {
-                              backgroundColor: colors.surfaceMuted,
-                              borderColor: colors.border,
-                              borderWidth: 1,
-                            },
-                          ]}
-                        />
+                        <View style={[styles.pickerDot, { backgroundColor: colors.surfaceMuted, borderColor: colors.border, borderWidth: 1 }]} />
                       )}
                       <Text style={[styles.pickerText, { color: colors.text }]}>
                         {selectedCategory?.name ?? "None"}
                       </Text>
                     </View>
-                    <Ionicons
-                      name="chevron-forward"
-                      size={18}
-                      color={colors.textMuted}
-                    />
+                    <Ionicons name="chevron-forward" size={18} color={colors.textMuted} />
                   </Pressable>
+                </View>
+
+                {/* Repeat Interval */}
+                <View style={styles.formField}>
+                  <Text style={[styles.label, { color: colors.textSoft }]}>Repeat</Text>
+                  <View style={styles.repeatRow}>
+                    {REPEAT_OPTIONS.map((opt) => {
+                      const isSelected = resetInterval === opt.value;
+                      return (
+                        <Pressable
+                          key={opt.value}
+                          onPress={() => setResetInterval(opt.value)}
+                          style={[
+                            styles.repeatChip,
+                            {
+                              backgroundColor: isSelected ? colors.accent : colors.surface,
+                              borderColor: isSelected ? colors.accent : colors.border,
+                            },
+                          ]}
+                        >
+                          <Text
+                            style={[
+                              styles.repeatChipText,
+                              { color: isSelected ? (colors.isLight ? "#0F172A" : "#F8FAFC") : colors.textSoft },
+                            ]}
+                          >
+                            {opt.label}
+                          </Text>
+                        </Pressable>
+                      );
+                    })}
+                  </View>
                 </View>
               </View>
 
               <View style={styles.footer}>
                 <Pressable
                   onPress={onClose}
-                  style={[
-                    styles.secondaryButton,
-                    {
-                      backgroundColor: colors.surface,
-                      borderColor: colors.border,
-                    },
-                  ]}
+                  style={[styles.secondaryButton, { backgroundColor: colors.surface, borderColor: colors.border }]}
                 >
-                  <Text
-                    style={[
-                      styles.secondaryButtonText,
-                      { color: colors.textSoft },
-                    ]}
-                  >
-                    Cancel
-                  </Text>
+                  <Text style={[styles.secondaryButtonText, { color: colors.textSoft }]}>Cancel</Text>
                 </Pressable>
                 <Pressable
                   disabled={!trimmedTitle}
                   onPress={handleSave}
-                  style={[
-                    styles.primaryButton,
-                    { backgroundColor: colors.accent },
-                    !trimmedTitle && styles.disabledButton,
-                  ]}
+                  style={[styles.primaryButton, { backgroundColor: colors.accent }, !trimmedTitle && styles.disabledButton]}
                 >
-                  <Text
-                    style={[
-                      styles.primaryButtonText,
-                      { color: colors.isLight ? "#0F172A" : "#F8FAFC" },
-                    ]}
-                  >
+                  <Text style={[styles.primaryButtonText, { color: colors.isLight ? "#0F172A" : "#F8FAFC" }]}>
                     {isEditing ? "Update" : "Save"}
                   </Text>
                 </Pressable>
@@ -459,6 +420,21 @@ const styles = StyleSheet.create({
   pickerText: {
     fontFamily: AppFonts.medium,
     fontSize: 16,
+  },
+  repeatRow: {
+    flexDirection: "row",
+    flexWrap: "wrap",
+    gap: 8,
+  },
+  repeatChip: {
+    borderRadius: 12,
+    borderWidth: 1,
+    paddingHorizontal: 14,
+    paddingVertical: 9,
+  },
+  repeatChipText: {
+    fontFamily: AppFonts.semibold,
+    fontSize: 13,
   },
   footer: {
     flexDirection: "row",

@@ -36,6 +36,8 @@ export type Task = {
   status: TaskStatus;
   createdAt: string;
   orderIndex?: number;
+  resetInterval?: ResetInterval;
+  lastResetAt?: string;
 };
 
 export type Settings = {
