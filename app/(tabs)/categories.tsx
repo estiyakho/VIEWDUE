@@ -139,7 +139,10 @@ export default function CategoriesScreen() {
   const reorderCategories = useTaskStore((state) => state.reorderCategories);
 
   const categorySummaries = useMemo(() => {
-    return categories.map((category) => {
+    // Safety check: Remove any duplicate IDs that might exist in the store
+    const uniqueCategories = Array.from(new Map(categories.map(c => [c.id, c])).values());
+
+    return uniqueCategories.map((category) => {
       const relatedTasks = tasks.filter((task) => task.categoryId === category.id && task.status !== 'not-available');
       const completed = relatedTasks.filter((task) => task.status === 'done').length;
       const progress = relatedTasks.length ? Math.round((completed / relatedTasks.length) * 100) : 0;

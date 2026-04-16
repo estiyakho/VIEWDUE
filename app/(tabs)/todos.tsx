@@ -273,7 +273,7 @@ export default function TodosScreen() {
             >
               <Text style={[styles.chipText, { color: selectedCategoryId === "all" ? (colors.isLight ? '#0F172A' : '#F8FAFC') : colors.textSoft }]}>All</Text>
             </Pressable>
-            {categories.filter((c) => !c.isArchived).map((category) => {
+            {Array.from(new Map(categories.map(c => [c.id, c])).values()).filter((c) => !c.isArchived).map((category) => {
               const active = selectedCategoryId === category.id;
               return (
                 <Pressable

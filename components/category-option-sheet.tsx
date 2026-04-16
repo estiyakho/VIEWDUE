@@ -72,7 +72,7 @@ export function CategoryOptionSheet({
               </View>
             </Pressable>
 
-            {categories.map((cat) => {
+            {Array.from(new Map(categories.map(c => [c.id, c])).values()).map((cat) => {
               const selected = cat.id === selectedValue;
               return (
                 <Pressable
