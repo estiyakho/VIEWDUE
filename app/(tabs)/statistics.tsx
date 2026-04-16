@@ -32,7 +32,7 @@ function StatBox({
       ]}
     >
       <View style={[styles.statIconWrap, { backgroundColor: `${tint}22` }]}>
-        <Ionicons color={tint} name={icon} size={18} />
+        <Ionicons color={tint} name={icon} size={22} />
       </View>
       <Text style={[styles.statValue, { color: colors.text }]}>{value}</Text>
       <Text style={[styles.statLabel, { color: colors.textMuted }]}>
@@ -149,6 +149,7 @@ export default function StatisticsScreen() {
   }, [taskHistory, tasks, categories]);
 
   const currentSelectedTaskIdentity = selectedTaskTitle || availableHistoryTasks[0]?.value;
+  const currentTaskColor = availableHistoryTasks.find(t => t.value === currentSelectedTaskIdentity)?.color || accent;
 
   const [totalDone, weeklyDoneTotal, weeklyRemaining] = useMemo(() => {
     if (!currentSelectedTaskIdentity) return [0, 0, 0];
@@ -344,8 +345,13 @@ export default function StatisticsScreen() {
             </View>
           </View>
 
-          <View style={[styles.chartCard, { backgroundColor: colors.surfaceElevated, borderColor: colors.border }]}>
-            <Text style={[styles.chartTitle, { color: colors.text }]}>{historyViewMode === "weekly" ? "Week View" : "Month View"}</Text>
+          <View style={[styles.chartCard, { backgroundColor: colors.surfaceElevated, borderColor: currentTaskColor, borderWidth: 1.5 }]}>
+            <View style={styles.headerWithIcon}>
+              <View style={[styles.inlineDot, { backgroundColor: currentTaskColor, width: 4, height: 16, borderRadius: 2 }]} />
+              <Text style={[styles.chartTitle, { color: colors.text, marginBottom: 0 }]}>
+                {historyViewMode === "weekly" ? "Week View" : "Month View"}
+              </Text>
+            </View>
             {currentSelectedTaskIdentity ? (
               <ScrollView horizontal showsHorizontalScrollIndicator={false} style={styles.horizontalChart}>
                 <View style={[styles.chartArea, { minWidth: historyViewMode === "weekly" ? '100.1%' : 800, height: 120, alignItems: 'flex-end' }]}>
@@ -380,9 +386,12 @@ export default function StatisticsScreen() {
           </View>
         </View>
 
-        <View style={[styles.chartCard, { backgroundColor: colors.surfaceElevated, borderColor: colors.border, marginBottom: 20 }]}>
+        <View style={[styles.chartCard, { backgroundColor: colors.surfaceElevated, borderColor: currentTaskColor, borderWidth: 1.5, marginBottom: 20 }]}>
           <View style={styles.historyHeader}>
-            <Text style={[styles.chartTitle, { color: colors.text, marginBottom: 0 }]}>Snap Shot</Text>
+            <View style={styles.headerWithIcon}>
+              <View style={[styles.inlineDot, { backgroundColor: currentTaskColor, width: 4, height: 16, borderRadius: 2 }]} />
+              <Text style={[styles.chartTitle, { color: colors.text, marginBottom: 0 }]}>Snap Shot</Text>
+            </View>
 
             <View style={styles.navRow}>
               <Pressable onPress={handlePrevMonth} style={styles.navBtn}>
@@ -494,16 +503,23 @@ export default function StatisticsScreen() {
           </View>
         </View>
 
-        <View style={styles.sectionWrap}>
-          <View style={styles.rowTwo}>
-            <StatBox
-              icon="calendar-outline"
-              label="Done Weekly"
-              value={String(weeklyDoneTotal)}
-              tint={colors.accent}
-              colors={colors}
-            />
+        <View style={[styles.chartCard, { backgroundColor: colors.surfaceElevated, borderColor: currentTaskColor, borderWidth: 1.5, marginBottom: 24 }]}>
+          <View style={styles.wideCardContent}>
+            <View style={[styles.wideCardIconWrap, { backgroundColor: `${currentTaskColor}22` }]}>
+              <Ionicons name="flash" size={24} color={currentTaskColor} />
+            </View>
+            <View style={{ flex: 1 }}>
+              <Text style={[styles.wideCardLabel, { color: colors.textSoft }]}>Weekly Momentum</Text>
+              <Text style={[styles.wideCardValue, { color: colors.text }]}>{weeklyDoneTotal} Completed</Text>
+            </View>
           </View>
+        </View>
+
+        {/* Global Separator */}
+        <View style={styles.globalSeparator}>
+          <View style={[styles.separatorStrip, { backgroundColor: currentTaskColor }]} />
+          <Text style={[styles.separatorText, { color: colors.textSoft }]}>GLOBAL OVERVIEW</Text>
+          <View style={[styles.separatorStrip, { backgroundColor: currentTaskColor }]} />
         </View>
 
         <View style={styles.sectionWrap}>
@@ -584,31 +600,78 @@ const styles = StyleSheet.create({
     flexWrap: "wrap",
     gap: 10,
     marginBottom: 14,
+    justifyContent: 'space-between',
   },
   statBox: {
-    borderRadius: 18,
+    borderRadius: 16,
     borderWidth: 1,
-    flex: 1,
-    minHeight: 90,
-    minWidth: 100,
-    padding: 12,
+    width: '48.5%',
+    aspectRatio: 1.2,
+    padding: 10,
+    justifyContent: 'center',
+    alignItems: 'center',
   },
   statIconWrap: {
     alignItems: "center",
-    borderRadius: 10,
-    height: 28,
+    borderRadius: 12,
+    height: 32,
+    width: 32,
     justifyContent: "center",
-    marginBottom: 8,
-    width: 28,
+    marginBottom: 6,
   },
   statValue: {
     fontFamily: AppFonts.bold,
-    fontSize: 24,
+    fontSize: 20,
     marginBottom: 2,
   },
   statLabel: {
-    fontFamily: AppFonts.medium,
-    fontSize: 13,
+    fontFamily: AppFonts.semibold,
+    fontSize: 11,
+    textAlign: 'center',
+  },
+  wideCardContent: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 16,
+  },
+  wideCardIconWrap: {
+    width: 48,
+    height: 48,
+    borderRadius: 14,
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  wideCardLabel: {
+    fontFamily: AppFonts.semibold,
+    fontSize: 12,
+    marginBottom: 2,
+  },
+  wideCardValue: {
+    fontFamily: AppFonts.bold,
+    fontSize: 20,
+  },
+  headerWithIcon: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 8,
+  },
+  globalSeparator: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 12,
+    marginBottom: 24,
+    marginTop: 8,
+  },
+  separatorStrip: {
+    flex: 1,
+    height: 2,
+    borderRadius: 1,
+    opacity: 0.3,
+  },
+  separatorText: {
+    fontFamily: AppFonts.bold,
+    fontSize: 10,
+    letterSpacing: 1,
   },
   sectionWrap: {
     marginBottom: 14,
@@ -714,18 +777,18 @@ const styles = StyleSheet.create({
   snapshotDayText: {
     fontFamily: AppFonts.bold,
     fontSize: 10,
-    width: 32,
+    width: 42,
     textAlign: 'center',
   },
   snapshotGrid: {
     flexDirection: 'row',
     flexWrap: 'wrap',
-    gap: 8,
+    gap: 6,
     justifyContent: 'space-between',
   },
   snapshotBlock: {
-    width: 38,
-    height: 38,
+    width: 42,
+    height: 42,
     borderRadius: 10,
     justifyContent: 'center',
     alignItems: 'center',
