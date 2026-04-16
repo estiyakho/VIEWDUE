@@ -1,6 +1,7 @@
 import { Alert, Pressable, ScrollView, StyleSheet, Switch, Text, View } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { Ionicons } from '@expo/vector-icons';
+import { useRouter } from 'expo-router';
 import { ReactNode, useState, Children, isValidElement, cloneElement } from 'react';
 
 import { ColorOptionSheet } from '@/components/color-option-sheet';
@@ -27,6 +28,7 @@ type SheetKey =
   | 'snoozeDuration'
   | 'defaultScreen'
   | 'language'
+  | 'storedItems'
   | 'resetNow';
 
 type RowTone = 'default' | 'danger';
@@ -167,10 +169,18 @@ function Section({ title, children }: { title: string; children: ReactNode }) {
 }
 
 export default function SettingsScreen() {
+  const router = useRouter();
   const colors = useAppTheme();
   const insets = useSafeAreaInsets();
   const tasksCount = useTaskStore((state) => state.tasks.length);
-  const categoriesCount = useTaskStore((state) => state.categories.length);
+  const historyCount = useTaskStore((state) => state.taskHistory.length);
+  const scheduledCount = useTaskStore((state) => state.scheduledTasks.length);
+  const categories = useTaskStore((state) => state.categories);
+  const activeCategoriesCount = categories.filter(c => !c.isArchived).length;
+  const archivedCategoriesCount = categories.filter(c => c.isArchived).length;
+
+  const totalItemsCount = tasksCount + historyCount + scheduledCount + categories.length;
+
   const settings = useTaskStore((state) => state.settings);
   const updateSettings = useTaskStore((state) => state.updateSettings);
   const resetData = useTaskStore((state) => state.resetData);
@@ -253,9 +263,9 @@ export default function SettingsScreen() {
         <Section title="Data Management">
           <Row 
             label="Stored Items" 
-            value={`${tasksCount + categoriesCount}`}
+            value={`${totalItemsCount}`}
             iconName="archive-outline"
-            onPress={() => {}} // No-op row for consistency
+            onPress={() => openSheet('storedItems')}
           />
           <Row label="Reset Now" value="" onPress={() => openSheet('resetNow')} iconName="trash-outline" tone="danger" />
         </Section>
@@ -268,6 +278,22 @@ export default function SettingsScreen() {
       <SettingsOptionSheet visible={activeSheet === 'snoozeDuration'} title="Snooze Duration" iconName="alarm-outline" options={SNOOZE_DURATIONS} selectedValue={settings.snoozeDuration} onClose={closeSheet} onSelect={(value) => updateSettings({ snoozeDuration: value })} />
       <SettingsOptionSheet visible={activeSheet === 'defaultScreen'} title="Default Screen" iconName="layers-outline" options={DEFAULT_SCREENS} selectedValue={settings.defaultScreen} onClose={closeSheet} onSelect={(value) => updateSettings({ defaultScreen: value })} />
       <SettingsOptionSheet visible={activeSheet === 'language'} title="Language" iconName="language-outline" options={LANGUAGES} selectedValue={settings.language} onClose={closeSheet} onSelect={(value) => updateSettings({ language: value })} />
+      <SettingsOptionSheet 
+        visible={activeSheet === 'storedItems'} 
+        title="Stored Items" 
+        iconName="archive-outline" 
+        options={[
+          { label: `Active Tasks: ${tasksCount}`, value: 'todos' as any },
+          { label: `Historical Logs: ${historyCount}`, value: 'statistics' as any },
+          { label: `Reminders: ${scheduledCount}`, value: 'calendar' as any },
+          { label: `Categories: ${activeCategoriesCount}`, value: 'categories' as any },
+          { label: `Archived: ${archivedCategoriesCount}`, value: 'categories' as any },
+        ]} 
+        onClose={closeSheet} 
+        onSelect={(val) => {
+          router.push(`/(tabs)/${val}` as any);
+        }} 
+      />
       <SettingsOptionSheet visible={activeSheet === 'resetNow'} title="Reset Now" iconName="trash-outline" options={RESET_ACTIONS} tone="danger" onClose={closeSheet} onSelect={handleResetSelection} />
 
       <ModernConfirmationModal
