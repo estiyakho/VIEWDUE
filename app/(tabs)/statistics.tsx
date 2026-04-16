@@ -7,9 +7,9 @@ import { SettingsOptionSheet } from "@/components/settings-option-sheet";
 import { AppFonts } from "@/constants/fonts";
 import { useAppTheme } from "@/hooks/use-app-theme";
 import { useTaskStore } from "@/store/use-task-store";
+import { TaskStatus } from "@/types/task";
 import { getMonthGrid, getWeekdayLabels } from "@/utils/calendar";
 import { getHistoryDateString } from "@/utils/date-utils";
-import { TaskStatus } from "@/types/task";
 
 function StatBox({
   icon,
@@ -89,7 +89,7 @@ export default function StatisticsScreen() {
       startStr = getHistoryDateString(startDate);
     } else {
       // For "all", we start from the beginning of recorded history
-      startStr = "0000-00-00"; 
+      startStr = "0000-00-00";
     }
 
     let done = 0;
@@ -98,7 +98,7 @@ export default function StatisticsScreen() {
 
     // 1. Aggregate ALL historical stats in range (including tasks that may have been deleted)
     const historyInRange = taskHistory.filter(h => h.date >= startStr && h.date < todayStr);
-    
+
     done += historyInRange.filter(h => h.status === 'done').length;
     missed += historyInRange.filter(h => h.status === 'todo').length;
     na += historyInRange.filter(h => h.status === 'not-available').length;
@@ -254,8 +254,8 @@ export default function StatisticsScreen() {
     const activeTask = tasks.find(t => t.title === title && (t.categoryId || "") === categoryId);
     const creationDate = activeTask ? getHistoryDateString(new Date(activeTask.createdAt)) : todayStr;
     const historyForTask = taskHistory.filter(h => h.title === title && (h.categoryId || "") === categoryId);
-    const oldestHistory = historyForTask.length > 0 
-      ? historyForTask.sort((a, b) => a.date.localeCompare(b.date))[0].date 
+    const oldestHistory = historyForTask.length > 0
+      ? historyForTask.sort((a, b) => a.date.localeCompare(b.date))[0].date
       : creationDate;
     const taskStart = creationDate < oldestHistory ? creationDate : oldestHistory;
 
@@ -388,7 +388,7 @@ export default function StatisticsScreen() {
           </View>
         </View>
 
-        <View style={[styles.chartCard, { backgroundColor: colors.surfaceElevated, borderColor: currentTaskColor, borderWidth: 2, marginBottom: 20 }]}>
+        <View style={[styles.chartCard, { backgroundColor: colors.surfaceElevated, borderColor: currentTaskColor, borderWidth: 2 }]}>
           <View style={styles.historyHeader}>
             <View style={styles.headerWithIcon}>
               <View style={[styles.inlineDot, { backgroundColor: currentTaskColor, width: 4, height: 16, borderRadius: 2 }]} />
@@ -426,11 +426,11 @@ export default function StatisticsScreen() {
               {filteredSnapshotData.map((item: any) => {
                 const identity = availableHistoryTasks.find(t => t.value === currentSelectedTaskIdentity);
                 const categoryColor = identity?.color || accent;
-                
+
                 const isDone = item.status === 'done';
                 const isNA = item.status === 'not-available';
                 const isPast = !item.isFuture && !item.isToday;
-                
+
                 let backgroundColor = 'transparent';
                 let borderColor = colors.surfaceMuted;
                 let opacity = 1;
@@ -471,10 +471,10 @@ export default function StatisticsScreen() {
                       }
                     ]}
                   >
-                    <Text 
+                    <Text
                       style={[
-                        styles.snapshotDayNum, 
-                        { 
+                        styles.snapshotDayNum,
+                        {
                           color: isDone ? (colors.isLight ? '#fff' : '#000') : colors.textSoft,
                           opacity: item.isCurrentMonth ? 1 : 0.5
                         }
@@ -505,7 +505,7 @@ export default function StatisticsScreen() {
           </View>
         </View>
 
-        <View style={[styles.chartCard, { backgroundColor: colors.surfaceElevated, borderColor: currentTaskColor, borderWidth: 2, marginBottom: 24 }]}>
+        <View style={[styles.chartCard, { backgroundColor: colors.surfaceElevated, borderColor: currentTaskColor, borderWidth: 2 }]}>
           <View style={styles.wideCardContent}>
             <View style={[styles.wideCardIconWrap, { backgroundColor: `${currentTaskColor}22` }]}>
               <Ionicons name="flash" size={24} color={currentTaskColor} />
@@ -600,8 +600,8 @@ const styles = StyleSheet.create({
   statsGrid: {
     flexDirection: "row",
     flexWrap: "wrap",
-    gap: 6,
-    marginBottom: 8,
+    gap: 10,
+    marginBottom: 10,
     justifyContent: 'space-between',
   },
   statBox: {
@@ -662,7 +662,7 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     gap: 12,
     marginBottom: 12,
-    marginTop: 4,
+    marginTop: 12,
   },
   separatorStrip: {
     flex: 1,
@@ -720,13 +720,13 @@ const styles = StyleSheet.create({
     fontSize: 11,
   },
   historySection: {
-    marginBottom: 12,
+    marginBottom: 0,
   },
   historyHeader: {
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'space-between',
-    marginBottom: 8,
+    marginBottom: 14,
     gap: 12,
   },
   taskSelector: {
@@ -846,7 +846,7 @@ const styles = StyleSheet.create({
   chartCard: {
     borderRadius: 22,
     borderWidth: 2,
-    marginBottom: 8,
+    marginBottom: 10,
     padding: 8,
   },
   chartTitle: {
