@@ -151,7 +151,7 @@ export default function StatisticsScreen() {
   const currentSelectedTaskIdentity = selectedTaskTitle || availableHistoryTasks[0]?.value;
   const currentTaskColor = availableHistoryTasks.find(t => t.value === currentSelectedTaskIdentity)?.color || accent;
 
-  const [totalDone, weeklyDoneTotal, weeklyRemaining] = useMemo(() => {
+  const weeklyStats = useMemo(() => {
     if (!currentSelectedTaskIdentity) return [0, 0, 0];
     const [title, categoryId] = currentSelectedTaskIdentity.split("|");
 
@@ -164,7 +164,7 @@ export default function StatisticsScreen() {
     const currentDone = activeTask?.status === 'done' ? 1 : 0;
     const total = historyDone + currentDone;
 
-    // 2. Weekly Remaining
+    // 2. Weekly Consistency calculation
     const now = new Date();
     const dayNames = ['sunday', 'monday', 'tuesday', 'wednesday', 'thursday', 'friday', 'saturday'];
     const firstDayIndex = dayNames.indexOf(firstDayOfWeek);
@@ -185,8 +185,10 @@ export default function StatisticsScreen() {
     let goal = 1;
     if (interval === 'daily') goal = 7;
 
-    return [total, weeklyDoneTotal, Math.max(0, goal - weeklyDoneTotal)];
+    return [total, weeklyDoneTotal, goal];
   }, [currentSelectedTaskIdentity, taskHistory, tasks, firstDayOfWeek]);
+
+  const [totalDone, weeklyDoneTotal, weeklyGoal] = weeklyStats;
 
 
   const historyChartData = useMemo(() => {
@@ -509,8 +511,8 @@ export default function StatisticsScreen() {
               <Ionicons name="flash" size={24} color={currentTaskColor} />
             </View>
             <View style={{ flex: 1 }}>
-              <Text style={[styles.wideCardLabel, { color: colors.textSoft }]}>Weekly Momentum</Text>
-              <Text style={[styles.wideCardValue, { color: colors.text }]}>{weeklyDoneTotal} Completed</Text>
+              <Text style={[styles.wideCardLabel, { color: colors.textSoft }]}>Weekly Completed</Text>
+              <Text style={[styles.wideCardValue, { color: colors.text }]}>{weeklyDoneTotal} Times</Text>
             </View>
           </View>
         </View>
@@ -594,20 +596,20 @@ export default function StatisticsScreen() {
 
 const styles = StyleSheet.create({
   safeArea: { flex: 1 },
-  container: { paddingBottom: 28, paddingHorizontal: 14, paddingTop: 10 },
+  container: { paddingBottom: 16, paddingHorizontal: 14, paddingTop: 6 },
   statsGrid: {
     flexDirection: "row",
     flexWrap: "wrap",
-    gap: 10,
-    marginBottom: 14,
+    gap: 6,
+    marginBottom: 8,
     justifyContent: 'space-between',
   },
   statBox: {
     borderRadius: 16,
     borderWidth: 1,
     width: '48.5%',
-    aspectRatio: 1.2,
-    padding: 10,
+    aspectRatio: 1.25,
+    padding: 6,
     justifyContent: 'center',
     alignItems: 'center',
   },
@@ -617,7 +619,7 @@ const styles = StyleSheet.create({
     height: 32,
     width: 32,
     justifyContent: "center",
-    marginBottom: 6,
+    marginBottom: 4,
   },
   statValue: {
     fontFamily: AppFonts.bold,
@@ -632,7 +634,7 @@ const styles = StyleSheet.create({
   wideCardContent: {
     flexDirection: 'row',
     alignItems: 'center',
-    gap: 16,
+    gap: 10,
   },
   wideCardIconWrap: {
     width: 48,
@@ -659,8 +661,8 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     gap: 12,
-    marginBottom: 24,
-    marginTop: 8,
+    marginBottom: 12,
+    marginTop: 4,
   },
   separatorStrip: {
     flex: 1,
@@ -674,12 +676,12 @@ const styles = StyleSheet.create({
     letterSpacing: 1,
   },
   sectionWrap: {
-    marginBottom: 14,
+    marginBottom: 8,
   },
   sectionTitle: {
     fontFamily: AppFonts.bold,
-    fontSize: 22,
-    marginBottom: 10,
+    fontSize: 20,
+    marginBottom: 6,
   },
   histDate: {
     fontFamily: AppFonts.bold,
@@ -695,13 +697,13 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'space-between',
-    marginBottom: 16,
+    marginBottom: 8,
   },
   sectionHeader: {
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'space-between',
-    marginBottom: 14,
+    marginBottom: 8,
   },
   periodToggle: {
     flexDirection: 'row',
@@ -718,13 +720,13 @@ const styles = StyleSheet.create({
     fontSize: 11,
   },
   historySection: {
-    marginBottom: 20,
+    marginBottom: 12,
   },
   historyHeader: {
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'space-between',
-    marginBottom: 12,
+    marginBottom: 8,
     gap: 12,
   },
   taskSelector: {
@@ -801,9 +803,9 @@ const styles = StyleSheet.create({
   legendRow: {
     flexDirection: 'row',
     justifyContent: 'center',
-    gap: 16,
-    marginTop: 18,
-    paddingTop: 16,
+    gap: 12,
+    marginTop: 10,
+    paddingTop: 10,
     borderTopWidth: 1,
     borderTopColor: 'rgba(0,0,0,0.05)',
   },
@@ -835,7 +837,7 @@ const styles = StyleSheet.create({
     flexDirection: "row",
     gap: 8,
     justifyContent: "center",
-    minHeight: 54,
+    minHeight: 48,
   },
   miniValue: {
     fontFamily: AppFonts.semibold,
@@ -844,8 +846,8 @@ const styles = StyleSheet.create({
   chartCard: {
     borderRadius: 22,
     borderWidth: 2,
-    marginBottom: 14,
-    padding: 14,
+    marginBottom: 8,
+    padding: 8,
   },
   chartTitle: {
     fontFamily: AppFonts.bold,
@@ -855,7 +857,7 @@ const styles = StyleSheet.create({
   chartArea: {
     alignItems: "flex-end",
     flexDirection: "row",
-    height: 180,
+    height: 140,
     justifyContent: "space-between",
   },
   barWrap: {
@@ -864,7 +866,7 @@ const styles = StyleSheet.create({
   },
   barTrack: {
     borderRadius: 999,
-    height: 126,
+    height: 100,
     justifyContent: "flex-end",
     overflow: "hidden",
     width: 18,

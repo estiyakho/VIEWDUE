@@ -161,7 +161,7 @@ export default function TodosScreen() {
 
   const renderTask = useCallback(
     ({ item, drag, isActive }: RenderItemParams<Task>) => (
-      <View style={{ paddingBottom: 12 }}>
+      <View style={{ paddingBottom: 8 }}>
         <VerticalScaleDecorator activeScale={1.03}>
           <TaskItem
             task={item}

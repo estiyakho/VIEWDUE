@@ -657,7 +657,7 @@ export default function CalendarScreen() {
               </View>
             )
           ) : dayTodos.length ? (
-            <View style={{ gap: 12 }}>
+            <View style={{ gap: 8 }}>
               {dayTodos.map((todo) => (
                 <TaskItem
                   key={todo.id}
@@ -1237,7 +1237,7 @@ const styles = StyleSheet.create({
   todoCard: {
     borderRadius: 18,
     borderWidth: 1,
-    marginBottom: 12,
+    marginBottom: 8,
     padding: 14,
   },
   todoHeader: {
