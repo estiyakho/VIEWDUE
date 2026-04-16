@@ -25,6 +25,7 @@ import Animated, {
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 
 import { FloatingActionButton } from "@/components/floating-action-button";
+import { TaskFormModal } from "@/components/task-form-modal";
 import { TaskItem } from "@/components/task-item";
 import { AppFonts } from "@/constants/fonts";
 import { useAppTheme } from "@/hooks/use-app-theme";
@@ -32,6 +33,7 @@ import { useTaskStore } from "@/store/use-task-store";
 import { getMonthGrid, getWeekdayLabels } from "@/utils/calendar";
 import { formatMonthLabel, toDayKey } from "@/utils/date";
 import { useCallback } from "react";
+import { Task, TaskStatus } from "@/types/task";
 
 const GRID_COLUMNS = 7;
 const GRID_GAP = 6;
@@ -70,6 +72,7 @@ export default function CalendarScreen() {
   const [showAll, setShowAll] = useState(false);
   const [showAddModal, setShowAddModal] = useState(false);
   const [editingScheduledTask, setEditingScheduledTask] = useState<any>(null);
+  const [editingTask, setEditingTask] = useState<Task | undefined>(undefined);
   const [isCollapsed, setIsCollapsed] = useState(false);
   const [title, setTitle] = useState("");
   const [description, setDescription] = useState("");
@@ -673,9 +676,9 @@ export default function CalendarScreen() {
                       ? setTaskNotAvailable
                       : () => setTaskHistoryNotAvailableForDate(todo.id, selectedDay)
                   }
+                  onEdit={(t) => setEditingTask(t)}
                   onDelete={() => {}}
                   hideDelete={true}
-                  hideEdit={true}
                 />
               ))}
             </View>
@@ -708,6 +711,12 @@ export default function CalendarScreen() {
             resetForm();
             setShowAddModal(true);
           }}
+        />
+
+        <TaskFormModal
+          visible={!!editingTask}
+          initialTask={editingTask}
+          onClose={() => setEditingTask(undefined)}
         />
       </View>
 

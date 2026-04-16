@@ -259,7 +259,7 @@ export const useTaskStore = create<TaskStore>()(
           const task = state.tasks.find((t) => t.id === id);
           if (!task) return state;
 
-          const newStatus = (task.status === "todo" ? "done" : "todo") as TaskStatus;
+          const newStatus = (task.status === "done" ? "todo" : "done") as TaskStatus;
           const newTasks = state.tasks.map((t) =>
             t.id === id ? { ...t, status: newStatus } : t
           );
@@ -339,11 +339,11 @@ export const useTaskStore = create<TaskStore>()(
 
           if (existingIndex >= 0) {
             const entry = state.taskHistory[existingIndex];
-            const newStatus = entry.status === "todo" ? "done" : "todo";
+            const newStatus = entry.status === "done" ? "todo" : "done";
             const newHistory = [...state.taskHistory];
             newHistory[existingIndex] = {
               ...entry,
-              status: newStatus,
+              status: newStatus as TaskStatus,
               completedAt: newStatus === "done" ? nowISO : entry.completedAt,
             };
             return { ...state, taskHistory: newHistory };
