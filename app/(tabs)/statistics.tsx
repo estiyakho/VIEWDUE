@@ -345,7 +345,7 @@ export default function StatisticsScreen() {
             </View>
           </View>
 
-          <View style={[styles.chartCard, { backgroundColor: colors.surfaceElevated, borderColor: currentTaskColor, borderWidth: 1.5 }]}>
+          <View style={[styles.chartCard, { backgroundColor: colors.surfaceElevated, borderColor: currentTaskColor, borderWidth: 2 }]}>
             <View style={styles.headerWithIcon}>
               <View style={[styles.inlineDot, { backgroundColor: currentTaskColor, width: 4, height: 16, borderRadius: 2 }]} />
               <Text style={[styles.chartTitle, { color: colors.text, marginBottom: 0 }]}>
@@ -386,7 +386,7 @@ export default function StatisticsScreen() {
           </View>
         </View>
 
-        <View style={[styles.chartCard, { backgroundColor: colors.surfaceElevated, borderColor: currentTaskColor, borderWidth: 1.5, marginBottom: 20 }]}>
+        <View style={[styles.chartCard, { backgroundColor: colors.surfaceElevated, borderColor: currentTaskColor, borderWidth: 2, marginBottom: 20 }]}>
           <View style={styles.historyHeader}>
             <View style={styles.headerWithIcon}>
               <View style={[styles.inlineDot, { backgroundColor: currentTaskColor, width: 4, height: 16, borderRadius: 2 }]} />
@@ -464,7 +464,7 @@ export default function StatisticsScreen() {
                       {
                         backgroundColor,
                         borderColor,
-                        borderWidth: 1,
+                        borderWidth: 2,
                         opacity
                       }
                     ]}
@@ -503,7 +503,7 @@ export default function StatisticsScreen() {
           </View>
         </View>
 
-        <View style={[styles.chartCard, { backgroundColor: colors.surfaceElevated, borderColor: currentTaskColor, borderWidth: 1.5, marginBottom: 24 }]}>
+        <View style={[styles.chartCard, { backgroundColor: colors.surfaceElevated, borderColor: currentTaskColor, borderWidth: 2, marginBottom: 24 }]}>
           <View style={styles.wideCardContent}>
             <View style={[styles.wideCardIconWrap, { backgroundColor: `${currentTaskColor}22` }]}>
               <Ionicons name="flash" size={24} color={currentTaskColor} />
@@ -843,7 +843,7 @@ const styles = StyleSheet.create({
   },
   chartCard: {
     borderRadius: 22,
-    borderWidth: 1,
+    borderWidth: 2,
     marginBottom: 14,
     padding: 14,
   },
