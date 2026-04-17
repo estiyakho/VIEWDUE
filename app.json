@@ -2,7 +2,7 @@
   "expo": {
     "name": "Viewdue",
     "slug": "viewdue",
-    "version": "3.0.0",
+    "version": "4.0.0",
     "orientation": "portrait",
     "icon": "./assets/images/icon.png",
     "scheme": "viewdue",
@@ -12,7 +12,6 @@
       "resizeMode": "contain",
       "backgroundColor": "#000000"
     },
-
     "ios": {
       "bundleIdentifier": "com.viewdue.app",
       "supportsTablet": true
@@ -37,6 +36,7 @@
     "plugins": [
       "expo-router",
       "./plugins/with-android-build-properties",
+      "./plugins/with-apk-splits",
       "@react-native-community/datetimepicker"
     ],
     "experiments": {

@@ -25,6 +25,10 @@ module.exports = function withAndroidBuildProperties(config) {
     setGradleProperty(properties, 'android.targetSdkVersion', 35);
     setGradleProperty(properties, 'android.compileSdkVersion', 35);
 
+    // Shrinking properties
+    setGradleProperty(properties, 'android.enableProguardInReleaseBuilds', 'true');
+    setGradleProperty(properties, 'android.enableShrinkResourcesInReleaseBuilds', 'true');
+
     config.modResults = properties;
     return config;
   });
