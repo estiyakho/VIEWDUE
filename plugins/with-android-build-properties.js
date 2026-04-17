@@ -25,9 +25,9 @@ module.exports = function withAndroidBuildProperties(config) {
     setGradleProperty(properties, 'android.targetSdkVersion', 35);
     setGradleProperty(properties, 'android.compileSdkVersion', 35);
 
-    // Shrinking properties
-    setGradleProperty(properties, 'android.enableProguardInReleaseBuilds', 'true');
-    setGradleProperty(properties, 'android.enableShrinkResourcesInReleaseBuilds', 'true');
+    // Shrinking properties - must match standard React Native property names
+    setGradleProperty(properties, 'enableProguardInReleaseBuilds', 'true');
+    setGradleProperty(properties, 'enableShrinkResourcesInReleaseBuilds', 'true');
 
     config.modResults = properties;
     return config;
