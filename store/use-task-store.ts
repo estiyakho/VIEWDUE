@@ -265,24 +265,28 @@ export const useTaskStore = create<TaskStore>()(
           );
 
           let newTaskHistory = [...state.taskHistory];
-          if (newStatus === "done") {
-            const today = getHistoryDateString(new Date());
-            const alreadyLogged = state.taskHistory.some(
-              (h) => h.taskId === id && h.date === today
-            );
+          const today = getHistoryDateString(new Date());
+          const existingIndex = newTaskHistory.findIndex(
+            (h) => h.taskId === id && h.date === today
+          );
 
-            if (!alreadyLogged) {
-              const nowISO = new Date().toISOString();
-              newTaskHistory.push({
-                id: `${Date.now()}-${Math.random().toString(36).slice(2, 8)}`,
-                taskId: id,
-                title: task.title,
-                categoryId: task.categoryId,
-                status: "done",
-                date: today,
-                completedAt: nowISO,
-              });
-            }
+          if (existingIndex >= 0) {
+            newTaskHistory[existingIndex] = {
+              ...newTaskHistory[existingIndex],
+              status: newStatus,
+              completedAt: newStatus === "done" ? new Date().toISOString() : newTaskHistory[existingIndex].completedAt,
+            };
+          } else if (newStatus !== "todo") {
+            const nowISO = new Date().toISOString();
+            newTaskHistory.push({
+              id: `${Date.now()}-${Math.random().toString(36).slice(2, 8)}`,
+              taskId: id,
+              title: task.title,
+              categoryId: task.categoryId,
+              status: newStatus,
+              date: today,
+              completedAt: nowISO,
+            });
           }
 
           return { ...state, tasks: newTasks, taskHistory: newTaskHistory };
@@ -399,23 +403,27 @@ export const useTaskStore = create<TaskStore>()(
           const nextStatus = task.status === "not-available" ? "todo" : "not-available";
           
           let newTaskHistory = [...state.taskHistory];
-          if (nextStatus === "not-available") {
-            const today = getHistoryDateString(new Date());
-            const alreadyLogged = state.taskHistory.some(
-              (h) => h.taskId === id && h.date === today
-            );
+          const today = getHistoryDateString(new Date());
+          const existingIndex = newTaskHistory.findIndex(
+            (h) => h.taskId === id && h.date === today
+          );
 
-            if (!alreadyLogged) {
-              newTaskHistory.push({
-                id: `${Date.now()}-${Math.random().toString(36).slice(2, 8)}`,
-                taskId: id,
-                title: task.title,
-                categoryId: task.categoryId,
-                status: "not-available",
-                date: today,
-                completedAt: new Date().toISOString(),
-              });
-            }
+          if (existingIndex >= 0) {
+            newTaskHistory[existingIndex] = {
+              ...newTaskHistory[existingIndex],
+              status: nextStatus as TaskStatus,
+              completedAt: nextStatus === "not-available" ? new Date().toISOString() : newTaskHistory[existingIndex].completedAt,
+            };
+          } else if (nextStatus === "not-available") {
+            newTaskHistory.push({
+              id: `${Date.now()}-${Math.random().toString(36).slice(2, 8)}`,
+              taskId: id,
+              title: task.title,
+              categoryId: task.categoryId,
+              status: "not-available",
+              date: today,
+              completedAt: new Date().toISOString(),
+            });
           }
 
           return {

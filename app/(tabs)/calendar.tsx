@@ -141,6 +141,29 @@ export default function CalendarScreen() {
 
   const weekdayLabels = useMemo(() => getWeekdayLabels(firstDay), [firstDay]);
   const todayKey = useMemo(() => toDayKey(new Date()), []);
+
+  const selectedDayRef = useRef(selectedDay);
+  useEffect(() => {
+    selectedDayRef.current = selectedDay;
+  }, [selectedDay]);
+
+  const handleToggle = useCallback((id: string) => {
+    const day = selectedDayRef.current;
+    if (day === todayKey) {
+      toggleTaskStatus(id);
+    } else {
+      toggleTaskHistoryForDate(id, day);
+    }
+  }, [todayKey, toggleTaskStatus, toggleTaskHistoryForDate]);
+
+  const handleNotAvailable = useCallback((id: string) => {
+    const day = selectedDayRef.current;
+    if (day === todayKey) {
+      setTaskNotAvailable(id);
+    } else {
+      setTaskHistoryNotAvailableForDate(id, day);
+    }
+  }, [todayKey, setTaskNotAvailable, setTaskHistoryNotAvailableForDate]);
   const monthGrid = useMemo(
     () => getMonthGrid(currentMonth, firstDay),
     [currentMonth, firstDay],
@@ -666,16 +689,8 @@ export default function CalendarScreen() {
                     todo.categoryId ? categoryMap.get(todo.categoryId) : undefined
                   }
                   timeFormat={settings.timeFormat}
-                  onToggle={
-                    selectedDay === todayKey
-                      ? toggleTaskStatus
-                      : () => toggleTaskHistoryForDate(todo.id, selectedDay)
-                  }
-                  onNotAvailable={
-                    selectedDay === todayKey
-                      ? setTaskNotAvailable
-                      : () => setTaskHistoryNotAvailableForDate(todo.id, selectedDay)
-                  }
+                  onToggle={handleToggle}
+                  onNotAvailable={handleNotAvailable}
                   onEdit={(t) => setEditingTask(t)}
                   onDelete={() => {}}
                   hideDelete={true}
