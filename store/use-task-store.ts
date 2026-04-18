@@ -398,11 +398,24 @@ export const useTaskStore = create<TaskStore>()(
       toggleTaskHistoryForDate: (taskId: string, date: string) =>
         set((state) => {
           const task = state.tasks.find((t) => t.id === taskId);
-          if (!task) return state;
-
           const existingIndex = state.taskHistory.findIndex((h) => h.taskId === taskId && h.date === date);
           const nowISO = new Date().toISOString();
           const today = getHistoryDateString(new Date());
+
+          // If the task no longer exists in the active list (e.g., a completed one-off task),
+          // we can still toggle its existing history entry — we just cannot create new entries.
+          if (!task) {
+            if (existingIndex < 0) return state;
+            const entry = state.taskHistory[existingIndex];
+            const newStatus = (entry.status === "done" ? "todo" : "done") as TaskStatus;
+            const newHistory = [...state.taskHistory];
+            newHistory[existingIndex] = {
+              ...entry,
+              status: newStatus,
+              completedAt: newStatus === "done" ? nowISO : entry.completedAt,
+            };
+            return { ...state, taskHistory: newHistory };
+          }
 
           if (existingIndex >= 0) {
             const entry = state.taskHistory[existingIndex];
@@ -414,31 +427,20 @@ export const useTaskStore = create<TaskStore>()(
               completedAt: newStatus === "done" ? nowISO : entry.completedAt,
             };
 
+            // Sync active task list when operating on today
             let nextTasks = state.tasks;
             if (date === today) {
-              const activeTask = state.tasks.find(t => t.id === taskId);
-              if (activeTask) {
-                const isNoneItem = !activeTask.resetInterval || activeTask.resetInterval === 'none';
-                if (isNoneItem && newStatus === 'done') {
-                  nextTasks = state.tasks.filter(t => t.id !== taskId);
-                } else {
-                  nextTasks = state.tasks.map(t => t.id === taskId ? { ...t, status: newStatus } : t);
-                }
-              } else if (newStatus === 'todo') {
-                nextTasks = [{
-                  id: entry.taskId,
-                  title: entry.title,
-                  categoryId: entry.categoryId,
-                  status: 'todo',
-                  createdAt: entry.completedAt,
-                  resetInterval: 'none',
-                  orderIndex: Date.now(),
-                }, ...state.tasks];
+              const isNoneItem = !task.resetInterval || task.resetInterval === 'none';
+              if (isNoneItem && newStatus === 'done') {
+                nextTasks = state.tasks.filter(t => t.id !== taskId);
+              } else {
+                nextTasks = state.tasks.map(t => t.id === taskId ? { ...t, status: newStatus } : t);
               }
             }
 
             return { ...state, tasks: nextTasks, taskHistory: newHistory };
           } else {
+            // No history entry yet — create one as 'done'
             const newEntry: TaskHistoryEntry = {
               id: `${Date.now()}-${Math.random().toString(36).slice(2, 8)}`,
               taskId: task.id,
@@ -454,14 +456,27 @@ export const useTaskStore = create<TaskStore>()(
       setTaskHistoryNotAvailableForDate: (taskId: string, date: string) =>
         set((state) => {
           const task = state.tasks.find((t) => t.id === taskId);
-          if (!task) return state;
-
           const existingIndex = state.taskHistory.findIndex((h) => h.taskId === taskId && h.date === date);
           const nowISO = new Date().toISOString();
 
+          // If the task no longer exists in the active list (e.g., a completed one-off task),
+          // we can still toggle its existing history entry — we just cannot create new entries.
+          if (!task) {
+            if (existingIndex < 0) return state;
+            const entry = state.taskHistory[existingIndex];
+            const newStatus = (entry.status === "not-available" ? "todo" : "not-available") as TaskStatus;
+            const newHistory = [...state.taskHistory];
+            newHistory[existingIndex] = {
+              ...entry,
+              status: newStatus,
+              completedAt: newStatus === "not-available" ? nowISO : entry.completedAt,
+            };
+            return { ...state, taskHistory: newHistory };
+          }
+
           if (existingIndex >= 0) {
             const entry = state.taskHistory[existingIndex];
-            const newStatus = entry.status === "not-available" ? "todo" : "not-available";
+            const newStatus = (entry.status === "not-available" ? "todo" : "not-available") as TaskStatus;
             const newHistory = [...state.taskHistory];
             newHistory[existingIndex] = {
               ...entry,
@@ -470,6 +485,7 @@ export const useTaskStore = create<TaskStore>()(
             };
             return { ...state, taskHistory: newHistory };
           } else {
+            // No history entry yet — create one as 'not-available'
             const newEntry: TaskHistoryEntry = {
               id: `${Date.now()}-${Math.random().toString(36).slice(2, 8)}`,
               taskId: task.id,
@@ -761,6 +777,8 @@ export const useTaskStore = create<TaskStore>()(
             globallyResetTasks = updatedTasks.map((task) => {
               // Only apply global reset to tasks that have no per-task interval
               if (task.resetInterval && task.resetInterval !== 'none') return task;
+              // Skip tasks explicitly set as one-off — they must never be auto-reset
+              if (task.resetInterval === 'none') return task;
               const category = state.categories.find(c => c.id === task.categoryId);
               if (category?.isArchived) return task;
 

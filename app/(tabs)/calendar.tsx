@@ -32,6 +32,7 @@ import { useAppTheme } from "@/hooks/use-app-theme";
 import { useTaskStore } from "@/store/use-task-store";
 import { getMonthGrid, getWeekdayLabels } from "@/utils/calendar";
 import { formatMonthLabel, toDayKey } from "@/utils/date";
+import { getHistoryDateString } from "@/utils/date-utils";
 import { useCallback } from "react";
 import { Task, TaskStatus } from "@/types/task";
 
@@ -231,18 +232,22 @@ export default function CalendarScreen() {
 
         // For past/future days with no history entry:
         const interval = task.resetInterval || settings.resetInterval;
+        const isRecurring = interval && interval !== 'none';
 
-        // Past days: Show as 'todo' if task existed but wasn't logged (missed)
+        // Past days: only show recurring tasks as "missed" (todo).
+        // One-off tasks only ever appear here via explicit history entries handled above.
         if (selectedDay < todayKey) {
-          const createdAtDate = task.createdAt.split("T")[0];
+          if (!isRecurring) return null;
+          const createdAtDate = getHistoryDateString(new Date(task.createdAt));
           if (createdAtDate <= selectedDay) {
             return { ...task, status: "todo" as TaskStatus };
           }
           return null;
         }
 
-        // Future days: Show as 'todo' if it repeats or is currently pending
-        if (interval !== "none" || task.status === "todo") {
+        // Future days: only project recurring tasks.
+        // One-off tasks are not "scheduled" for future days — they only live on today.
+        if (isRecurring) {
           return { ...task, status: "todo" as TaskStatus };
         }
 
