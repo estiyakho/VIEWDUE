@@ -62,12 +62,22 @@ function TaskItemComponent({ task, category, timeFormat, onToggle, onDelete, onN
             {task.title}
           </Text>
           <View style={styles.metaWrap}>
-            {category ? (
-              <View style={[styles.badge, { backgroundColor: `${category.color}15`, borderColor: `${category.color}30` }]}>
-                <View style={[styles.badgeDot, { backgroundColor: category.color }]} />
-                <Text style={[styles.badgeText, { color: colors.isLight ? '#0F172A' : category.color }]}>{category.name}</Text>
-              </View>
-            ) : null}
+            <View style={styles.metaRow}>
+              {category ? (
+                <View style={[styles.badge, { backgroundColor: `${category.color}15`, borderColor: `${category.color}30` }]}>
+                  <View style={[styles.badgeDot, { backgroundColor: category.color }]} />
+                  <Text style={[styles.badgeText, { color: colors.isLight ? '#0F172A' : category.color }]}>{category.name}</Text>
+                </View>
+              ) : null}
+              {task.resetInterval && task.resetInterval !== 'none' ? (
+                <View style={[styles.repeatBadge, { backgroundColor: `${colors.accent}15`, borderColor: `${colors.accent}30` }]}>
+                  <Ionicons name="repeat-outline" size={10} color={colors.accent} />
+                  <Text style={[styles.repeatBadgeText, { color: colors.accent }]}>
+                    {task.resetInterval.charAt(0).toUpperCase() + task.resetInterval.slice(1)}
+                  </Text>
+                </View>
+              ) : null}
+            </View>
             <View style={styles.createdRow}>
               <Ionicons name="time-outline" size={12} color={colors.textMuted} />
               <Text style={[styles.timestamp, { color: colors.textMuted }]}>
@@ -116,6 +126,7 @@ export const TaskItem = memo(TaskItemComponent, (prev, next) => {
     prev.task.title === next.task.title &&
     prev.task.description === next.task.description &&
     prev.task.categoryId === next.task.categoryId &&
+    prev.task.resetInterval === next.task.resetInterval &&
     prev.timeFormat === next.timeFormat &&
     prev.category?.color === next.category?.color &&
     prev.category?.name === next.category?.name
@@ -160,6 +171,26 @@ const styles = StyleSheet.create({
   },
   metaWrap: {
     gap: 6,
+  },
+  metaRow: {
+    flexDirection: 'row',
+    flexWrap: 'wrap',
+    gap: 6,
+    alignItems: 'center',
+  },
+  repeatBadge: {
+    alignItems: 'center',
+    alignSelf: 'flex-start',
+    borderRadius: 10,
+    borderWidth: 1,
+    flexDirection: 'row',
+    gap: 3,
+    paddingHorizontal: 7,
+    paddingVertical: 3,
+  },
+  repeatBadgeText: {
+    fontFamily: AppFonts.semibold,
+    fontSize: 11,
   },
   badge: {
     alignItems: 'center',

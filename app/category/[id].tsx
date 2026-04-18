@@ -179,7 +179,7 @@ export default function CategoryDetailsScreen() {
 
   const renderTask = useCallback(
     ({ item, drag, isActive }: RenderItemParams<Task>) => (
-      <View style={{ paddingBottom: 12 }}>
+      <View style={{ paddingBottom: 8 }}>
         <VerticalScaleDecorator activeScale={1.03}>
           <TaskItem
             task={item}
@@ -480,7 +480,7 @@ const styles = StyleSheet.create({
     flexDirection: "row",
     alignItems: "center",
     justifyContent: "space-between",
-    paddingVertical: 12,
+    paddingVertical: 8,
     gap: 12,
   },
   headerTitleWrap: {
@@ -507,7 +507,7 @@ const styles = StyleSheet.create({
     borderRadius: 22,
     borderWidth: 1,
     padding: 16,
-    marginBottom: 16,
+    marginBottom: 12,
   },
   summaryTop: {
     flexDirection: "row",
@@ -577,7 +577,7 @@ const styles = StyleSheet.create({
     flexDirection: "row",
     alignItems: "center",
     gap: 12,
-    marginBottom: 16,
+    marginBottom: 12,
   },
   chips: {
     flex: 1,
@@ -609,6 +609,6 @@ const styles = StyleSheet.create({
   },
   listContent: {
     flexGrow: 1,
-    paddingTop: 8,
+    paddingTop: 6,
   },
 });

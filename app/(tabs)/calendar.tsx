@@ -524,12 +524,7 @@ export default function CalendarScreen() {
           <View style={styles.headerLeft}>
             <Pressable
               onPress={() => {
-                if (viewMode === "reminders") {
-                  setShowAll((prev) => !prev);
-                } else {
-                  setViewMode("reminders");
-                  setShowAll(true);
-                }
+                setViewMode("reminders");
               }}
               style={[
                 styles.allTasksButton,
@@ -552,7 +547,7 @@ export default function CalendarScreen() {
                   },
                 ]}
               >
-                All reminders
+                Reminders
               </Text>
             </Pressable>
           </View>
@@ -587,6 +582,42 @@ export default function CalendarScreen() {
             </Text>
           </Pressable>
         </View>
+
+        {viewMode === "reminders" && (
+          <ScrollView
+            horizontal
+            showsHorizontalScrollIndicator={false}
+            contentContainerStyle={styles.chipsContent}
+            style={styles.chipsRow}
+          >
+            <Pressable
+              onPress={() => setShowAll(true)}
+              style={[
+                styles.chip,
+                {
+                  backgroundColor: showAll ? colors.accent : colors.surfaceMuted,
+                  borderColor: showAll ? colors.accent : colors.border,
+                },
+              ]}
+            >
+              <View style={[styles.chipDot, { backgroundColor: showAll ? "#FFF" : colors.accent }]} />
+              <Text style={[styles.chipText, { color: showAll ? "#FFF" : colors.textSoft }]}>All</Text>
+            </Pressable>
+            <Pressable
+              onPress={() => setShowAll(false)}
+              style={[
+                styles.chip,
+                {
+                  backgroundColor: !showAll ? colors.accent : colors.surfaceMuted,
+                  borderColor: !showAll ? colors.accent : colors.border,
+                },
+              ]}
+            >
+              <View style={[styles.chipDot, { backgroundColor: !showAll ? "#FFF" : colors.accent }]} />
+              <Text style={[styles.chipText, { color: !showAll ? "#FFF" : colors.textSoft }]}>Day</Text>
+            </Pressable>
+          </ScrollView>
+        )}
         {viewMode === "todos" && (
           <ScrollView
             horizontal

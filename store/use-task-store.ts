@@ -237,20 +237,26 @@ export const useTaskStore = create<TaskStore>()(
         if (!trimmedTitle) return null;
 
         set((state) => ({
-          tasks: state.tasks.map((task) =>
-            task.id === id
-              ? {
-                  ...task,
-                  title: trimmedTitle,
-                  description: description?.trim() || undefined,
-                  categoryId: categoryId || undefined,
-                  resetInterval: resetInterval || undefined,
-                  lastResetAt: resetInterval && resetInterval !== 'none'
-                    ? (task.lastResetAt ?? new Date().toISOString())
-                    : undefined,
-                }
-              : task
-          ),
+          tasks: state.tasks.map((task) => {
+            if (task.id !== id) return task;
+
+            const intervalChanged = (task.resetInterval ?? 'none') !== (resetInterval ?? 'none');
+            const hasRecurring = resetInterval && resetInterval !== 'none';
+
+            return {
+              ...task,
+              title: trimmedTitle,
+              description: description?.trim() || undefined,
+              categoryId: categoryId || undefined,
+              resetInterval: resetInterval || undefined,
+              // Reset the cycle start time when:
+              // - switching to a recurring interval (so cycle starts fresh from now)
+              // - interval type changed (avoid stale timestamps triggering immediate resets)
+              lastResetAt: hasRecurring
+                ? (intervalChanged ? new Date().toISOString() : (task.lastResetAt ?? new Date().toISOString()))
+                : undefined,
+            };
+          }),
         }));
         return id;
       },
