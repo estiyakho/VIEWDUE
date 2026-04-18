@@ -606,11 +606,13 @@ export default function CalendarScreen() {
               <View style={[styles.chipDot, { backgroundColor: selectedCategoryId === "all" ? "#FFF" : colors.accent }]} />
               <Text style={[styles.chipText, { color: selectedCategoryId === "all" ? "#FFF" : colors.textSoft }]}>All</Text>
             </Pressable>
-            {categories.filter((c) => !c.isArchived).map((category) => {
-              const active = selectedCategoryId === category.id;
-              return (
-                <Pressable
-                  key={category.id}
+            {Array.from(new Map(categories.map((c) => [c.id, c])).values())
+              .filter((c) => !c.isArchived)
+              .map((category) => {
+                const active = selectedCategoryId === category.id;
+                return (
+                  <Pressable
+                    key={category.id}
                   onPress={() => setSelectedCategoryId(category.id)}
                   style={[
                     styles.chip,
