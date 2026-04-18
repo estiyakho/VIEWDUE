@@ -256,8 +256,33 @@ export const useTaskStore = create<TaskStore>()(
       },
       toggleTaskStatus: (id: string) =>
         set((state) => {
-          const task = state.tasks.find((t) => t.id === id);
-          if (!task) return state;
+          let task = state.tasks.find((t) => t.id === id);
+          const today = getHistoryDateString(new Date());
+
+          if (!task) {
+            // Resurrection logic: If not in active tasks, check if it's a completed one-off task in today's history
+            const historyEntry = state.taskHistory.find((h) => h.taskId === id && h.date === today);
+            if (!historyEntry) return state;
+
+            // Recreate the task from history info
+            task = {
+              id: historyEntry.taskId,
+              title: historyEntry.title,
+              categoryId: historyEntry.categoryId,
+              status: historyEntry.status,
+              createdAt: historyEntry.completedAt, // Use completion time as a fallback for creation time
+              resetInterval: 'none', // Since it was removed, it must have been a 'none' task
+              lastResetAt: undefined,
+              orderIndex: Date.now(),
+            };
+
+            // Continue to toggle it back to todo
+            const newTasks = [{ ...task, status: 'todo' as TaskStatus }, ...state.tasks];
+            const newTaskHistory = state.taskHistory.map(h => 
+              h.id === historyEntry.id ? { ...h, status: 'todo' as TaskStatus } : h
+            );
+            return { ...state, tasks: newTasks, taskHistory: newTaskHistory };
+          }
 
           const newStatus = (task.status === "done" ? "todo" : "done") as TaskStatus;
           const newTasks = state.tasks.map((t) =>
@@ -265,7 +290,6 @@ export const useTaskStore = create<TaskStore>()(
           );
 
           let newTaskHistory = [...state.taskHistory];
-          const today = getHistoryDateString(new Date());
           const existingIndex = newTaskHistory.findIndex(
             (h) => h.taskId === id && h.date === today
           );
@@ -289,6 +313,16 @@ export const useTaskStore = create<TaskStore>()(
             });
           }
 
+          // If it's a 'none' interval task and we just marked it done, remove it from active tasks
+          const isNoneInterval = !task.resetInterval || task.resetInterval === 'none';
+          if (isNoneInterval && newStatus === 'done') {
+            return {
+              ...state,
+              tasks: state.tasks.filter((t) => t.id !== id),
+              taskHistory: newTaskHistory,
+            };
+          }
+
           return { ...state, tasks: newTasks, taskHistory: newTaskHistory };
         }),
       toggleTaskHistoryStatus: (id: string) =>
@@ -298,9 +332,37 @@ export const useTaskStore = create<TaskStore>()(
 
           const newStatus = entry.status === "todo" ? "done" : "todo";
           const nowISO = new Date().toISOString();
+          const today = getHistoryDateString(new Date());
+
+          let nextTasks = state.tasks;
+          if (entry.date === today) {
+            // Sync with active tasks if it exists
+            const activeTask = state.tasks.find(t => t.id === entry.taskId);
+            if (activeTask) {
+              const isNoneItem = !activeTask.resetInterval || activeTask.resetInterval === 'none';
+              if (isNoneItem && newStatus === 'done') {
+                // Remove if None becomes Done
+                nextTasks = state.tasks.filter(t => t.id !== entry.taskId);
+              } else {
+                nextTasks = state.tasks.map(t => t.id === entry.taskId ? { ...t, status: newStatus as TaskStatus } : t);
+              }
+            } else if (newStatus === 'todo') {
+              // Resurrection
+              nextTasks = [{
+                id: entry.taskId,
+                title: entry.title,
+                categoryId: entry.categoryId,
+                status: 'todo',
+                createdAt: entry.completedAt,
+                resetInterval: 'none',
+                orderIndex: Date.now(),
+              }, ...state.tasks];
+            }
+          }
 
           return {
             ...state,
+            tasks: nextTasks,
             taskHistory: state.taskHistory.map((h) =>
               h.id === id
                 ? {
@@ -340,17 +402,42 @@ export const useTaskStore = create<TaskStore>()(
 
           const existingIndex = state.taskHistory.findIndex((h) => h.taskId === taskId && h.date === date);
           const nowISO = new Date().toISOString();
+          const today = getHistoryDateString(new Date());
 
           if (existingIndex >= 0) {
             const entry = state.taskHistory[existingIndex];
-            const newStatus = entry.status === "done" ? "todo" : "done";
+            const newStatus = (entry.status === "done" ? "todo" : "done") as TaskStatus;
             const newHistory = [...state.taskHistory];
             newHistory[existingIndex] = {
               ...entry,
-              status: newStatus as TaskStatus,
+              status: newStatus,
               completedAt: newStatus === "done" ? nowISO : entry.completedAt,
             };
-            return { ...state, taskHistory: newHistory };
+
+            let nextTasks = state.tasks;
+            if (date === today) {
+              const activeTask = state.tasks.find(t => t.id === taskId);
+              if (activeTask) {
+                const isNoneItem = !activeTask.resetInterval || activeTask.resetInterval === 'none';
+                if (isNoneItem && newStatus === 'done') {
+                  nextTasks = state.tasks.filter(t => t.id !== taskId);
+                } else {
+                  nextTasks = state.tasks.map(t => t.id === taskId ? { ...t, status: newStatus } : t);
+                }
+              } else if (newStatus === 'todo') {
+                nextTasks = [{
+                  id: entry.taskId,
+                  title: entry.title,
+                  categoryId: entry.categoryId,
+                  status: 'todo',
+                  createdAt: entry.completedAt,
+                  resetInterval: 'none',
+                  orderIndex: Date.now(),
+                }, ...state.tasks];
+              }
+            }
+
+            return { ...state, tasks: nextTasks, taskHistory: newHistory };
           } else {
             const newEntry: TaskHistoryEntry = {
               id: `${Date.now()}-${Math.random().toString(36).slice(2, 8)}`,
@@ -701,7 +788,7 @@ export const useTaskStore = create<TaskStore>()(
             taskHistory: [...state.taskHistory, ...newHistoryEntries],
             settings: {
               ...state.settings,
-              lastResetAt: globalNeedsReset ? now.toISOString() : state.settings.lastResetAt,
+              lastResetAt: now.toISOString(), // Always update lastResetAt to current check time
             },
           };
         });

@@ -97,18 +97,23 @@ export default function StatisticsScreen() {
     let na = 0;
 
     // 1. Aggregate ALL historical stats in range (including tasks that may have been deleted)
-    const historyInRange = taskHistory.filter(h => h.date >= startStr && h.date < todayStr);
+    const historyInRange = taskHistory.filter(h => h.date >= startStr && h.date <= todayStr);
 
     done += historyInRange.filter(h => h.status === 'done').length;
     missed += historyInRange.filter(h => h.status === 'todo').length;
     na += historyInRange.filter(h => h.status === 'not-available').length;
 
     // 2. Add current day stats from active tasks if "Today" is in range
+    // BUT only for tasks that DON'T have a history entry for today yet.
     if (todayStr >= startStr) {
       tasks.forEach(task => {
         // Skip archived categories
         const category = categories.find(c => c.id === task.categoryId);
         if (category?.isArchived) return;
+
+        // Skip if this task already has a history record for today (it was already counted in historyInRange)
+        const hasHistoryToday = historyInRange.some(h => h.taskId === task.id && h.date === todayStr);
+        if (hasHistoryToday) return;
 
         if (task.status === 'done') done++;
         else if (task.status === 'todo') missed++;
@@ -299,7 +304,7 @@ export default function StatisticsScreen() {
       <ScrollView
         contentContainerStyle={[
           styles.container,
-          { backgroundColor: colors.background, paddingBottom: insets.bottom + 20 },
+          { backgroundColor: colors.background, paddingBottom: Math.max(300, insets.bottom + 250) },
         ]}
         showsVerticalScrollIndicator={false}
       >

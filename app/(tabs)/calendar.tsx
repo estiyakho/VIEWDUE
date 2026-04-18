@@ -74,6 +74,7 @@ export default function CalendarScreen() {
   const [editingScheduledTask, setEditingScheduledTask] = useState<any>(null);
   const [editingTask, setEditingTask] = useState<Task | undefined>(undefined);
   const [isCollapsed, setIsCollapsed] = useState(false);
+  const [selectedCategoryId, setSelectedCategoryId] = useState("all");
   const [title, setTitle] = useState("");
   const [description, setDescription] = useState("");
   const [useTime, setUseTime] = useState(true);
@@ -186,12 +187,14 @@ export default function CalendarScreen() {
     [scheduledTasks],
   );
   const dayTasks = useMemo(() => {
-    if (showAll) {
-      return [...scheduledTasks].sort((a, b) =>
-        b.createdAt.localeCompare(a.createdAt),
-      );
+    let result = scheduledTasks;
+    if (!showAll) {
+      result = result.filter((task) => task.date === selectedDay);
+    } else {
+      result = [...result].sort((a, b) => b.createdAt.localeCompare(a.createdAt));
     }
-    return scheduledTasks.filter((task) => task.date === selectedDay);
+
+    return result;
   }, [selectedDay, scheduledTasks, showAll]);
 
   const categoryMap = useMemo(
@@ -209,43 +212,36 @@ export default function CalendarScreen() {
   );
 
   const dayTodos = useMemo(() => {
-    if (selectedDay === todayKey) {
-      // Current day reflects the exact "all todos page state" (active tasks)
-      return tasks;
-    }
+    // 1. Get history entries for the selected day
+    const entriesForDay = taskHistory.filter((h) => h.date === selectedDay);
 
-    // For past/future days, determine which tasks were/will be available
-    return tasks
+    // 2. Map active tasks that should appear on this day
+    const activeTasksForDay = tasks
       .map((task) => {
-        // Find if there's a history record for this task on the selected day
-        const historyEntry = taskHistory.find(
-          (h) => h.taskId === task.id && h.date === selectedDay
-        );
-
+        // If there's a history record, use that status
+        const historyEntry = entriesForDay.find((h) => h.taskId === task.id);
         if (historyEntry) {
           return { ...task, status: historyEntry.status };
         }
 
-        // If no history entry, we decide if the task "exists" on this day.
+        // If today, just show current state
+        if (selectedDay === todayKey) {
+          return task;
+        }
+
+        // For past/future days with no history entry:
         const interval = task.resetInterval || settings.resetInterval;
 
-        // 1. Past days: If no history entry exists, it means the task was either missed
-        // (default to todo status) or it wasn't created yet or it's an archived category.
+        // Past days: Show as 'todo' if task existed but wasn't logged (missed)
         if (selectedDay < todayKey) {
-          // Check if task existed back then (created before or on this day)
           const createdAtDate = task.createdAt.split("T")[0];
           if (createdAtDate <= selectedDay) {
-            // Task existed. If it resets, it would have been available.
-            // If it doesn't reset (none), it persists anyway.
             return { ...task, status: "todo" as TaskStatus };
           }
           return null;
         }
 
-        // 2. Future days:
-        // Always show if it's set to repeat (Daily/Weekly/Monthly)
-        // because it will reset at the end of its period.
-        // Also show if it doesn't repeat (None) but is currently 'todo' (since it lasts until done).
+        // Future days: Show as 'todo' if it repeats or is currently pending
         if (interval !== "none" || task.status === "todo") {
           return { ...task, status: "todo" as TaskStatus };
         }
@@ -253,7 +249,24 @@ export default function CalendarScreen() {
         return null;
       })
       .filter((task): task is Task & { status: TaskStatus } => task !== null);
-  }, [selectedDay, todayKey, taskHistory, tasks, settings.resetInterval]);
+
+    // 3. Add historical tasks that are no longer in the active tasks list (orphaned entries)
+    const activeTaskIds = new Set(tasks.map(t => t.id));
+    const orphanedHistoryTasks = entriesForDay
+      .filter(h => !activeTaskIds.has(h.taskId))
+      .map(h => ({
+        id: h.taskId, // Use original taskId
+        historyId: h.id, // Keep history record ID for reference
+        title: h.title,
+        categoryId: h.categoryId,
+        status: h.status,
+        createdAt: h.completedAt, // Fallback
+        isHistoricalOnly: true,
+      }));
+
+    return [...activeTasksForDay, ...orphanedHistoryTasks]
+      .filter((task) => selectedCategoryId === 'all' || task.categoryId === selectedCategoryId);
+  }, [selectedDay, todayKey, taskHistory, tasks, settings.resetInterval, selectedCategoryId]);
 
   const availableGridWidth = width - 14 * 2; // Full width within container padding
   const daySize = Math.floor(
@@ -569,11 +582,59 @@ export default function CalendarScreen() {
             </Text>
           </Pressable>
         </View>
+        {viewMode === "todos" && (
+          <ScrollView
+            horizontal
+            showsHorizontalScrollIndicator={false}
+            contentContainerStyle={styles.chipsContent}
+            style={styles.chipsRow}
+          >
+            <Pressable
+              onPress={() => setSelectedCategoryId("all")}
+              style={[
+                styles.chip,
+                {
+                  backgroundColor:
+                    selectedCategoryId === "all"
+                      ? colors.accent
+                      : colors.surfaceMuted,
+                  borderColor:
+                    selectedCategoryId === "all" ? colors.accent : colors.border,
+                },
+              ]}
+            >
+              <View style={[styles.chipDot, { backgroundColor: selectedCategoryId === "all" ? "#FFF" : colors.accent }]} />
+              <Text style={[styles.chipText, { color: selectedCategoryId === "all" ? "#FFF" : colors.textSoft }]}>All</Text>
+            </Pressable>
+            {categories.filter((c) => !c.isArchived).map((category) => {
+              const active = selectedCategoryId === category.id;
+              return (
+                <Pressable
+                  key={category.id}
+                  onPress={() => setSelectedCategoryId(category.id)}
+                  style={[
+                    styles.chip,
+                    {
+                      backgroundColor: active ? `${category.color}22` : colors.surfaceMuted,
+                      borderColor: active ? category.color : colors.border,
+                    },
+                  ]}
+                >
+                  <View style={[styles.chipDot, { backgroundColor: category.color }]} />
+                  <Text style={[styles.chipText, { color: active ? colors.text : colors.textSoft }]}>
+                    {category.name}
+                  </Text>
+                </Pressable>
+              );
+            })}
+          </ScrollView>
+        )}
 
         <ScrollView
+          style={{ flex: 1 }}
           contentContainerStyle={[
             styles.body,
-            { paddingBottom: Math.max(100, insets.bottom + 80) },
+            { paddingBottom: Math.max(300, insets.bottom + 250) },
           ]}
           showsVerticalScrollIndicator={false}
         >
@@ -1489,5 +1550,35 @@ const styles = StyleSheet.create({
   listToggleLabel: {
     fontFamily: AppFonts.bold,
     fontSize: 12,
+  },
+  chipsRow: {
+    marginBottom: 16,
+    maxHeight: 50,
+  },
+  chipsContent: {
+    alignItems: "center",
+    gap: 10,
+    paddingRight: 12,
+  },
+  chip: {
+    borderRadius: 24,
+    borderWidth: 1.5,
+    paddingHorizontal: 14,
+    height: 38,
+    minWidth: 60,
+    alignItems: 'center',
+    justifyContent: 'center',
+    flexDirection: 'row',
+  },
+  chipDot: {
+    width: 6,
+    height: 6,
+    borderRadius: 3,
+    marginRight: 8,
+  },
+  chipText: {
+    fontFamily: AppFonts.bold,
+    fontSize: 12,
+    letterSpacing: 0.2,
   },
 });

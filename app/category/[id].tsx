@@ -412,7 +412,7 @@ export default function CategoryDetailsScreen() {
           }
           contentContainerStyle={[
             styles.listContent,
-            { paddingBottom: Math.max(92, insets.bottom + 80) },
+            { paddingBottom: Math.max(300, insets.bottom + 250) },
           ]}
           data={listData}
           keyExtractor={(item) => item.id}
@@ -608,6 +608,7 @@ const styles = StyleSheet.create({
     fontSize: 13,
   },
   listContent: {
-    paddingBottom: 20,
+    flexGrow: 1,
+    paddingTop: 8,
   },
 });
