@@ -180,8 +180,10 @@ export default function StatisticsScreen() {
     weekStart.setHours(0, 0, 0, 0);
     const weekStartStr = getHistoryDateString(weekStart);
 
+    const today = getHistoryDateString(now);
+
     const weeklyDoneInHistory = taskHistory.filter(
-      (h) => h.title === title && (h.categoryId || "") === categoryId && h.date >= weekStartStr && h.status === "done"
+      (h) => h.title === title && (h.categoryId || "") === categoryId && h.date >= weekStartStr && h.date < today && h.status === "done"
     ).length;
 
     const weeklyDoneTotal = weeklyDoneInHistory + currentDone;
@@ -513,11 +515,14 @@ export default function StatisticsScreen() {
         <View style={[styles.chartCard, { backgroundColor: colors.surfaceElevated, borderColor: currentTaskColor, borderWidth: 2 }]}>
           <View style={styles.wideCardContent}>
             <View style={[styles.wideCardIconWrap, { backgroundColor: `${currentTaskColor}22` }]}>
-              <Ionicons name="flash" size={24} color={currentTaskColor} />
+              <Ionicons name="flash" size={20} color={currentTaskColor} />
             </View>
             <View style={{ flex: 1 }}>
               <Text style={[styles.wideCardLabel, { color: colors.textSoft }]}>Weekly Completed</Text>
-              <Text style={[styles.wideCardValue, { color: colors.text }]}>{weeklyDoneTotal} Times</Text>
+              <View style={styles.valueRow}>
+                <Text style={[styles.wideCardValue, { color: colors.text }]}>{weeklyDoneTotal}</Text>
+                <Text style={[styles.wideCardUnit, { color: colors.textSoft }]}>Times</Text>
+              </View>
             </View>
           </View>
         </View>
@@ -642,9 +647,9 @@ const styles = StyleSheet.create({
     gap: 10,
   },
   wideCardIconWrap: {
-    width: 48,
-    height: 48,
-    borderRadius: 14,
+    width: 38,
+    height: 38,
+    borderRadius: 8,
     justifyContent: 'center',
     alignItems: 'center',
   },
@@ -655,7 +660,17 @@ const styles = StyleSheet.create({
   },
   wideCardValue: {
     fontFamily: AppFonts.bold,
-    fontSize: 20,
+    fontSize: 14,
+  },
+  wideCardUnit: {
+    fontFamily: AppFonts.semibold,
+    fontSize: 12,
+    marginLeft: 4,
+    marginBottom: 2,
+  },
+  valueRow: {
+    flexDirection: 'row',
+    alignItems: 'baseline',
   },
   headerWithIcon: {
     flexDirection: 'row',
@@ -849,7 +864,7 @@ const styles = StyleSheet.create({
     fontSize: 15,
   },
   chartCard: {
-    borderRadius: 22,
+    borderRadius: 12,
     borderWidth: 2,
     marginBottom: 10,
     padding: 8,

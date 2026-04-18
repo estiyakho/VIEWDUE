@@ -70,7 +70,7 @@ export default function CalendarScreen() {
   const [currentMonth, setCurrentMonth] = useState(new Date());
   const [selectedDay, setSelectedDay] = useState(() => toDayKey(new Date()));
   const [viewMode, setViewMode] = useState<"reminders" | "todos">("reminders");
-  const [showAll, setShowAll] = useState(false);
+  const [reminderFilter, setReminderFilter] = useState<"all" | "day" | "past">("day");
   const [showAddModal, setShowAddModal] = useState(false);
   const [editingScheduledTask, setEditingScheduledTask] = useState<any>(null);
   const [editingTask, setEditingTask] = useState<Task | undefined>(undefined);
@@ -166,6 +166,8 @@ export default function CalendarScreen() {
       setTaskHistoryNotAvailableForDate(id, day);
     }
   }, [todayKey, setTaskNotAvailable, setTaskHistoryNotAvailableForDate]);
+
+  const toggleScheduledTask = useTaskStore((state) => state.toggleScheduledTaskStatus);
   const monthGrid = useMemo(
     () => getMonthGrid(currentMonth, firstDay),
     [currentMonth, firstDay],
@@ -184,19 +186,23 @@ export default function CalendarScreen() {
   }, [monthGrid, isCollapsed, selectedDay]);
 
   const taskDates = useMemo(
-    () => new Set(scheduledTasks.map((task) => task.date)),
+    () => new Set(scheduledTasks.filter(t => t.status !== 'done').map((task) => task.date)),
     [scheduledTasks],
   );
   const dayTasks = useMemo(() => {
     let result = scheduledTasks;
-    if (!showAll) {
+    if (reminderFilter === "day") {
       result = result.filter((task) => task.date === selectedDay);
+    } else if (reminderFilter === "past") {
+      result = result.filter((task) => task.date < todayKey);
     } else {
+      // "all" mode - usually want active ones? or literally everything?
+      // User said "view all existing reminders", let's show everything sorted.
       result = [...result].sort((a, b) => b.createdAt.localeCompare(a.createdAt));
     }
 
     return result;
-  }, [selectedDay, scheduledTasks, showAll]);
+  }, [selectedDay, scheduledTasks, reminderFilter, todayKey]);
 
   const categoryMap = useMemo(
     () =>
@@ -462,7 +468,7 @@ export default function CalendarScreen() {
                     key={cell.key}
                     onPress={() => {
                       setSelectedDay(cell.key);
-                      setShowAll(false);
+                      setReminderFilter("day");
                     }}
                     style={[
                       styles.dayCell,
@@ -525,6 +531,7 @@ export default function CalendarScreen() {
             <Pressable
               onPress={() => {
                 setViewMode("reminders");
+                setReminderFilter("day");
               }}
               style={[
                 styles.allTasksButton,
@@ -555,7 +562,7 @@ export default function CalendarScreen() {
           <Pressable
             onPress={() => {
               setViewMode("todos");
-              setShowAll(false);
+              setReminderFilter("day");
             }}
             style={[
               styles.allTasksButton,
@@ -591,30 +598,43 @@ export default function CalendarScreen() {
             style={styles.chipsRow}
           >
             <Pressable
-              onPress={() => setShowAll(true)}
+              onPress={() => setReminderFilter("day")}
               style={[
                 styles.chip,
                 {
-                  backgroundColor: showAll ? colors.accent : colors.surfaceMuted,
-                  borderColor: showAll ? colors.accent : colors.border,
+                  backgroundColor: reminderFilter === "day" ? colors.accent : colors.surfaceMuted,
+                  borderColor: reminderFilter === "day" ? colors.accent : colors.border,
                 },
               ]}
             >
-              <View style={[styles.chipDot, { backgroundColor: showAll ? "#FFF" : colors.accent }]} />
-              <Text style={[styles.chipText, { color: showAll ? "#FFF" : colors.textSoft }]}>All</Text>
+              <View style={[styles.chipDot, { backgroundColor: reminderFilter === "day" ? "#FFF" : colors.accent }]} />
+              <Text style={[styles.chipText, { color: reminderFilter === "day" ? "#FFF" : colors.textSoft }]}>Day</Text>
             </Pressable>
             <Pressable
-              onPress={() => setShowAll(false)}
+              onPress={() => setReminderFilter("all")}
               style={[
                 styles.chip,
                 {
-                  backgroundColor: !showAll ? colors.accent : colors.surfaceMuted,
-                  borderColor: !showAll ? colors.accent : colors.border,
+                  backgroundColor: reminderFilter === "all" ? colors.accent : colors.surfaceMuted,
+                  borderColor: reminderFilter === "all" ? colors.accent : colors.border,
                 },
               ]}
             >
-              <View style={[styles.chipDot, { backgroundColor: !showAll ? "#FFF" : colors.accent }]} />
-              <Text style={[styles.chipText, { color: !showAll ? "#FFF" : colors.textSoft }]}>Day</Text>
+              <View style={[styles.chipDot, { backgroundColor: reminderFilter === "all" ? "#FFF" : colors.accent }]} />
+              <Text style={[styles.chipText, { color: reminderFilter === "all" ? "#FFF" : colors.textSoft }]}>All</Text>
+            </Pressable>
+            <Pressable
+              onPress={() => setReminderFilter("past")}
+              style={[
+                styles.chip,
+                {
+                  backgroundColor: reminderFilter === "past" ? colors.accent : colors.surfaceMuted,
+                  borderColor: reminderFilter === "past" ? colors.accent : colors.border,
+                },
+              ]}
+            >
+              <View style={[styles.chipDot, { backgroundColor: reminderFilter === "past" ? "#FFF" : colors.accent }]} />
+              <Text style={[styles.chipText, { color: reminderFilter === "past" ? "#FFF" : colors.textSoft }]}>Past</Text>
             </Pressable>
           </ScrollView>
         )}
@@ -679,53 +699,37 @@ export default function CalendarScreen() {
           {viewMode === "reminders" ? (
             dayTasks.length ? (
               dayTasks.map((task) => (
-                <View
+                <Pressable
                   key={task.id}
-                  style={[
+                  onPress={() => handleEditReminder(task)}
+                  style={({ pressed }) => [
                     styles.todoCard,
                     {
                       backgroundColor: colors.surfaceElevated,
                       borderColor: colors.border,
+                      opacity: pressed ? 0.7 : 1,
                     },
                   ]}
                 >
                   <View style={styles.todoHeader}>
-                    <Text style={[styles.todoTitle, { color: colors.text }]}>
+                    <Pressable 
+                      onPress={() => toggleScheduledTask(task.id)}
+                      style={[styles.doneButton, { backgroundColor: task.status === 'done' ? colors.accent : colors.surfaceMuted }]}
+                    >
+                      <Ionicons 
+                        name={task.status === 'done' ? "checkmark-circle" : "ellipse-outline"} 
+                        size={20} 
+                        color={task.status === 'done' ? "#FFF" : colors.textMuted} 
+                      />
+                    </Pressable>
+                    <Text style={[
+                      styles.todoTitle, 
+                      { color: colors.text },
+                      task.status === 'done' && { textDecorationLine: 'line-through', color: colors.textMuted }
+                    ]}>
                       {task.title}
                     </Text>
                     <View style={styles.todoActions}>
-                      <Pressable
-                        onPress={() => handleEditReminder(task)}
-                        style={[
-                          styles.editButton,
-                          {
-                            backgroundColor: colors.surfaceMuted,
-                            borderColor: colors.border,
-                          },
-                        ]}
-                      >
-                        <Ionicons
-                          name="create-outline"
-                          size={16}
-                          color={colors.textMuted}
-                        />
-                      </Pressable>
-                      <Pressable
-                        onPress={() => deleteScheduledTask(task.id)}
-                        style={[
-                          styles.skipButton,
-                          {
-                            backgroundColor: colors.surfaceMuted,
-                            borderColor: colors.border,
-                          },
-                        ]}
-                      >
-                        <Text
-                          style={[styles.skipText, { color: colors.textSoft }]}
-                        >
-                          N/A
-                        </Text>
-                      </Pressable>
                       <Pressable
                         onPress={() => deleteScheduledTask(task.id)}
                         style={[
@@ -749,12 +753,13 @@ export default function CalendarScreen() {
                       style={[
                         styles.todoDescription,
                         { color: colors.textMuted },
+                        task.status === 'done' && { textDecorationLine: 'line-through' }
                       ]}
                     >
                       {task.description}
                     </Text>
                   ) : null}
-                </View>
+                </Pressable>
               ))
             ) : (
               <View style={styles.emptyBlock}>
@@ -778,45 +783,47 @@ export default function CalendarScreen() {
                 </Text>
               </View>
             )
-          ) : dayTodos.length ? (
-            <View style={{ gap: 8 }}>
-              {dayTodos.map((todo) => (
-                <TaskItem
-                  key={todo.id}
-                  task={todo as any}
-                  category={
-                    todo.categoryId ? categoryMap.get(todo.categoryId) : undefined
-                  }
-                  timeFormat={settings.timeFormat}
-                  onToggle={handleToggle}
-                  onNotAvailable={handleNotAvailable}
-                  onEdit={(t) => setEditingTask(t)}
-                  onDelete={() => {}}
-                  hideDelete={true}
-                />
-              ))}
-            </View>
           ) : (
-            <View style={styles.emptyBlock}>
-              <View
-                style={[
-                  styles.emptyIconWrap,
-                  { backgroundColor: `${colors.accent}33` },
-                ]}
-              >
-                <Ionicons
-                  name="calendar-outline"
-                  size={34}
-                  color={colors.accent}
-                />
+            dayTodos.length ? (
+              <View style={{ gap: 8 }}>
+                {dayTodos.map((todo) => (
+                  <TaskItem
+                    key={todo.id}
+                    task={todo as any}
+                    category={
+                      todo.categoryId ? categoryMap.get(todo.categoryId) : undefined
+                    }
+                    timeFormat={settings.timeFormat}
+                    onToggle={handleToggle}
+                    onNotAvailable={handleNotAvailable}
+                    onEdit={(t) => setEditingTask(t)}
+                    onDelete={() => {}}
+                    hideDelete={true}
+                  />
+                ))}
               </View>
-              <Text style={[styles.emptyTitle, { color: colors.text }]}>
-                No todos for this day
-              </Text>
-              <Text style={[styles.emptyText, { color: colors.textMuted }]}>
-                Only missed or completed daily tasks appear here.
-              </Text>
-            </View>
+            ) : (
+              <View style={styles.emptyBlock}>
+                <View
+                  style={[
+                    styles.emptyIconWrap,
+                    { backgroundColor: `${colors.accent}33` },
+                  ]}
+                >
+                  <Ionicons
+                    name="calendar-outline"
+                    size={34}
+                    color={colors.accent}
+                  />
+                </View>
+                <Text style={[styles.emptyTitle, { color: colors.text }]}>
+                  No todos for this day
+                </Text>
+                <Text style={[styles.emptyText, { color: colors.textMuted }]}>
+                  Only missed or completed daily tasks appear here.
+                </Text>
+              </View>
+            )
           )}
         </ScrollView>
 
@@ -1357,6 +1364,7 @@ const styles = StyleSheet.create({
   todoHeader: {
     alignItems: "center",
     flexDirection: "row",
+    gap: 10,
     marginBottom: 6,
   },
   todoTitle: {
@@ -1368,18 +1376,18 @@ const styles = StyleSheet.create({
     fontFamily: AppFonts.medium,
     fontSize: 14,
     lineHeight: 20,
+    marginLeft: 30,
   },
   todoActions: {
     flexDirection: "row",
     gap: 8,
   },
-  editButton: {
-    alignItems: "center",
+  doneButton: {
+    width: 20,
+    height: 20,
     borderRadius: 10,
-    borderWidth: 1,
-    height: 32,
+    alignItems: "center",
     justifyContent: "center",
-    minWidth: 54,
   },
   deleteButton: {
     alignItems: "center",

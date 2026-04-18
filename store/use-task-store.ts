@@ -34,6 +34,7 @@ type TaskStore = {
     time?: string;
   }) => Promise<void>;
   deleteScheduledTask: (id: string) => void;
+  toggleScheduledTaskStatus: (id: string) => Promise<void>;
   updateScheduledTask: (id: string, input: {
     title: string;
     description?: string;
@@ -148,6 +149,7 @@ export const useTaskStore = create<TaskStore>()(
               description: description?.trim() || undefined,
               date,
               time,
+              status: "todo",
               notificationId,
               snoozeId,
               createdAt: new Date().toISOString(),
@@ -165,6 +167,45 @@ export const useTaskStore = create<TaskStore>()(
         set((state) => ({
           ...state,
           scheduledTasks: state.scheduledTasks.filter((task) => task.id !== id),
+        }));
+      },
+      toggleScheduledTaskStatus: async (id: string) => {
+        const { scheduledTasks, settings } = get();
+        const task = scheduledTasks.find((t) => t.id === id);
+        if (!task) return;
+
+        const newStatus = task.status === "done" ? "todo" : "done";
+        let notificationId = task.notificationId;
+        let snoozeId = task.snoozeId;
+
+        if (newStatus === "done") {
+          // Cancel notifications when marked done
+          cancelNotification(task.notificationId).catch(console.error);
+          cancelNotification(task.snoozeId).catch(console.error);
+          notificationId = undefined;
+          snoozeId = undefined;
+        } else if (newStatus === "todo" && task.time) {
+          // Reschedule notifications if marked todo again
+          try {
+            const result = await scheduleReminderNotification(
+              task.title,
+              task.description || "",
+              task.date,
+              task.time,
+              settings.snoozeDuration
+            );
+            notificationId = result.notificationId;
+            snoozeId = result.snoozeId;
+          } catch (error) {
+            console.warn("Failed to reschedule notification:", error);
+          }
+        }
+
+        set((state) => ({
+          ...state,
+          scheduledTasks: state.scheduledTasks.map((t) =>
+            t.id === id ? { ...t, status: newStatus, notificationId, snoozeId } : t
+          ),
         }));
       },
       updateScheduledTask: async (id, { title, description, date, time }) => {

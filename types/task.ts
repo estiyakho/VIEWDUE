@@ -62,6 +62,7 @@ export type ScheduledTask = {
   description?: string;
   date: string; // ISO date (YYYY-MM-DD)
   time?: string; // ISO time or HH:mm
+  status: TaskStatus;
   notificationId?: string;
   snoozeId?: string;
   createdAt: string;
